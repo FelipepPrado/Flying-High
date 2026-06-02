@@ -7,10 +7,12 @@ struct ContentView: View {
     @State var challenges : [Challenge.Observable] = [] //Não vai printar, pois não existe
     @State var selectedChallenges: [Challenge.Observable] = []
     @State var addAlbum: Bool = false
+    
+    @State var path = NavigationPath()
 //    @State var challenges: [Challenge.Observable] = []
     
     var body: some View {
-        NavigationStack{
+        NavigationStack(path: $path){
             List{
                 ForEach(albums){ album in
                     Text(album.title)
@@ -22,6 +24,7 @@ struct ContentView: View {
                         addAlbum.toggle()
                     }
                 }
+               
             }
             .task {
                 do {
@@ -40,24 +43,7 @@ struct ContentView: View {
     }
 }
 
-struct AddAlbumView: View {
-    var albums: [Album.Observable]
-    @State var title: String = ""
-    @State var startDate: Date = Date.now
-    @State var endDate: Date = Date.now
-    
-    var body: some View {
-        Form{
-            Section{
-                TextField("Name", text: $title)
-                DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                DatePicker("End Date", selection: $endDate, in: startDate..., displayedComponents: .date)
-            }
-        }
-    }
+
+#Preview {
+    ContentView()
 }
-
-
-//#Preview {
-//    ContentView()
-//}
