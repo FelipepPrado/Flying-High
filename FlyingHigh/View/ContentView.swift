@@ -3,47 +3,48 @@ import CloudKit
 import Nuvem
 
 struct ContentView: View {
-    @State var albums : [Album.Observable] = []
-    @State var challenges : [Challenge.Observable] = [] //Não vai printar, pois não existe
-    @State var selectedChallenges: [Challenge.Observable] = []
-    @State var addAlbum: Bool = false
+    @Environment(ViewRouter.self) var viewRouter
     
-    @State var path = NavigationPath()
-//    @State var challenges: [Challenge.Observable] = []
+    @State private var albums : [Album.Observable] = []
+    @State private var addAlbum: Bool = false
     
     var body: some View {
-        NavigationStack(path: $path){
-            List{
-                ForEach(albums){ album in
-                    Text(album.title)
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add Album", systemImage: "plus"){
-                        addAlbum.toggle()
+        @Bindable var path = viewRouter
+        NavigationStack(path: $path.path){
+            ZStack{
+                Color(.systemGroupedBackground).ignoresSafeArea()
+                ScrollView{
+                    ForEach(albums){ album in
+                        CardAlbum(album: album)
+                    }
+                    .task {
+                        do {
+                            self.albums = try await Album.query(on: .private)
+                                .all()
+                                .map(\.observable)
+                        } catch {
+                            print(error)
+                        }
                     }
                 }
-               
-            }
-            .task {
-                do {
-                    self.albums = try await Album.query(on: .default)
-                        .all()
-                        .map(\.observable)
-                } catch {
-                    print(error)
-                }
+                .padding()
             }
             .navigationTitle("Albums")
-            .navigationDestination(isPresented: $addAlbum){
-                AddAlbumView(albums: albums)
+            .toolbarTitleDisplayMode(.inlineLarge)
+            .navigationDestination(for: NameViews.self){
+                destination in
+                ViewManagar.viewForDestination(destination)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Add Album", systemImage: "plus"){
+                        viewRouter.addInfoAlbum()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
+                    .tint(.blue)
+                }
             }
         }
     }
-}
-
-
-#Preview {
-    ContentView()
 }

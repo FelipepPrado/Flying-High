@@ -1,5 +1,6 @@
 import CloudKit
 import Nuvem
+import Observation
 
 @CKModel
 struct Album{
@@ -11,12 +12,17 @@ struct Album{
     
     @CKField("endDate")
     var endDate: Date
+}
 
-    @CKReferenceListField("photos")
+//View Model do Album, serve apenas para salvar as informações
+@Observable
+class AlbumViewModel{
+    var title: String?
+    var startDate: Date?
+    var endDate: Date?
     var photos: [Photo]?
     
-    //Os challenges selecionados seram relacionados as photos
-//    @CKReferenceListField("challenges")
-//    var challenges: [Challenge]? //Tem que ser opcional?
-    
+    init(){
+        
+    }
 }

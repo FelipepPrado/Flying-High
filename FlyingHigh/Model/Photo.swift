@@ -11,4 +11,7 @@ struct Photo {
     
     @CKField("description")
     var description: String?
+    
+    @CKReferenceField("album")
+    var album: Album?
 }

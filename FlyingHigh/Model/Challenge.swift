@@ -8,4 +8,7 @@ struct Challenge{
     
     @CKAssetField("icon")
     var icon: Data
+    
+    @CKField("selected")
+    var selected: Int //Vou tratar como boolean 0 ou 1
 }

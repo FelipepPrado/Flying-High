@@ -1,38 +1,38 @@
 import SwiftUI
 
 struct AddAlbumView: View {
-    var albums: [Album.Observable]
+    @Environment(AlbumViewModel.self) var albumViewModel
+    @Environment(ViewRouter.self) var viewRouter
+    
     @State var title: String = ""
     @State var startDate: Date = Date.now
     @State var endDate: Date = Date.now
-    @State var path = NavigationPath()
-    @State private var ispresented: Bool = false
-    @State var addInfo: Bool = false
-    @State var addAlbum: Bool = false
+    @State var addChallenges: Bool = false
 
-
-    
     var body: some View {
             Form{
-                Section("Detalhes da viagem"){
+                Section("Informações da viagem"){
                     TextField("Name", text: $title)
                     DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: $endDate, in: startDate..., displayedComponents: .date)
+                    DatePicker("End Date", selection: $endDate, displayedComponents: .date)
                 }
                 
             }
+            .navigationTitle("Criar Álbum")
+            .navigationBarTitleDisplayMode( .inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add info", systemImage: "arrow.right"){
-                        addInfo.toggle()
+                    Button("Add Challenges", systemImage: "arrow.right"){
+                        albumViewModel.title = title
+                        albumViewModel.startDate = startDate
+                        albumViewModel.endDate = endDate
+                        
+                        viewRouter.addChallenge()
                     }
+                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
+                    .tint(.blue)
                 }
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonStyle(.glassProminent)
-            .tint(.blue)
-            
-            .navigationDestination(isPresented: $addInfo){
             }
     }
 }

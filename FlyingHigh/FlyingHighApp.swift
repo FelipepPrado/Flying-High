@@ -13,5 +13,7 @@ struct FlyingHighApp: App {
         WindowGroup {
             ContentView()
         }
+        .environment(AlbumViewModel())
+        .environment(ViewRouter())
     }
 }
