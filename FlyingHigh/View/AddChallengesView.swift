@@ -55,12 +55,10 @@ struct AddChallengesView: View {
         } catch{
             print(error)
         }
-        
         for challenge in challenges{
             if challenge.selected == 1{
                 do{
-                    var photo = Photo(data: nil, challenge: challenge.model, description: "", album: album)
-                    print(photo)
+                    var photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
                     try await photo.save(on: .private)
                 }catch{
                     print(error)

@@ -6,12 +6,12 @@ struct Photo {
     @CKAssetField("photo")
     var data: Data?
     
-    @CKReferenceField("challenge")
-    var challenge: Challenge?
-    
     @CKField("description")
     var description: String?
     
     @CKReferenceField("album")
     var album: Album?
+    
+    @CKField("challengeReference")
+    var challengeReference: String?
 }

@@ -15,7 +15,7 @@ struct ContentView: View {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 ScrollView{
                     ForEach(albums){ album in
-                        CardAlbum(album: album)
+                        CardAlbum(album: album.model)
                     }
                     .task {
                         do {
