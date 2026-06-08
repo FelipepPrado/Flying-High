@@ -4,18 +4,19 @@
 //
 //  Created by Tainara Nascimento on 05/06/26.
 //
-
+//
 import SwiftUI
 
 struct CameraView: View {
     
     @StateObject private var model = CameraModel()
+    let challengeTitle: String  
     
     var body: some View {
         
         ZStack {
             if let _ = model.photoToken {
-                SaveImageView()
+                SaveImageView(challengeTitle: challengeTitle)
             } else {
                 PreviewView()
                     .onAppear {
@@ -29,6 +30,7 @@ struct CameraView: View {
         }
         .task {
             await model.camera.start()
+            model.currentChallengeTitle = challengeTitle
         }
         .ignoresSafeArea(.all)
         .environmentObject(model)
@@ -37,15 +39,19 @@ struct CameraView: View {
 
 struct SaveImageView: View {
     @EnvironmentObject var model: CameraModel
+    let challengeTitle: String
+
     @State private var showAlert = false
     
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     
+    
+    
     var body: some View {
         NavigationStack {
             ImageView(
-                image: model.photoToken?.image, popUpChallenge: false)
+                image: model.photoToken?.image, popUpChallenge: false, challengeTitle: challengeTitle )
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("", systemImage: "checkmark") {
@@ -65,7 +71,7 @@ struct SaveImageView: View {
             Button("Cancelar",role: .cancel) {}
             
             Button("Enviar") {
-                // salva no CloudKit
+               // model.uploadCurrentPhoto()
             }
         }message: {
             Text("Após o envio não será possível tirar novas fotos.")
@@ -77,6 +83,8 @@ struct SaveImageView: View {
 struct ImageView: View {
     var image: Image?
     var popUpChallenge: Bool
+    let challengeTitle: String
+    
     @EnvironmentObject var model: CameraModel
     @State private var showLastAttemptAlert = false
     
@@ -95,7 +103,7 @@ struct ImageView: View {
                 }
                 .background(Color.vibrantPrimary)
             }
-            .navigationTitle("Nome do Desafio")
+            .navigationTitle(challengeTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                 ToolbarItem (placement: .cancellationAction) {
@@ -139,7 +147,7 @@ struct PreviewView: View {
     @State private var lastZoomFactor: CGFloat = 1.0
     
     var body: some View {
-        ImageView(image: model.previewImage, popUpChallenge: true)
+        ImageView(image: model.previewImage, popUpChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
             .gesture(
                 MagnificationGesture()
                     .onChanged { value in
