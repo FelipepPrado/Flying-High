@@ -25,6 +25,9 @@ class CameraModel: ObservableObject {
     @Published var photoToken: PhotoData?
     @Published var exposureValue: Float = 0
     //@Published var photosRemaining = 0
+    
+    @Published var currentChallengeTitle: String?
+
 
     
     init() {

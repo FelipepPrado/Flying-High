@@ -44,19 +44,13 @@ struct AlbumView: View {
         }
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar{
-            ToolbarItem{
-                Menu("Opções"){
-                    Button("Edit Infos", systemImage: "square.and.pencil"){
-                        editAlbum.toggle()
-                    }
-                    Button("Delet Album", systemImage: "trash.fill"){
-                        
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color(.systemRed))
-                }
-            }
+//        .fullScreenCover(isPresented: $showingCamera) {
+//            if let challenge = selectedChallenge {
+//                CameraView(challengeTitle: challenge.title)
+//            }
+//        }
+        .navigationDestination(isPresented: $showingCamera){
+            CameraView(challengeTitle: selectedChallenge?.title ?? "Sem título")
         }
         .navigationDestination(isPresented: $editAlbum){
             EditAlbumView(album: album)
