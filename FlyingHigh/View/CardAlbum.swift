@@ -2,7 +2,7 @@ import SwiftUI
 import Nuvem
 
 struct CardAlbum: View {
-    var album: Album
+    var album: Album.Observable
     
     var body: some View {
         NavigationLink(destination: AlbumView(album: album)){

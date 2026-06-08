@@ -2,7 +2,7 @@ import SwiftUI
 import Nuvem
 
 struct AlbumView: View {
-    var album: Album
+    var album: Album.Observable
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
@@ -46,10 +46,13 @@ struct AlbumView: View {
         }
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $showingCamera) {
-            if let challenge = selectedChallenge {
-                CameraView(challengeTitle: challenge.title)
-            }
+//        .fullScreenCover(isPresented: $showingCamera) {
+//            if let challenge = selectedChallenge {
+//                CameraView(challengeTitle: challenge.title)
+//            }
+//        }
+        .navigationDestination(isPresented: $showingCamera){
+            CameraView(challengeTitle: selectedChallenge?.title ?? "Sem título")
         }
         .task {
             await loadPhotos()
