@@ -2,7 +2,7 @@ import SwiftUI
 import Nuvem
 
 struct AlbumView: View {
-    var album: Album.Observable
+    var album: Album
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
