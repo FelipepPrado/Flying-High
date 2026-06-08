@@ -2,11 +2,12 @@ import SwiftUI
 import Nuvem
 
 struct AlbumView: View {
-    var album: Album
+    var album: Album.Observable
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
     @State private var showingCamera = false
+    @State private var editAlbum = false
     
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -22,13 +23,10 @@ struct AlbumView: View {
                                 Button(action: {
                                     selectedChallenge = challenge
                                     showingCamera = true
-                                }) {
+                                }){
                                     VStack(alignment: .center, spacing: 4){
                                         if let icon = UIImage(data: challenge.icon){
                                             Image(uiImage: icon)
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 60, height: 60)
                                         }
                                         Text(challenge.title)
                                             .font(.headline)
@@ -46,11 +44,28 @@ struct AlbumView: View {
         }
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $showingCamera) {
-            if let challenge = selectedChallenge {
-                CameraView(challengeTitle: challenge.title)
+        .toolbar{
+            ToolbarItem{
+                Menu("Opções"){
+                    Button("Edit Infos", systemImage: "square.and.pencil"){
+                        editAlbum.toggle()
+                    }
+                    Button("Delet Album", systemImage: "trash.fill"){
+                        
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color(.systemRed))
+                }
             }
         }
+        .navigationDestination(isPresented: $editAlbum){
+            EditAlbumView(album: album)
+        }
+//        .fullScreenCover(isPresented: $showingCamera) {
+//            if let challenge = selectedChallenge {
+//                CameraView(challengeTitle: challenge.title)
+//            }
+//        }
         .task {
             await loadPhotos()
         }
@@ -85,3 +100,7 @@ struct AlbumView: View {
         return challenges.first(where: { $0.id == challengeReference })
     }
 }
+//
+//extension Button {
+//    
+//}

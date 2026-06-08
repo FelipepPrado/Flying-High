@@ -4,6 +4,7 @@ import Nuvem
 
 struct ContentView: View {
     @Environment(ViewRouter.self) var viewRouter
+    @Environment(AlbumViewModel.self) var albumViewModel
     
     @State private var albums : [Album.Observable] = []
     @State private var addAlbum: Bool = false
@@ -15,7 +16,7 @@ struct ContentView: View {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 ScrollView{
                     ForEach(albums){ album in
-                        CardAlbum(album: album.model)
+                        CardAlbum(album: album)
                     }
                     .task {
                         do {
