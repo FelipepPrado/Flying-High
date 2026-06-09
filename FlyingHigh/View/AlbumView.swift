@@ -20,6 +20,7 @@ struct AlbumView: View {
                                     if let icon = UIImage(data: challenge?.icon ?? Data()){
                                         Image(uiImage: icon)
                                     }
+                                        //ADICIONAR ACESSIBILIDADE PARA ESCONDER O ICONE
                                     Text(challenge?.title ?? "Sem valor")
                                 }
                                 .frame(minWidth: 180, minHeight: 240)
@@ -28,6 +29,7 @@ struct AlbumView: View {
                             }
                         }
                     }
+                    .accessibilityElement(children: .combine)
                 }
                 .task {
                     do {
