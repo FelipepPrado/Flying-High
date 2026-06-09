@@ -12,6 +12,13 @@ struct Album{
     
     @CKField("endDate")
     var endDate: Date
+    
+    init(title: String, startDate: Date, endDate: Date) {
+        self.title = title
+        self.startDate = startDate
+        self.endDate = endDate
+        self.record = CKRecord(recordType: "Album")
+    }
 }
 
 //View Model do Album, serve apenas para salvar as informações
