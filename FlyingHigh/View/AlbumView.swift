@@ -8,6 +8,7 @@ struct AlbumView: View {
     @State private var selectedChallenge: Challenge.Observable?
     @State private var showingCamera = false
     @State private var editAlbum = false
+    @State private var selectedPhoto: Photo.Observable?
     
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -22,6 +23,7 @@ struct AlbumView: View {
                             if let challenge = challenge {
                                 Button(action: {
                                     selectedChallenge = challenge
+                                    selectedPhoto = photo
                                     showingCamera = true
                                 }){
                                     VStack(alignment: .center, spacing: 4){
@@ -38,6 +40,18 @@ struct AlbumView: View {
                                 }
                             }
                         }
+                        else{
+                            if let imagem = UIImage(data: photo.data!){
+                                VStack{
+                                    Image(uiImage: imagem)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                                .frame(maxWidth: 180, maxHeight: 240)
+                                .background(Color(.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                        }
                     }
                     .accessibilityElement(children: .combine)
                 }
@@ -51,7 +65,7 @@ struct AlbumView: View {
 //            }
 //        }
         .navigationDestination(isPresented: $showingCamera){
-            CameraView(challengeTitle: selectedChallenge?.title ?? "Sem título")
+            CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
         }
         .navigationDestination(isPresented: $editAlbum){
             EditAlbumView(album: album)
