@@ -1,7 +1,7 @@
 import SwiftUI
 import Nuvem
 
-struct CardAlbum: View {
+struct CardAlbumView: View {
     var album: Album.Observable
     
     var body: some View {
@@ -65,5 +65,5 @@ struct CardAlbum: View {
         startDate: .now,
         endDate: .now,
     )
-    CardAlbum(album: album.observable)
+    CardAlbumView(album: album.observable)
 }

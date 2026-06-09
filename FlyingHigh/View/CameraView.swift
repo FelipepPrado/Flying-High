@@ -6,8 +6,13 @@
 //
 //
 import SwiftUI
+import CloudKit
+import Nuvem
 
 struct CameraView: View {
+    
+    var photo: Photo.Observable?
+
     
     @StateObject private var model = CameraModel()
     let challengeTitle: String  
@@ -15,8 +20,12 @@ struct CameraView: View {
     var body: some View {
         
         ZStack {
-            if let _ = model.photoToken {
-                SaveImageView(challengeTitle: challengeTitle)
+            if let capturedPhoto = model.photoToken {
+                SaveImageView(
+                    photo: photo,
+                    capturedPhoto: capturedPhoto.imageData,
+                    challengeTitle: challengeTitle
+                )
             } else {
                 PreviewView()
                     .onAppear {
@@ -38,6 +47,9 @@ struct CameraView: View {
 }
 
 struct SaveImageView: View {
+    @Environment(\.dismiss) var dismiss
+    var photo: Photo.Observable?
+    var capturedPhoto: Data
     @EnvironmentObject var model: CameraModel
     let challengeTitle: String
 
@@ -46,13 +58,28 @@ struct SaveImageView: View {
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     
-    
-    
     var body: some View {
         NavigationStack {
             ImageView(
-                image: model.photoToken?.image, popUpChallenge: false, challengeTitle: challengeTitle )
+                image: model.photoToken?.image,
+                popUpChallenge: false,
+                challengeTitle: challengeTitle
+            )
             .toolbar {
+                ToolbarItem (placement: .cancellationAction) {
+                    Button {
+                        if model.isLastAttempt {
+                            showLastAttemptAlert=true
+                        }else {
+                            model.retryPhoto()
+                        }
+                        
+                    } label: {
+                        Image(systemName:"xmark")
+                    }
+                    .disabled(!model.canTakePhoto)
+                }
+                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("", systemImage: "checkmark") {
                         showSendAlert=true
@@ -71,12 +98,27 @@ struct SaveImageView: View {
             Button("Cancelar",role: .cancel) {}
             
             Button("Enviar") {
-               // model.uploadCurrentPhoto()
+                Task{
+                    await save()
+                }
             }
         }message: {
             Text("Após o envio não será possível tirar novas fotos.")
         }
         
+    }
+    
+    func save() async{
+        print(#function)
+        do{
+            photo?.data = capturedPhoto
+            try await photo?.save(on: .private)
+            print(photo?.record["photo"])
+            dismiss()
+        }
+        catch{
+           print(error)
+        }
     }
 }
 
@@ -105,21 +147,6 @@ struct ImageView: View {
             }
             .navigationTitle(challengeTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar{
-                ToolbarItem (placement: .cancellationAction) {
-                    Button {
-                        if model.isLastAttempt {
-                            showLastAttemptAlert=true
-                        }else {
-                            model.retryPhoto()
-                        }
-                        
-                    }label: {
-                        Image(systemName:"xmark")
-                    }
-                    .disabled(!model.canTakePhoto)
-                }
-            }
             .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
@@ -174,6 +201,7 @@ struct PreviewView: View {
             .background(Color.vibrantPrimary)
     }
     
+    //botoes da camera (tirar foto, zoom, exposicao)
     private func buttonsView() -> some View {
         GeometryReader { geometry in
             let frameHeight = geometry.size.height
