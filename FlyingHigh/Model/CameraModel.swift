@@ -101,8 +101,9 @@ class CameraModel: ObservableObject {
         else { return nil }
         
         let imageOrientation = UIImage.Orientation(cgImageOrientation)
-        let image = Image(uiImage: UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation))
-        
+        let uiImage = UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation)
+        uiImage.jpegData(compressionQuality: 15.0)
+        let image = Image(uiImage: uiImage)
         let photoDimensions = photo.resolvedSettings.photoDimensions
         let imageSize = (width: Int(photoDimensions.width), height: Int(photoDimensions.height))
 
