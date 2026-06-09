@@ -17,6 +17,7 @@ struct Album{
 //View Model do Album, serve apenas para salvar as informações
 @Observable
 class AlbumViewModel{
+    var albums: [Album.Observable] = []
     var title: String?
     var startDate: Date?
     var endDate: Date?

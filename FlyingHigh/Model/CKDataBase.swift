@@ -1,6 +1,4 @@
 import CloudKit
-import Nuvem
-
 
 //Tipos do Database do cloudkit
 extension CKDatabase{
