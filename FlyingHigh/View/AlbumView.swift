@@ -2,12 +2,15 @@ import SwiftUI
 import Nuvem
 
 struct AlbumView: View {
+    @Environment(\.dismiss) var dismiss
+    
     var album: Album.Observable
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
     @State private var showingCamera = false
     @State private var editAlbum = false
+    @State private var deletAlbum = false
     
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -45,22 +48,38 @@ struct AlbumView: View {
         }
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
-//        .fullScreenCover(isPresented: $showingCamera) {
-//            if let challenge = selectedChallenge {
-//                CameraView(challengeTitle: challenge.title)
-//            }
-//        }
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing){
+                Menu("Ações"){
+                    Button("Editar álbum", systemImage: "square.and.pencil"){
+                        editAlbum.toggle()
+                    }
+                    Button("Excluir", systemImage: "trash.fill"){
+                        deletAlbum.toggle()
+                    }
+                }
+            }
+        }
+        .alert(
+            "Deseja mesmo excluir o Álbum?",
+            isPresented: $deletAlbum
+        ) {
+            Button("Cancelar",role: .cancel) {}
+            
+            Button("Deletar"){
+                Task{
+                    await deletAlbum()
+                }
+            }
+        }message: {
+            Text("Após o envio não será possível tirar novas fotos.")
+        }
         .navigationDestination(isPresented: $showingCamera){
             CameraView(challengeTitle: selectedChallenge?.title ?? "Sem título")
         }
         .navigationDestination(isPresented: $editAlbum){
             EditAlbumView(album: album)
         }
-//        .fullScreenCover(isPresented: $showingCamera) {
-//            if let challenge = selectedChallenge {
-//                CameraView(challengeTitle: challenge.title)
-//            }
-//        }
         .task {
             await loadPhotos()
         }
@@ -94,8 +113,15 @@ struct AlbumView: View {
         guard let challengeReference = challengeReference else { return nil }
         return challenges.first(where: { $0.id == challengeReference })
     }
+    
+    func deletAlbum() async{
+        do{
+            print(album.id)
+            try await album.delete(on: .private)
+            dismiss()
+        }
+        catch{
+            print(error)
+        }
+    }
 }
-//
-//extension Button {
-//    
-//}

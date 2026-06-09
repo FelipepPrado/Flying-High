@@ -9,7 +9,7 @@ struct Photo {
     @CKField("description")
     var description: String?
     
-    @CKReferenceField("album")
+    @CKReferenceField("album", action: .deleteSelf)
     var album: Album?
     
     @CKField("challengeReference")
