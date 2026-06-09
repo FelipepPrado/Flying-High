@@ -54,6 +54,8 @@ struct AddChallengesView: View {
                 endDate: albumViewModel.endDate ?? Date.now,
             )
             try await album.save(on: .private)
+            albumViewModel.albums.append(album.observable)
+            albumViewModel.albums = albumViewModel.albums.sorted{$0.startDate < $1.startDate}
         } catch{
             print(error)
         }

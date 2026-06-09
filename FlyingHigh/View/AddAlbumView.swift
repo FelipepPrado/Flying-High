@@ -18,9 +18,6 @@ struct AddAlbumView: View {
                 }
                 
             }
-
-            
-            
             .navigationTitle("Criar Álbum")
             .navigationBarTitleDisplayMode( .inline)
             .toolbar {

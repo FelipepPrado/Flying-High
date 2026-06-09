@@ -15,7 +15,7 @@ struct ContentView: View {
             ZStack{
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 ScrollView{
-                    ForEach(albums){ album in
+                    ForEach(albumViewModel.albums){ album in
                         CardAlbum(album: album)
                     }
                     .task {
@@ -23,6 +23,7 @@ struct ContentView: View {
                             self.albums = try await Album.query(on: .private)
                                 .all()
                                 .map(\.observable)
+                            albumViewModel.albums = albums.sorted{$0.startDate < $1.startDate}
                         } catch {
                             print(error)
                         }
@@ -43,8 +44,6 @@ struct ContentView: View {
                     Button("Adcionar experiência", systemImage: "plus"){
                         viewRouter.addInfoAlbum()
                     }
-              
-                    
                     .buttonStyle(.borderedProminent)
                     .buttonStyle(.glassProminent)
                     .tint(.blue)
