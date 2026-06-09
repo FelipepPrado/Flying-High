@@ -3,8 +3,8 @@ import Nuvem
 
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
-    
     var album: Album.Observable
+    
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
@@ -68,7 +68,9 @@ struct AlbumView: View {
                     Button("Editar álbum", systemImage: "square.and.pencil"){
                         editAlbum.toggle()
                     }
-                    Button("Excluir", systemImage: "trash.fill"){
+                    .tint(Color.blue)
+                    
+                    Button("Excluir", systemImage: "trash.fill", role: .destructive){
                         deletAlbum.toggle()
                     }
                 }
