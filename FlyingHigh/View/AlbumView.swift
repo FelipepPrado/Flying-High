@@ -39,6 +39,7 @@ struct AlbumView: View {
                             }
                         }
                     }
+                    .accessibilityElement(children: .combine)
                 }
             }
         }

@@ -8,6 +8,7 @@ struct AddChallengesView: View {
     
     @State var challenges : [Challenge.Observable] = []
     @State var photos : [Photo.Observable] = []
+    @State var isChecked: Bool = false
     
     var body: some View {
         ZStack{
@@ -39,6 +40,7 @@ struct AddChallengesView: View {
                     }
                     viewRouter.initView()
                 }
+                .accessibilityLabel(Text("Salvar informações"))
             }
         }
     }

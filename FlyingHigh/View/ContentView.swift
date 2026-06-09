@@ -31,6 +31,8 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("Albums")
+//            .accessibilityLabel(Text("Tela de Albums"))
+//
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationDestination(for: NameViews.self){
                 destination in
@@ -38,9 +40,11 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add Album", systemImage: "plus"){
+                    Button("Adcionar experiência", systemImage: "plus"){
                         viewRouter.addInfoAlbum()
                     }
+              
+                    
                     .buttonStyle(.borderedProminent)
                     .buttonStyle(.glassProminent)
                     .tint(.blue)

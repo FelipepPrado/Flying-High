@@ -12,17 +12,20 @@ struct AddAlbumView: View {
     var body: some View {
             Form{
                 Section("Informações da viagem"){
-                    TextField("Name", text: $title)
-                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+                    TextField("Nome da experiencia", text: $title)
+                    DatePicker("Data de inîcio", selection: $startDate, displayedComponents: .date)
+                    DatePicker("Data de término", selection: $endDate, displayedComponents: .date)
                 }
                 
             }
+
+            
+            
             .navigationTitle("Criar Álbum")
             .navigationBarTitleDisplayMode( .inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add Challenges", systemImage: "arrow.right"){
+                    Button("Adicionar desafios", systemImage: "arrow.right"){
                         albumViewModel.title = title
                         albumViewModel.startDate = startDate
                         albumViewModel.endDate = endDate
@@ -34,5 +37,8 @@ struct AddAlbumView: View {
                     .tint(.blue)
                 }
             }
+
+        
+
     }
 }
