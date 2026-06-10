@@ -12,10 +12,9 @@ import Nuvem
 struct CameraView: View {
     
     var photo: Photo.Observable?
-
     
     @StateObject private var model = CameraModel()
-    let challengeTitle: String  
+    let challengeTitle: String
     
     var body: some View {
         
@@ -46,51 +45,51 @@ struct CameraView: View {
     }
 }
 
+// visualizacao da foto tirada e decisao de salvar ou tentar de novo
 struct SaveImageView: View {
     @Environment(\.dismiss) var dismiss
     var photo: Photo.Observable?
     var capturedPhoto: Data
     @EnvironmentObject var model: CameraModel
     let challengeTitle: String
-
+    
     @State private var showAlert = false
     
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     
     var body: some View {
-        NavigationStack {
-            ImageView(
-                image: model.photoToken?.image,
-                popUpChallenge: false,
-                challengeTitle: challengeTitle
-            )
-            .toolbar {
-                ToolbarItem (placement: .cancellationAction) {
-                    Button {
-                        if model.isLastAttempt {
-                            showLastAttemptAlert=true
-                        }else {
-                            model.retryPhoto()
-                        }
-                        
-                    } label: {
-                        Image(systemName:"xmark")
+        ImageView(
+            image: model.photoToken?.image,
+            popUpChallenge: false,
+            challengeTitle: challengeTitle
+        )
+        .toolbar {
+            ToolbarItem (placement: .cancellationAction) {
+                Button {
+                    if model.isLastAttempt {
+                        showLastAttemptAlert=true
+                    }else {
+                        model.retryPhoto()
                     }
-                    .disabled(!model.canTakePhoto)
+                    
+                } label: {
+                    Image(systemName:"xmark")
                 }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("", systemImage: "checkmark") {
-                        showSendAlert=true
-                        print(showAlert)
-                        print("Save Photo")
-                    }
+                .disabled(!model.canTakePhoto)
+            }
+            
+            ToolbarItem(placement: .confirmationAction) {
+                Button("", systemImage: "checkmark") {
+                    showSendAlert=true
+                    print(showAlert)
+                    print("Save Photo")
                 }
             }
-            .navigationTitle("Nome do Desafio")
-            .navigationBarTitleDisplayMode(.inline)
         }
+        .navigationTitle("Nome do Desafio")
+        .navigationBarTitleDisplayMode(.inline)
+        
         .alert(
             "Deseja enviar esta foto?",
             isPresented: $showSendAlert
@@ -117,11 +116,44 @@ struct SaveImageView: View {
             dismiss()
         }
         catch{
-           print(error)
+            print(error)
         }
     }
 }
 
+// visualizacao da imagem
+struct PhotoDetailView: View {
+    let photo: Photo.Observable
+    let challengeTitle: String
+    
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    @State private var offset: CGSize = .zero
+    @State private var lastOffset: CGSize = .zero
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                if let imageData = photo.data,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .scaleEffect(scale)
+                        .offset(offset)
+                }
+            }
+        }
+        .navigationTitle(challengeTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+    }
+}
+
+// apenas a view da camera
 struct ImageView: View {
     var image: Image?
     var popUpChallenge: Bool
@@ -131,25 +163,24 @@ struct ImageView: View {
     @State private var showLastAttemptAlert = false
     
     var body: some View {
-        NavigationStack{
-            GeometryReader { geometry in
-                VStack{
-                    if let image = image {
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding(.horizontal, 20)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                    }
+        
+        GeometryReader { geometry in
+            VStack{
+                if let image = image {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal, 20)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
                 }
-                .background(Color.vibrantPrimary)
             }
-            .navigationTitle(challengeTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .background(Color.vibrantPrimary)
         }
+        .navigationTitle(challengeTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .alert(
             "Última tentativa",
             isPresented: $showLastAttemptAlert
@@ -167,6 +198,7 @@ struct ImageView: View {
     }
 }
 
+//visualizacao da camera + botoes
 struct PreviewView: View {
     @EnvironmentObject var model: CameraModel
     private let footerHeight: CGFloat = 180.0
