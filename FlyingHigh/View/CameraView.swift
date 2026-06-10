@@ -53,8 +53,6 @@ struct SaveImageView: View {
     @EnvironmentObject var model: CameraModel
     let challengeTitle: String
     
-    @State private var showAlert = false
-    
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     
@@ -65,57 +63,67 @@ struct SaveImageView: View {
             challengeTitle: challengeTitle
         )
         .toolbar {
-            ToolbarItem (placement: .cancellationAction) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     if model.isLastAttempt {
-                        showLastAttemptAlert=true
-                    }else {
+                        showLastAttemptAlert = true
+                    } else {
                         model.retryPhoto()
                     }
-                    
                 } label: {
-                    Image(systemName:"xmark")
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
                 }
                 .disabled(!model.canTakePhoto)
             }
             
-            ToolbarItem(placement: .confirmationAction) {
-                Button("", systemImage: "checkmark") {
-                    showSendAlert=true
-                    print(showAlert)
-                    print("Save Photo")
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showSendAlert = true
+                } label: {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 16, weight: .semibold))
                 }
             }
         }
-        .navigationTitle("Nome do Desafio")
+        .navigationTitle(challengeTitle)
         .navigationBarTitleDisplayMode(.inline)
-        
+        .navigationBarBackButtonHidden(true)
         .alert(
             "Deseja enviar esta foto?",
             isPresented: $showSendAlert
         ) {
-            Button("Cancelar",role: .cancel) {}
-            
+            Button("Cancelar", role: .cancel) {}
             Button("Enviar") {
-                Task{
+                Task {
                     await save()
                 }
             }
-        }message: {
+        } message: {
             Text("Após o envio não será possível tirar novas fotos.")
         }
         
+        .alert(
+            "Última tentativa",
+            isPresented: $showLastAttemptAlert
+        ) {
+            Button("Cancelar", role: .cancel) {}
+            Button("Tentar novamente") {
+                model.retryPhoto()
+            }
+        } message: {
+            Text("Esta é sua última tentativa. Deseja tentar novamente?")
+        }
     }
     
-    func save() async{
+    func save() async {
         print(#function)
-        do{
+        do {
             photo?.data = capturedPhoto
             try await photo?.save(on: .private)
             print(photo?.record["photo"])
             dismiss()
-        }
-        catch{
+        } catch {
             print(error)
         }
     }
@@ -130,6 +138,7 @@ struct PhotoDetailView: View {
     @State private var lastScale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
+    @State private var shareURL: URL?
     
     var body: some View {
         GeometryReader { geometry in
@@ -143,13 +152,67 @@ struct PhotoDetailView: View {
                         .scaledToFit()
                         .scaleEffect(scale)
                         .offset(offset)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let newScale = lastScale * value
+                                    scale = min(max(newScale, 1), 5)
+                                }
+                                .onEnded { _ in
+                                    lastScale = scale
+                                }
+                        )
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    if scale > 1 {
+                                        offset = CGSize(
+                                            width: lastOffset.width + value.translation.width,
+                                            height: lastOffset.height + value.translation.height
+                                        )
+                                    }
+                                }
+                                .onEnded { _ in
+                                    lastOffset = offset
+                                }
+                        )
+                        .onTapGesture(count: 2) {
+                            withAnimation {
+                                if scale > 1 {
+                                    scale = 1
+                                    lastScale = 1
+                                    offset = .zero
+                                    lastOffset = .zero
+                                } else {
+                                    scale = 2
+                                    lastScale = 2
+                                }
+                            }
+                        }
                 }
             }
         }
         .navigationTitle(challengeTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let imageData = photo.data,
+                   let jpegData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.5) {
+                   let tempURL = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("\(challengeTitle.replacingOccurrences(of: " ", with: "_")).jpeg")
+                        ShareLink(
+                        item: tempURL,
+                        preview: SharePreview(
+                            challengeTitle,
+                            image: Image(uiImage: UIImage(data: imageData) ?? UIImage())
+                        )
+                    )
+                    .onAppear {
+                        try? jpegData.write(to: tempURL)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -163,7 +226,6 @@ struct ImageView: View {
     @State private var showLastAttemptAlert = false
     
     var body: some View {
-        
         GeometryReader { geometry in
             VStack{
                 if let image = image {
@@ -190,7 +252,6 @@ struct ImageView: View {
             Button("Continuar") {
                 model.retryPhoto()
             }
-            
         }message: {
             Text("Esta será sua última tentativa de foto.")
         }
