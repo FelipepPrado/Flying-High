@@ -4,9 +4,11 @@ import Nuvem
 struct CardAlbumView: View {
     var album: Album.Observable
     
+    @State private var photos: [Photo.Observable] = []
+    
     var body: some View {
-        ZStack{
-            Color(.systemGroupedBackground).ignoresSafeArea()
+//        ZStack{
+//            Color(.systemGroupedBackground).ignoresSafeArea()
             NavigationLink(destination: AlbumView(album: album)){
                 Group {
                     HStack {
@@ -21,30 +23,20 @@ struct CardAlbumView: View {
                                     .font(.callout)
                                     .foregroundStyle(.black)
                                     .multilineTextAlignment(.leading)
+                                ProgressView(value: returnProgress())
                             }
                             .padding(.vertical, 20)
                             .padding(.leading,20)
                             Spacer()
+                            
                         }
-                        .background {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 0)
-                                    .strokeBorder(
-                                        Color(.gray),
-                                        style: .init(
-                                            lineWidth: 2,
-                                            dash: [12, 10]
-                                        )
-                                    )
-
-                                RoundedRectangle(cornerRadius: 0)
-                                    .fill(Color(.white))
-                                    .offset(x: -2)
-                            }
-                        }
+                        .overlay(TrailingBorder()
+                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
+                            .foregroundStyle(.gray)
+                        )
                         
                         Rectangle()
-                            .fill(Color.gray)
+                            .fill(Color(.systemGray3))
                             .frame(maxHeight: .infinity)
                             .frame(width: 20)
                             .padding(.leading, 42)
@@ -54,8 +46,43 @@ struct CardAlbumView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
                 .accessibilityElement(children: .combine)
+                .task{
+                    await loadPhotos()
+                }
             }
         }
+    
+    func loadPhotos() async {
+        do {
+            self.photos = try await Photo.query(on: .private)
+                .filter(\.$album == album.id)
+                .all()
+                .map(\.observable)
+        } catch {
+            print(error)
+        }
+    }
+    
+    func returnProgress() -> Double{
+        var completedChallenges: Int = 0
+        for photo in photos {
+            if photo.data != nil{
+                completedChallenges += 1
+            }
+        }
+        print(Double(completedChallenges) / Double(photos.count))
+        return Double(completedChallenges) / Double(photos.count)
+    }
+}
+
+struct TrailingBorder: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY-5))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        
+        return path
     }
 }
 

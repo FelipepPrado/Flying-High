@@ -5,6 +5,7 @@ struct EditAlbumView: View {
     var album: Album.Observable
     
     @Environment(\.dismiss) var dismiss
+    
     @State var title: String = ""
     @State var startDate: Date = Date.now
     @State var endDate: Date = Date.now
@@ -32,7 +33,7 @@ struct EditAlbumView: View {
                         await save()
                     }
                 }
-                .disabled(title == album.title)
+                .disabled(title == album.title && startDate == album.startDate && endDate == album.endDate)
             }
         }
     }
@@ -42,6 +43,7 @@ struct EditAlbumView: View {
             album.startDate = startDate
             album.endDate = endDate
             try await album.save(on: .private)
+            dismiss()
         } catch{
             print(error)
         }
