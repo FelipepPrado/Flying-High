@@ -4,6 +4,8 @@ import Nuvem
 struct CardAlbumView: View {
     var album: Album.Observable
     
+    @State private var photos: [Photo.Observable] = []
+    
     var body: some View {
 //        ZStack{
 //            Color(.systemGroupedBackground).ignoresSafeArea()
@@ -21,6 +23,7 @@ struct CardAlbumView: View {
                                     .font(.callout)
                                     .foregroundStyle(.black)
                                     .multilineTextAlignment(.leading)
+                                ProgressView(value: returnProgress())
                             }
                             .padding(.vertical, 20)
                             .padding(.leading,20)
@@ -43,9 +46,33 @@ struct CardAlbumView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
                 .accessibilityElement(children: .combine)
+                .task{
+                    await loadPhotos()
+                }
             }
         }
-//    }
+    
+    func loadPhotos() async {
+        do {
+            self.photos = try await Photo.query(on: .private)
+                .filter(\.$album == album.id)
+                .all()
+                .map(\.observable)
+        } catch {
+            print(error)
+        }
+    }
+    
+    func returnProgress() -> Double{
+        var completedChallenges: Int = 0
+        for photo in photos {
+            if photo.data != nil{
+                completedChallenges += 1
+            }
+        }
+        print(Double(completedChallenges) / Double(photos.count))
+        return Double(completedChallenges) / Double(photos.count)
+    }
 }
 
 struct TrailingBorder: Shape {
