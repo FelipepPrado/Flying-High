@@ -5,8 +5,8 @@ struct CardAlbumView: View {
     var album: Album.Observable
     
     var body: some View {
-        ZStack{
-            Color(.systemGroupedBackground).ignoresSafeArea()
+//        ZStack{
+//            Color(.systemGroupedBackground).ignoresSafeArea()
             NavigationLink(destination: AlbumView(album: album)){
                 Group {
                     HStack {
@@ -25,26 +25,15 @@ struct CardAlbumView: View {
                             .padding(.vertical, 20)
                             .padding(.leading,20)
                             Spacer()
+                            
                         }
-                        .background {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 0)
-                                    .strokeBorder(
-                                        Color(.gray),
-                                        style: .init(
-                                            lineWidth: 2,
-                                            dash: [12, 10]
-                                        )
-                                    )
-
-                                RoundedRectangle(cornerRadius: 0)
-                                    .fill(Color(.white))
-                                    .offset(x: -2)
-                            }
-                        }
+                        .overlay(TrailingBorder()
+                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
+                            .foregroundStyle(.gray)
+                        )
                         
                         Rectangle()
-                            .fill(Color.gray)
+                            .fill(Color(.systemGray3))
                             .frame(maxHeight: .infinity)
                             .frame(width: 20)
                             .padding(.leading, 42)
@@ -56,6 +45,17 @@ struct CardAlbumView: View {
                 .accessibilityElement(children: .combine)
             }
         }
+//    }
+}
+
+struct TrailingBorder: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY-5))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        
+        return path
     }
 }
 
