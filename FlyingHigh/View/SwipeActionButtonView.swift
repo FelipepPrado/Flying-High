@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SwipeActionButtonView: View {
     @State var x: [CGFloat] = [0,0,0,0,0,0,0] //-> 7 cartas num array
-    @State var Degree: [CGFloat] = [8,8,8,7,6,6,20] //-> Inclinação das cartas
+    @State var Degree: [CGFloat] = [8,8,8,7,6,6,0] //-> Inclinação das cartas
     @State var isActive: Bool = false
     
     
@@ -24,7 +24,12 @@ struct SwipeActionButtonView: View {
         VStack  {
             ZStack{
                 ForEach(0..<topCard, id: \.self){i in
+                    //CARDS COM CADA DESAFIO
                     Card()
+                        .cornerRadius(20)
+                        .shadow(radius: 6)
+                        .frame(width: 300, height: 400)
+                    //-----------------------------------
                         .offset(x: self.x[i])
                         .rotationEffect(.init(degrees: self.Degree[i]))
                         .gesture(DragGesture()
@@ -34,18 +39,14 @@ struct SwipeActionButtonView: View {
                                     self.Degree[i] = 10
                                     self.buttonRighttColor = .blue
                                     self.buttonLeftColor = .gray
-                                    
-                                    
                                 } else{
 //                                    print(value.translation.width)
                                     self.x[i] = value.translation.width
                                     self.Degree[i] = -8
-                                    self.buttonRighttColor = .red
-                                    self.buttonLeftColor = .gray
-                                    
+                                    self.buttonLeftColor = .red
+                                    self.buttonRighttColor = .gray
                                 }
                             }
-                                       
                                       )
                                 .onEnded({(value) in
 //                                    guard i == topCard else { return }
@@ -62,6 +63,7 @@ struct SwipeActionButtonView: View {
                                         if value.translation.width < -100{
                                             self.x[i] = -500
                                             self.Degree[i] = -15
+                                            activeLeftButton()
                                         }else{
                                             self.x[i] = 0
                                             self.Degree[i] = 0
@@ -69,7 +71,6 @@ struct SwipeActionButtonView: View {
                                     }
                                     
                                 }
-                                         
                                         )
                                  
                                  
@@ -85,8 +86,6 @@ struct SwipeActionButtonView: View {
             HStack(spacing: 50) {
                 Button {
                     swipeLeft(index: topCard)
-                   
-                    
                 } label: {
                     Text("Deixar passar")
                         .frame(width: 130, height: 40)
@@ -143,7 +142,7 @@ struct SwipeActionButtonView: View {
         withAnimation {
             self.x[index] = -500
             self.Degree[index] = -15
-            self.buttonLeftColor = .red
+            self.buttonLeftColor = .gray
 //            self.buttonRighttColor = .gray
         }
         activeLeftButton()
@@ -155,12 +154,11 @@ struct SwipeActionButtonView: View {
         guard index >= 0 else {return}
         topCard -= 1
         var index = topCard
-        print(index)
         
         withAnimation {
             self.x[index] = 500
             self.Degree[index] = 10
-//            self.buttonLeftColor = .gray
+            self.buttonRighttColor = .gray
         }
         
         activateRightButton()
@@ -177,7 +175,7 @@ struct SwipeActionButtonView: View {
     func activeLeftButton(){
         self.buttonLeftColor = .red
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.buttonRighttColor = .gray
+            self.buttonLeftColor = .gray
         }
 
     }
@@ -188,12 +186,24 @@ struct SwipeActionButtonView: View {
 
 //Struct responsável pelos cards
 struct Card: View{
+//    let challengeTitle: String
+    
     var body: some View{
-        Rectangle()
-            .fill(.white)
-            .frame(width: 300, height: 300)
-            .cornerRadius(10)
-            .shadow(radius: 6)
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [.white]), startPoint: .top, endPoint: .bottom)
+                
+        }
+        VStack {
+            Circle()
+                .stroke(.gray, style: StrokeStyle(lineWidth: 2))
+                .fill(.clear)
+                .frame(width: 160, height: 160)
+                .offset(x: 0, y: 0)
+            
+            Text("Monumento")
+                .font(.largeTitle)
+                .foregroundColor(.gray)
+        }
     }
 }
 #Preview {
