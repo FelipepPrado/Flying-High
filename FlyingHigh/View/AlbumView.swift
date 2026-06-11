@@ -129,9 +129,6 @@ struct AlbumView: View {
                 progress = currentProgress
             }
         }
-        .frame(minWidth: 180, minHeight: 240)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
     func loadPhotos() async {
