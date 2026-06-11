@@ -14,10 +14,13 @@ struct ContentView: View {
         NavigationStack(path: $path.path){
             ZStack{
                 Color(.systemGroupedBackground).ignoresSafeArea()
-                ScrollView{
-                    ForEach(albumViewModel.albums){ album in
-                        CardAlbumView(album: album)
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ForEach(albumViewModel.albums){ album in
+                            CardAlbumView(album: album)
+                        }
                     }
+                
                     .task {
                         do {
                             self.albums = try await Album.query(on: .private)
@@ -31,10 +34,10 @@ struct ContentView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Albums")
+            .navigationTitle("Minhas Experiências")
 //            .accessibilityLabel(Text("Tela de Albums"))
 //
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbarTitleDisplayMode(.inline)
             .navigationDestination(for: NameViews.self){
                 destination in
                 ViewManagar.viewForDestination(destination)
