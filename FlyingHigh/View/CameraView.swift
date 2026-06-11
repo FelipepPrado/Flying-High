@@ -116,12 +116,10 @@ struct SaveImageView: View {
         }
     }
     
-    func save() async {
-        print(#function)
-        do {
+    func save() async{
+        do{
             photo?.data = capturedPhoto
             try await photo?.save(on: .private)
-            print(photo?.record["photo"])
             dismiss()
         } catch {
             print(error)
