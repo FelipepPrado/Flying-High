@@ -11,6 +11,10 @@ struct AddChallengesView: View {
     @State var isChecked: Bool = false
     
     var body: some View {
+        
+        
+        ///tela na qual apresenta os desafios com seus ícones e categorias
+        ///
         ZStack{
             Color(.systemGroupedBackground).ignoresSafeArea()
             

@@ -5,7 +5,7 @@ struct CardChallenge: View {
     var challenge: Challenge.Observable
     
     //Variável para ser usada p/ observar o estado para o VoiceOver
-    @State private var isCked: Bool = false
+    @State private var isChecked: Bool = false
     
     var body: some View {
         Button(action:{
@@ -15,9 +15,9 @@ struct CardChallenge: View {
             else{
                 challenge.selected = 1
             }
+            isChecked = (challenge.selected == 1)
         }){
             ///Essa é a árrea que tem tem os botoes de check junto com o nome de cada categoria
-        
             HStack(spacing: 16){
                 if challenge.selected == 0{
                     Image(systemName: "checkmark.circle")
@@ -31,7 +31,6 @@ struct CardChallenge: View {
                     if let icon = UIImage(data: challenge.icon){
                         Image(uiImage: icon)
                     }
-                    
                     Text(challenge.title)
                 }
                 Spacer()
@@ -41,6 +40,12 @@ struct CardChallenge: View {
             .background(Color(.secondarySystemGroupedBackground))
             .clipShape(RoundedRectangle(cornerRadius: 26))
         }
+        .accessibilityRepresentation {
+            Toggle(isOn: $isChecked) {
+                Text("\(challenge.title)")
+            }
+        }
+        
     }
 }
 
