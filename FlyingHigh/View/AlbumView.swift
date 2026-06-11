@@ -13,6 +13,9 @@ struct AlbumView: View {
     @State private var editAlbum = false
     @State private var selectedPhoto: Photo.Observable?
     @State private var deletAlbum = false
+    @State private var selectedPhotoForDetail: Photo.Observable?
+    @State private var selectedChallengeForDetail: Challenge.Observable?
+    @State private var showPhotoDetail = false
     
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -126,6 +129,9 @@ struct AlbumView: View {
                 progress = currentProgress
             }
         }
+        .frame(minWidth: 180, minHeight: 240)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
     func loadPhotos() async {
