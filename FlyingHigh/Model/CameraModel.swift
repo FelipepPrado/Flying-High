@@ -14,27 +14,15 @@ internal import Combine
 class CameraModel: ObservableObject {
     
     let camera = CameraManager()
-    //var photoLibraryManager: PhotoLibraryManager?
     
-    //@Published var cameraMode: CameraMode = .photo
-    
-    
-    @Published var maxPhotos = 4
+    @Published var maxPhotos = 3
     @Published var photosTaken = 0
     @Published var previewImage: Image?
     @Published var photoToken: PhotoData?
     @Published var exposureValue: Float = 0
-    //@Published var photosRemaining = 0
-    
     @Published var currentChallengeTitle: String?
-
-
     
     init() {
-//        Task {
-//           self.photoLibraryManager = await PhotoLibraryManager()
-//        }
-        
         Task {
             await handleCameraPreviews()
         }
@@ -42,28 +30,25 @@ class CameraModel: ObservableObject {
         Task {
             await handleCameraPhotos()
         }
-
     }
     
     var photosRemaining: Int {
         maxPhotos - photosTaken
     }
     
-    func registerPhotoTaken() {
-        guard canTakePhoto else { return }
-        photosTaken += 1
-        
-    }
-    
     var canTakePhoto: Bool {
         photosTaken < maxPhotos
     }
     
-    var isLastAttempt:Bool {
-    photosTaken==maxPhotos-1
+    var isLastAttempt: Bool {
+        photosTaken == maxPhotos - 1
     }
     
-    // for preview camera output
+    func registerPhotoTaken() {
+        guard canTakePhoto else { return }
+        photosTaken += 1
+    }
+    
     func handleCameraPreviews() async {
         let imageStream = camera.previewStream
             .map { $0.image }
@@ -75,15 +60,16 @@ class CameraModel: ObservableObject {
         }
     }
     
-    // for photo token
     func handleCameraPhotos() async {
         let unpackedPhotoStream = camera.photoStream
             .compactMap { self.unpackPhoto($0) }
         
         for await photoData in unpackedPhotoStream {
             Task { @MainActor in
-                photosTaken+=1
-                photoToken=photoData
+                if canTakePhoto {
+                    photosTaken += 1
+                    photoToken = photoData
+                }
             }
         }
     }
@@ -92,7 +78,10 @@ class CameraModel: ObservableObject {
         photoToken = nil
     }
     
-
+    func cancelPhotoSession() {
+        photoToken = nil
+    }
+    
     private func unpackPhoto(_ photo: AVCapturePhoto) -> PhotoData? {
         guard let imageData = photo.fileDataRepresentation() else { return nil }
         guard let cgImage = photo.cgImageRepresentation(),
@@ -102,12 +91,13 @@ class CameraModel: ObservableObject {
         
         let imageOrientation = UIImage.Orientation(cgImageOrientation)
         let uiImage = UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation)
-        uiImage.jpegData(compressionQuality: 15.0)
         let image = Image(uiImage: uiImage)
         let photoDimensions = photo.resolvedSettings.photoDimensions
         let imageSize = (width: Int(photoDimensions.width), height: Int(photoDimensions.height))
-
-        return PhotoData(image: image, imageData: imageData, imageSize: imageSize)
+        guard let compressedImageData = uiImage.jpegData(compressionQuality: 0.5) else {
+            return nil
+        }
+        return PhotoData(image: image, imageData: compressedImageData, imageSize: imageSize)
     }
 }
 

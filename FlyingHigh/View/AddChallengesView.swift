@@ -7,7 +7,7 @@ struct AddChallengesView: View {
     @Environment(ViewRouter.self) var viewRouter
     
     @State var challenges : [Challenge.Observable] = []
-    @State var photos : [Photo.Observable] = []
+//    @State var photos : [Photo.Observable] = []
     @State var isChecked: Bool = false
     
     var body: some View {
@@ -58,20 +58,26 @@ struct AddChallengesView: View {
                 endDate: albumViewModel.endDate ?? Date.now,
             )
             try await album.save(on: .private)
-            albumViewModel.albums.append(album.observable)
-            albumViewModel.albums = albumViewModel.albums.sorted{$0.startDate < $1.startDate}
+            albumViewModel.addAlbum(album: album)
         } catch{
             print(error)
         }
-        for challenge in challenges{
-            if challenge.selected == 1{
-                do{
-                    var photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
-                    try await photo.save(on: .private)
-                }catch{
-                    print(error)
-                }
+        
+        var photos: [any CKModel] = []
+            
+        for challenge in challenges {
+            if challenge.selected == 1 {
+                let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+                photos.append(photo)
             }
+        }
+        do {
+            try await photos.save(on: .private)
+        } catch {
+            print(error)
+        }
+        Task{
+            try await Task.sleep(for: .seconds(3))
         }
     }
 }

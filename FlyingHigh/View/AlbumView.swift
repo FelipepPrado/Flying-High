@@ -4,6 +4,7 @@ import Nuvem
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
     var album: Album.Observable
+    @Binding var progress: Double
     
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
@@ -12,6 +13,9 @@ struct AlbumView: View {
     @State private var editAlbum = false
     @State private var selectedPhoto: Photo.Observable?
     @State private var deletAlbum = false
+    @State private var selectedPhotoForDetail: Photo.Observable?
+    @State private var selectedChallengeForDetail: Challenge.Observable?
+    @State private var showPhotoDetail = false
     
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -19,6 +23,13 @@ struct AlbumView: View {
         ZStack{
             Color(.systemGroupedBackground).ignoresSafeArea()
             ScrollView{
+                HStack(spacing: 6){
+                    ProgressView(value: progress)
+                        .frame(minHeight: 16)
+                    let progressText = String(format:"%.0f", (progress*100).rounded())
+                    Text("\(progressText)%")
+                }
+                .padding(.horizontal, 10)
                 LazyVGrid(columns: columns, spacing: 10){
                     ForEach(photos) { photo in
                         if photo.data == nil{
@@ -59,6 +70,7 @@ struct AlbumView: View {
                     .accessibilityElement(children: .combine)
                 }
             }
+            .padding()
         }
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
@@ -104,12 +116,29 @@ struct AlbumView: View {
         }
     }
     
+    func returnProgress(){
+        var completedChallenges: Int = 0
+        if !(photos.isEmpty){
+            for photo in photos {
+                if photo.data != nil{
+                    completedChallenges += 1
+                }
+            }
+            let currentProgress = Double(completedChallenges) / Double(photos.count)
+            if progress != currentProgress{
+                progress = currentProgress
+            }
+        }
+    }
+    
     func loadPhotos() async {
         do {
             self.photos = try await Photo.query(on: .private)
                 .filter(\.$album == album.id)
                 .all()
                 .map(\.observable)
+            print(photos)
+            returnProgress()
         } catch {
             print(error)
         }
@@ -124,6 +153,8 @@ struct AlbumView: View {
             print(error)
         }
     }
+    
+    
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
         guard let challengeReference = challengeReference else { return nil }

@@ -12,6 +12,7 @@ struct FlyingHighApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(ColorScheme.light)
         }
         .environment(AlbumViewModel())
         .environment(ViewRouter())

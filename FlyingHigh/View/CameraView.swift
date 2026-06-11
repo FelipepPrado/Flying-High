@@ -12,10 +12,9 @@ import Nuvem
 struct CameraView: View {
     
     var photo: Photo.Observable?
-
     
     @StateObject private var model = CameraModel()
-    let challengeTitle: String  
+    let challengeTitle: String
     
     var body: some View {
         
@@ -46,66 +45,75 @@ struct CameraView: View {
     }
 }
 
+// visualizacao da foto tirada e decisao de salvar ou tentar de novo
 struct SaveImageView: View {
     @Environment(\.dismiss) var dismiss
     var photo: Photo.Observable?
     var capturedPhoto: Data
     @EnvironmentObject var model: CameraModel
     let challengeTitle: String
-
-    @State private var showAlert = false
     
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     
     var body: some View {
-        NavigationStack {
-            ImageView(
-                image: model.photoToken?.image,
-                popUpChallenge: false,
-                challengeTitle: challengeTitle
-            )
-            .toolbar {
-                ToolbarItem (placement: .cancellationAction) {
-                    Button {
-                        if model.isLastAttempt {
-                            showLastAttemptAlert=true
-                        }else {
-                            model.retryPhoto()
-                        }
-                        
-                    } label: {
-                        Image(systemName:"xmark")
+        ImageView(
+            image: model.photoToken?.image,
+            popUpChallenge: false,
+            challengeTitle: challengeTitle
+        )
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    if model.isLastAttempt {
+                        showLastAttemptAlert = true
+                    } else {
+                        model.retryPhoto()
                     }
-                    .disabled(!model.canTakePhoto)
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
                 }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("", systemImage: "checkmark") {
-                        showSendAlert=true
-                        print(showAlert)
-                        print("Save Photo")
-                    }
+                .disabled(!model.canTakePhoto)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showSendAlert = true
+                } label: {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 16, weight: .semibold))
                 }
             }
-            .navigationTitle("Nome do Desafio")
-            .navigationBarTitleDisplayMode(.inline)
         }
+        .navigationTitle(challengeTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .alert(
             "Deseja enviar esta foto?",
             isPresented: $showSendAlert
         ) {
-            Button("Cancelar",role: .cancel) {}
-            
+            Button("Cancelar", role: .cancel) {}
             Button("Enviar") {
-                Task{
+                Task {
                     await save()
                 }
             }
-        }message: {
+        } message: {
             Text("Após o envio não será possível tirar novas fotos.")
         }
         
+        .alert(
+            "Última tentativa",
+            isPresented: $showLastAttemptAlert
+        ) {
+            Button("Cancelar", role: .cancel) {}
+            Button("Tentar novamente") {
+                model.retryPhoto()
+            }
+        } message: {
+            Text("Esta é sua última tentativa. Deseja tentar novamente?")
+        }
     }
     
     func save() async{
@@ -113,13 +121,100 @@ struct SaveImageView: View {
             photo?.data = capturedPhoto
             try await photo?.save(on: .private)
             dismiss()
-        }
-        catch{
-           print(error)
+        } catch {
+            print(error)
         }
     }
 }
 
+// visualizacao da imagem
+struct PhotoDetailView: View {
+    let photo: Photo.Observable
+    let challengeTitle: String
+    
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    @State private var offset: CGSize = .zero
+    @State private var lastOffset: CGSize = .zero
+    @State private var shareURL: URL?
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                if let imageData = photo.data,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .scaleEffect(scale)
+                        .offset(offset)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let newScale = lastScale * value
+                                    scale = min(max(newScale, 1), 5)
+                                }
+                                .onEnded { _ in
+                                    lastScale = scale
+                                }
+                        )
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    if scale > 1 {
+                                        offset = CGSize(
+                                            width: lastOffset.width + value.translation.width,
+                                            height: lastOffset.height + value.translation.height
+                                        )
+                                    }
+                                }
+                                .onEnded { _ in
+                                    lastOffset = offset
+                                }
+                        )
+                        .onTapGesture(count: 2) {
+                            withAnimation {
+                                if scale > 1 {
+                                    scale = 1
+                                    lastScale = 1
+                                    offset = .zero
+                                    lastOffset = .zero
+                                } else {
+                                    scale = 2
+                                    lastScale = 2
+                                }
+                            }
+                        }
+                }
+            }
+        }
+        .navigationTitle(challengeTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let imageData = photo.data,
+                   let jpegData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.5) {
+                   let tempURL = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("\(challengeTitle.replacingOccurrences(of: " ", with: "_")).jpeg")
+                        ShareLink(
+                        item: tempURL,
+                        preview: SharePreview(
+                            challengeTitle,
+                            image: Image(uiImage: UIImage(data: imageData) ?? UIImage())
+                        )
+                    )
+                    .onAppear {
+                        try? jpegData.write(to: tempURL)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// apenas a view da camera
 struct ImageView: View {
     var image: Image?
     var popUpChallenge: Bool
@@ -129,25 +224,23 @@ struct ImageView: View {
     @State private var showLastAttemptAlert = false
     
     var body: some View {
-        NavigationStack{
-            GeometryReader { geometry in
-                VStack{
-                    if let image = image {
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding(.horizontal, 20)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                    }
+        GeometryReader { geometry in
+            VStack{
+                if let image = image {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal, 20)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
                 }
-                .background(Color.vibrantPrimary)
             }
-            .navigationTitle(challengeTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .background(Color.vibrantPrimary)
         }
+        .navigationTitle(challengeTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .alert(
             "Última tentativa",
             isPresented: $showLastAttemptAlert
@@ -157,7 +250,6 @@ struct ImageView: View {
             Button("Continuar") {
                 model.retryPhoto()
             }
-            
         }message: {
             Text("Esta será sua última tentativa de foto.")
         }
@@ -165,6 +257,7 @@ struct ImageView: View {
     }
 }
 
+//visualizacao da camera + botoes
 struct PreviewView: View {
     @EnvironmentObject var model: CameraModel
     private let footerHeight: CGFloat = 180.0
