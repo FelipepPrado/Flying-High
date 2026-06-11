@@ -7,6 +7,7 @@ struct AddChallengesView: View {
     @Environment(ViewRouter.self) var viewRouter
     
     @State var challenges : [Challenge.Observable] = []
+    @State var selectedChallenges: [Challenge.Observable] = []
 //    @State var photos : [Photo.Observable] = []
     @State var isChecked: Bool = false
     
@@ -20,7 +21,7 @@ struct AddChallengesView: View {
             
             ScrollView{
                 ForEach(challenges){ challenge in
-                    CardChallenge(challenge: challenge)
+                    CardChallenge(challenge: challenge, selectedChallenges: $selectedChallenges)
                 }
                 .task {
                     do {
@@ -64,12 +65,15 @@ struct AddChallengesView: View {
         }
         
         var photos: [any CKModel] = []
-            
-        for challenge in challenges {
-            if challenge.selected == 1 {
-                let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
-                photos.append(photo)
-            }
+//        for challenge in challenges {
+//            if challenge.selected == 1 {
+//                let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+//                photos.append(photo)
+//            }
+//        }
+        for challenge in selectedChallenges {
+            let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+            photos.append(photo)
         }
         do {
             try await photos.save(on: .private)

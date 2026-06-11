@@ -3,29 +3,33 @@ import Nuvem
 
 struct CardChallenge: View {
     var challenge: Challenge.Observable
+    @Binding var selectedChallenges: [Challenge.Observable]
     
     //Variável para ser usada p/ observar o estado para o VoiceOver
     @State private var isChecked: Bool = false
+    @State private var selected: Bool = false
     
     var body: some View {
         Button(action:{
-            if challenge.selected == 1{
-                challenge.selected = 0
+            print(selected)
+            selected.toggle()
+            print()
+            if selected{
+                selectedChallenges.append(challenge)
             }
             else{
-                challenge.selected = 1
+                selectedChallenges.removeAll(where: {$0.id == challenge.id})
             }
-            isChecked = (challenge.selected == 1)
+            isChecked = selected
         }){
             ///Essa é a árrea que tem tem os botoes de check junto com o nome de cada categoria
             HStack(spacing: 16){
-                if challenge.selected == 0{
-                    Image(systemName: "checkmark.circle")
-                }
-                else{
+                if selected{
                     Image(systemName: "checkmark.circle.fill")
                 }
-                
+                else{
+                    Image(systemName: "checkmark.circle")
+                }
                 
                 HStack(spacing: 12){
                     if let icon = UIImage(data: challenge.icon){

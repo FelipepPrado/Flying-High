@@ -45,6 +45,7 @@ struct AddAlbumView: View {
                                 HStack {
                                     Text(startDate.formatted(.dateTime.day().month().year()))
                                         .fontWeight(.medium)
+                                    
                                     Spacer()
                                 }
                                     .padding(.vertical, 12)
@@ -55,7 +56,12 @@ struct AddAlbumView: View {
                                             .stroke(Color(.systemGray5), lineWidth: 2)
                                     )
                                     .overlay {
-                                        DatePicker("Selecione uma data de ida", selection: $startDate, displayedComponents: .date)
+                                        DatePicker(
+                                            "Selecione uma data de ida",
+                                            selection: $startDate,
+                                            in: Date.now...,
+                                            displayedComponents: .date,
+                                        )
                                             .labelsHidden()
                                             .colorMultiply(.clear)
                                     }
@@ -77,7 +83,12 @@ struct AddAlbumView: View {
                                             .stroke(Color(.systemGray5), lineWidth: 2)
                                     )
                                     .overlay {
-                                        DatePicker("Selecione uma data de volta", selection: $endDate, displayedComponents: .date)
+                                        DatePicker(
+                                            "Selecione uma data de volta",
+                                            selection: $endDate,
+                                            in: startDate...,
+                                            displayedComponents: .date
+                                        )
                                             .labelsHidden()
                                             .colorMultiply(.clear)
                                     }
@@ -143,11 +154,10 @@ struct AddAlbumView: View {
                 }
                 .padding(.horizontal, 32)
                 .padding(.vertical, 4)
-                .disabled(title.isEmpty)
+                .disabled(title.isEmpty || endDate < startDate)
                 .buttonStyle(.borderedProminent)
                 .buttonStyle(.glassProminent)
                 .tint(.blue)
-                
             }
         }
     }
