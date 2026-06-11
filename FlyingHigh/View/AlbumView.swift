@@ -4,6 +4,7 @@ import Nuvem
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
     var album: Album.Observable
+    @Binding var progress: Double
     
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
@@ -19,90 +20,94 @@ struct AlbumView: View {
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
-               ZStack{
-                   Color(.systemGroupedBackground).ignoresSafeArea()
-                   ScrollView{
-                       LazyVGrid(columns: columns, spacing: 10){
-                           ForEach(photos) { photo in
-                               if photo.data == nil {
-                                   let challenge = getChallenge(challengeReference: photo.challengeReference)
-                                   if let challenge = challenge {
-                                       Button(action: {
-                                           selectedChallenge = challenge
-                                           selectedPhoto = photo
-                                           showingCamera = true
-                                       }){
-                                           challengeCell(challenge: challenge)
-                                       }
-                                   }
-                               } else {
-                                   let challenge = getChallenge(challengeReference: photo.challengeReference)
-                                   Button(action: {
-                                       selectedPhotoForDetail = photo
-                                       selectedChallengeForDetail = challenge
-                                       showPhotoDetail = true                                    }){
-                                       if let imagem = UIImage(data: photo.data!) {
-                                           VStack{
-                                               Image(uiImage: imagem)
-                                                   .resizable()
-                                                   .scaledToFill()
-                                                   .frame(minWidth: 0, maxWidth: .infinity, minHeight: 240)
-                                                   .clipped()
-                                           }
-                                           .frame(maxWidth: 180, maxHeight: 240)
-                                           .background(Color(.secondarySystemGroupedBackground))
-                                           .clipShape(RoundedRectangle(cornerRadius: 10))
-                                       }
-                                   }
-                               }
-                           }
-                           .accessibilityElement(children: .combine)
-                       }
-                   }
-               }
-               .navigationTitle(album.title)
-               .navigationBarTitleDisplayMode(.inline)
-               .toolbar{
-                   ToolbarItem(placement: .topBarTrailing){
-                       Menu("Ações"){
-                           Button("Editar álbum", systemImage: "square.and.pencil"){
-                               editAlbum.toggle()
-                           }
-                           Button("Excluir", systemImage: "trash.fill"){
-                               deletAlbum.toggle()
-                           }
-                       }
-                   }
-               }
-               .alert(
-                   "Deseja mesmo excluir o Álbum?",
-                   isPresented: $deletAlbum
-               ) {
-                   Button("Cancelar",role: .cancel) {}
-                   Button("Deletar"){
-                       Task{
-                           await deletAlbum()
-                       }
-                   }
-               } message: {
-                   Text("Após o envio não será possível tirar novas fotos.")
-               }
-               .navigationDestination(isPresented: $showingCamera){
-                   CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
-               }
-               .navigationDestination(isPresented: $showPhotoDetail){
-                   if let photo = selectedPhotoForDetail,
-                      let challenge = selectedChallengeForDetail {
-                       PhotoDetailView(
-                           photo: photo,
-                           challengeTitle: challenge.title
-                       )
-                   }
-               }
-               .navigationDestination(isPresented: $editAlbum){
-                   EditAlbumView(album: album)
-               }
-           
+        ZStack{
+            Color(.systemGroupedBackground).ignoresSafeArea()
+            ScrollView{
+                HStack(spacing: 6){
+                    ProgressView(value: progress)
+                        .frame(minHeight: 16)
+                    let progressText = String(format:"%.0f", (progress*100).rounded())
+                    Text("\(progressText)%")
+                }
+                .padding(.horizontal, 10)
+                LazyVGrid(columns: columns, spacing: 10){
+                    ForEach(photos) { photo in
+                        if photo.data == nil{
+                            let challenge = getChallenge(challengeReference: photo.challengeReference)
+                            if let challenge = challenge {
+                                Button(action: {
+                                    selectedChallenge = challenge
+                                    selectedPhoto = photo
+                                    showingCamera = true
+                                }){
+                                    VStack(alignment: .center, spacing: 4){
+                                        if let icon = UIImage(data: challenge.icon){
+                                            Image(uiImage: icon)
+                                        }
+                                        Text(challenge.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                    }
+                                    .frame(minWidth: 180, minHeight: 240)
+                                    .background(Color(.secondarySystemGroupedBackground))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+                            }
+                        }
+                        else{
+                            if let imagem = UIImage(data: photo.data!){
+                                VStack{
+                                    Image(uiImage: imagem)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                                .frame(maxWidth: 180, maxHeight: 240)
+                                .background(Color(.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+            .padding()
+        }
+        .navigationTitle(album.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing){
+                Menu("Ações"){
+                    Button("Editar álbum", systemImage: "square.and.pencil"){
+                        editAlbum.toggle()
+                    }
+                    .tint(Color.blue)
+                    
+                    Button("Excluir", systemImage: "trash.fill", role: .destructive){
+                        deletAlbum.toggle()
+                    }
+                }
+            }
+        }
+        .alert(
+            "Deseja mesmo excluir o Álbum?",
+            isPresented: $deletAlbum
+        ) {
+            Button("Cancelar",role: .cancel) {}
+            
+            Button("Deletar"){
+                Task{
+                    await deletAlbum()
+                }
+            }
+        }message: {
+            Text("Após o envio não será possível tirar novas fotos.")
+        }
+        .navigationDestination(isPresented: $showingCamera){
+            CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
+        }
+        .navigationDestination(isPresented: $editAlbum){
+            EditAlbumView(album: album)
+        }
         .task {
             await loadPhotos()
         }
@@ -111,14 +116,18 @@ struct AlbumView: View {
         }
     }
     
-    private func challengeCell(challenge: Challenge.Observable) -> some View {
-        VStack(alignment: .center, spacing: 4){
-            if let icon = UIImage(data: challenge.icon){
-                Image(uiImage: icon)
+    func returnProgress(){
+        var completedChallenges: Int = 0
+        if !(photos.isEmpty){
+            for photo in photos {
+                if photo.data != nil{
+                    completedChallenges += 1
+                }
             }
-            Text(challenge.title)
-                .font(.headline)
-                .foregroundColor(.primary)
+            let currentProgress = Double(completedChallenges) / Double(photos.count)
+            if progress != currentProgress{
+                progress = currentProgress
+            }
         }
         .frame(minWidth: 180, minHeight: 240)
         .background(Color(.secondarySystemGroupedBackground))
@@ -131,6 +140,8 @@ struct AlbumView: View {
                 .filter(\.$album == album.id)
                 .all()
                 .map(\.observable)
+            print(photos)
+            returnProgress()
         } catch {
             print(error)
         }
@@ -145,6 +156,8 @@ struct AlbumView: View {
             print(error)
         }
     }
+    
+    
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
         guard let challengeReference = challengeReference else { return nil }

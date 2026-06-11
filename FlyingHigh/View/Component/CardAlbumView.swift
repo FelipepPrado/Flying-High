@@ -5,11 +5,10 @@ struct CardAlbumView: View {
     var album: Album.Observable
     
     @State private var photos: [Photo.Observable] = []
+    @State private var progress: Double = 0
     
     var body: some View {
-//        ZStack{
-//            Color(.systemGroupedBackground).ignoresSafeArea()
-            NavigationLink(destination: AlbumView(album: album)){
+        NavigationLink(destination: AlbumView(album: album, progress: $progress)){
                 Group {
                     HStack {
                         HStack {
@@ -23,7 +22,11 @@ struct CardAlbumView: View {
                                     .font(.callout)
                                     .foregroundStyle(.black)
                                     .multilineTextAlignment(.leading)
-                                ProgressView(value: returnProgress())
+                                HStack(spacing: 6){
+                                    ProgressView(value: progress)
+                                    let progressText = String(format:"%.0f", (progress*100).rounded())
+                                    Text("\(progressText)%")
+                                }
                             }
                             .padding(.vertical, 20)
                             .padding(.leading,20)
@@ -58,20 +61,22 @@ struct CardAlbumView: View {
                 .filter(\.$album == album.id)
                 .all()
                 .map(\.observable)
+            returnProgress()
         } catch {
             print(error)
         }
     }
     
-    func returnProgress() -> Double{
+    func returnProgress(){
         var completedChallenges: Int = 0
-        for photo in photos {
-            if photo.data != nil{
-                completedChallenges += 1
+        if !(photos.isEmpty){
+            for photo in photos {
+                if photo.data != nil{
+                    completedChallenges += 1
+                }
             }
+            progress = Double(completedChallenges) / Double(photos.count)
         }
-        print(Double(completedChallenges) / Double(photos.count))
-        return Double(completedChallenges) / Double(photos.count)
     }
 }
 
