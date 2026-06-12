@@ -131,23 +131,29 @@ struct SaveImageView: View {
 struct PhotoDetailView: View {
     let photo: Photo.Observable
     let challengeTitle: String
+    var album: Album.Observable
     
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
     @State private var shareURL: URL?
+    private let footerHeight: CGFloat = 180.0
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                Color.white.ignoresSafeArea()
+            
+            VStack(spacing: 10){
+                Spacer()
                 
+                ZStack{
+                //Color.white.ignoresSafeArea()
                 if let imageData = photo.data,
                    let uiImage = UIImage(data: imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                         .scaleEffect(scale)
                         .offset(offset)
                         .gesture(
@@ -189,6 +195,21 @@ struct PhotoDetailView: View {
                         }
                 }
             }
+            
+                    // TODO: Identificar a data e hora que a foto foi tirada
+                
+                //Text("\(album.startDate.formatted(.dateTime.weekday().day().month().year()))")
+                // Text("\(album.startDate.formatted(.dateTime.weekday())), \(album.startDate.formatted(.dateTime.day())) de \(album.startDate.formatted(.dateTime.month())) de \(album.startDate.formatted(.dateTime.year())) as \(album.startDate.formatted(.dateTime.hour())):\(album.startDate.formatted(.dateTime.minute())) ")
+                
+                //Text("\(Calendar.current.component(.hour, from: album.startDate)):\(Calendar.current.component(.minute, from: album.startDate))")
+                
+                Spacer()
+
+            }
+            .border(.pink)
+            .padding(.horizontal, 20)
+            
+            
         }
         .navigationTitle(challengeTitle)
         .navigationBarTitleDisplayMode(.inline)
