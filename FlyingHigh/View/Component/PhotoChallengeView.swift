@@ -61,7 +61,7 @@ struct PhotoChallengeView: View {
                                 .foregroundStyle(Color.accentColor)
                         }
                         else {
-                            Text("Registre")
+                            Text("Revelando")
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color.secondary)
                             Text("\(textChallenge)")
