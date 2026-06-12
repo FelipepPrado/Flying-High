@@ -141,7 +141,7 @@ struct PhotoDetailView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.white.ignoresSafeArea()
                 
                 if let imageData = photo.data,
                    let uiImage = UIImage(data: imageData) {

@@ -5,7 +5,6 @@ struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
     var album: Album.Observable
     @Binding var progress: Double
-    
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
@@ -32,8 +31,10 @@ struct AlbumView: View {
                 .padding(.horizontal, 10)
                 LazyVGrid(columns: columns, spacing: 10){
                     ForEach(photos) { photo in
-                        if photo.data == nil {
-                            let challenge = getChallenge(challengeReference: photo.challengeReference)
+                        if photo.data == nil { //ao clicar mostra a camera
+                            let challenge = getChallenge(
+                                challengeReference: photo.challengeReference
+                            )
                             if let challenge = challenge {
                                 Button(action: {
                                     selectedChallenge = challenge
@@ -43,13 +44,14 @@ struct AlbumView: View {
                                     challengeCell(challenge: challenge)
                                 }
                             }
-                        } else {
-                            let challenge = getChallenge(challengeReference: photo.challengeReference)
-                            Button(action: {
-                                selectedPhotoForDetail = photo
-                                selectedChallengeForDetail = challenge
-                                showPhotoDetail = true})
-                            {
+                        } else { //ao clicar mostra a foto
+                            if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
+                                let challenge = getChallenge(challengeReference: photo.challengeReference)
+                                Button(action: {
+                                    selectedPhotoForDetail = photo
+                                    selectedChallengeForDetail = challenge
+                                    showPhotoDetail = true})
+                                {
                                     if let imagem = UIImage(data: photo.data!) {
                                         VStack{
                                             Image(uiImage: imagem)
@@ -63,6 +65,17 @@ struct AlbumView: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                     }
                                 }
+
+                            }
+                            else{
+                                let challenge = getChallenge(
+                                    challengeReference: photo.challengeReference
+                                )
+                                
+                                if let challenge = challenge {
+                                    revealingCell(challenge: challenge)
+                                }
+                            }
                         }
                     }
                     .accessibilityElement(children: .combine)
@@ -122,6 +135,14 @@ struct AlbumView: View {
             await loadChallenges()
         }
     }
+    func challengesDone() -> Bool{
+        if progress < 1{
+            return false
+        }
+        else{
+            return true
+        }
+    }
     
     func returnProgress(){
         var completedChallenges: Int = 0
@@ -136,7 +157,7 @@ struct AlbumView: View {
                 progress = currentProgress
             }
         }
-
+        
     }
     
     private func challengeCell(challenge: Challenge.Observable) -> some View {
@@ -150,6 +171,25 @@ struct AlbumView: View {
         }
         .frame(minWidth: 180, minHeight: 240)
         .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+    
+    private func revealingCell(challenge: Challenge.Observable) -> some View {
+        VStack {
+            Image(systemName: "film")
+                .font(.system(size: 42))
+                .foregroundColor(.black)
+            
+            Text("Revelando...")
+                .font(.headline)
+            
+            Text(challenge.title)
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+        }
+        .frame(minWidth: 180, minHeight: 240)
+        .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
@@ -175,7 +215,6 @@ struct AlbumView: View {
             print(error)
         }
     }
-    
     
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
