@@ -118,7 +118,7 @@ struct AlbumView: View {
                let challenge = selectedChallengeForDetail {
                 PhotoDetailView(
                     photo: photo,
-                    challengeTitle: challenge.title
+                    challengeTitle: challenge.title, album: album
                 )
             }
         }
