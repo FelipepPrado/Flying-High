@@ -5,7 +5,6 @@ struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
     var album: Album.Observable
     @Binding var progress: Double
-    
     @State private var photos: [Photo.Observable] = []
     @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
@@ -46,17 +45,7 @@ struct AlbumView: View {
                                 }
                             }
                         } else { //ao clicar mostra a foto
-                            if Date.now <= album.endDate { //deixa em espera para revelar o momento
-                                
-                                let challenge = getChallenge(
-                                    challengeReference: photo.challengeReference
-                                )
-                                
-                                if let challenge = challenge {
-                                    revealingCell(challenge: challenge)
-                                }
-                            }
-                            else{
+                            if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
                                 let challenge = getChallenge(challengeReference: photo.challengeReference)
                                 Button(action: {
                                     selectedPhotoForDetail = photo
@@ -75,6 +64,16 @@ struct AlbumView: View {
                                         .background(Color(.secondarySystemGroupedBackground))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                     }
+                                }
+
+                            }
+                            else{
+                                let challenge = getChallenge(
+                                    challengeReference: photo.challengeReference
+                                )
+                                
+                                if let challenge = challenge {
+                                    revealingCell(challenge: challenge)
                                 }
                             }
                         }
@@ -134,6 +133,14 @@ struct AlbumView: View {
         }
         .task {
             await loadChallenges()
+        }
+    }
+    func challengesDone() -> Bool{
+        if progress < 1{
+            return false
+        }
+        else{
+            return true
         }
     }
     
