@@ -16,78 +16,75 @@ struct AlbumView: View {
     @State private var selectedChallengeForDetail: Challenge.Observable?
     @State private var showPhotoDetail = false
     
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    let columns = [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)]
     
     var body: some View {
         ZStack{
             Color(.systemGroupedBackground).ignoresSafeArea()
-            ScrollView{
-                HStack(spacing: 6){
-                    ProgressView(value: progress)
-                        .frame(minHeight: 16)
-                    let progressText = String(format:"%.0f", (progress*100).rounded())
-                    Text("\(progressText)%")
-                }
-                .padding(.horizontal, 10)
-                LazyVGrid(columns: columns, spacing: 10){
-                    ForEach(photos) { photo in
-                        if photo.data == nil { //ao clicar mostra a camera
-                            let challenge = getChallenge(
-                                challengeReference: photo.challengeReference
-                            )
-                            if let challenge = challenge {
-                                Button(action: {
-                                    selectedChallenge = challenge
-                                    selectedPhoto = photo
-                                    showingCamera = true
-                                }){
-                                    challengeCell(challenge: challenge)
-                                }
-                            }
-                        } else { //ao clicar mostra a foto
-                            if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
-                                let challenge = getChallenge(challengeReference: photo.challengeReference)
-                                Button(action: {
-                                    selectedPhotoForDetail = photo
-                                    selectedChallengeForDetail = challenge
-                                    showPhotoDetail = true})
-                                {
-                                    if let imagem = UIImage(data: photo.data!) {
-                                        VStack{
-                                            Image(uiImage: imagem)
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 240)
-                                                .clipped()
-                                        }
-                                        .frame(maxWidth: 180, maxHeight: 240)
-                                        .background(Color(.secondarySystemGroupedBackground))
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    }
-                                }
-
-                            }
-                            else{
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 26){
+                    HStack(alignment: .center, spacing: 6){
+                        ProgressView(value: progress)
+                            .progressViewStyle(CustomProgressBar(progressHeight: 16))
+                            .frame(height: 12)
+                        
+                        let progressText = String(format:"%.0f", (progress*100).rounded())
+                        Text("\(progressText)%")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.black)
+                    }
+                    LazyVGrid(columns: columns, spacing: 20){
+                        ForEach(photos) { photo in
+                            if photo.data == nil { //ao clicar mostra a camera
                                 let challenge = getChallenge(
                                     challengeReference: photo.challengeReference
                                 )
-                                
                                 if let challenge = challenge {
-                                    revealingCell(challenge: challenge)
+                                    Button(action: {
+                                        selectedChallenge = challenge
+                                        selectedPhoto = photo
+                                        showingCamera = true
+                                    }){
+                                        PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil)
+                                    }
+                                }
+                            } else { //ao clicar mostra a foto
+                                if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
+                                    let challenge = getChallenge(challengeReference: photo.challengeReference)
+                                    Button(action: {
+                                        selectedPhotoForDetail = photo
+                                        selectedChallengeForDetail = challenge
+                                        showPhotoDetail = true})
+                                    {
+                                        if let imagem = UIImage(data: photo.data!) {
+                                            if let challenge = challenge{
+                                                PhotoChallengeView(status: 2, textChallenge: challenge.title, imageChallenge: imagem)
+                                            }
+                                        }
+                                    }
+                                }
+                                else{
+                                    let challenge = getChallenge(
+                                        challengeReference: photo.challengeReference
+                                    )
+                                    if let challenge = challenge {
+                                        PhotoChallengeView(status: 1, textChallenge: challenge.title, imageChallenge: nil)
+                                    }
                                 }
                             }
                         }
+                        .accessibilityElement(children: .combine)
                     }
-                    .accessibilityElement(children: .combine)
                 }
+                .padding()
             }
-            .padding()
         }
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
-                Menu("Ações"){
+                Menu(content: {
                     Button("Editar álbum", systemImage: "square.and.pencil"){
                         editAlbum.toggle()
                     }
@@ -96,7 +93,7 @@ struct AlbumView: View {
                     Button("Excluir", systemImage: "trash.fill", role: .destructive){
                         deletAlbum.toggle()
                     }
-                }
+                }, label: {Image(systemName: "ellipsis")})
             }
         }
         .alert(
@@ -158,39 +155,6 @@ struct AlbumView: View {
             }
         }
         
-    }
-    
-    private func challengeCell(challenge: Challenge.Observable) -> some View {
-        VStack(alignment: .center, spacing: 4){
-            if let icon = UIImage(data: challenge.icon){
-                Image(uiImage: icon)
-            }
-            Text(challenge.title)
-                .font(.headline)
-                .foregroundColor(.primary)
-        }
-        .frame(minWidth: 180, minHeight: 240)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-    
-    private func revealingCell(challenge: Challenge.Observable) -> some View {
-        VStack {
-            Image(systemName: "film")
-                .font(.system(size: 42))
-                .foregroundColor(.black)
-            
-            Text("Revelando...")
-                .font(.headline)
-            
-            Text(challenge.title)
-                .font(.subheadline)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-        }
-        .frame(minWidth: 180, minHeight: 240)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
     func loadPhotos() async {
