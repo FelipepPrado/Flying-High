@@ -29,7 +29,7 @@ struct CardAlbumView: View {
                                 .padding(.leading, 2)
                                 HStack(alignment: .center, spacing: 6){
                                     ProgressView(value: progress)
-                                        .progressViewStyle(CustomProgressBar())
+                                        .progressViewStyle(CustomProgressBar(progressHeight: 12))
                                         .frame(height: 12)
                                         
                                     let progressText = String(format:"%.0f", (progress*100).rounded())
@@ -106,19 +106,21 @@ struct TrailingBorder: Shape {
 }
 
 struct CustomProgressBar: ProgressViewStyle {
+    let progressHeight: Int
+    
     func makeBody(configuration: Configuration) -> some View {
         GeometryReader { geometry in
             let width = geometry.size.width
             ZStack(alignment: .leading) {
                 Rectangle()
                     .frame(maxWidth: .infinity)
-                    .frame(height: 12)
+                    .frame(height: CGFloat(progressHeight))
                     .foregroundStyle(Color(.systemGray5))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: CGFloat(progressHeight)/2))
                 Rectangle()
-                    .frame(width: width * CGFloat(configuration.fractionCompleted ?? 0.0), height: 12)
+                    .frame(width: width * CGFloat(configuration.fractionCompleted ?? 0.0), height: CGFloat(progressHeight))
                     .foregroundStyle(Color(.systemGray))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: CGFloat(progressHeight)/2))
             }
         }
     }

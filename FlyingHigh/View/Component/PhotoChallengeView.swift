@@ -10,7 +10,7 @@ import SwiftUI
 struct PhotoChallengeView: View {
     var status: Int
     var textChallenge: String
-    var imageChallenge: UIImage
+    var imageChallenge: UIImage?
     
     var body: some View {
         ZStack{
@@ -89,13 +89,13 @@ struct PhotoChallengeView: View {
                     Rectangle()
                         .fill(.green)
                         .overlay {
-                            Image(uiImage: imageChallenge)
+                            Image(uiImage: imageChallenge!)
                                 .resizable()
                                 .scaledToFill()
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .rotationEffect(.degrees(6))
-                        .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 2)
+                        .rotationEffect(.degrees(0))
+//                        .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 2)
                         .zIndex(999)
                     
                 }
