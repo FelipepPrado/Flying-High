@@ -206,7 +206,6 @@ struct PhotoDetailView: View {
                 Spacer()
 
             }
-            .border(.pink)
             .padding(.horizontal, 20)
             
             
