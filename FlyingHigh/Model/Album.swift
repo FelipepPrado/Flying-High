@@ -32,7 +32,7 @@ class AlbumViewModel{
     
     func addAlbum(album: Album) {
         self.albums.append(album.observable)
-        self.albums = self.albums.sorted{$0.startDate < $1.startDate}
+        self.albums = self.albums.sorted{$0.startDate > $1.startDate}
     }
     
     init(){

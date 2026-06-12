@@ -14,25 +14,25 @@ struct ContentView: View {
         NavigationStack(path: $path.path){
             ZStack{
                 Color(.systemGroupedBackground).ignoresSafeArea()
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
                         ForEach(albumViewModel.albums){ album in
                             CardAlbumView(album: album)
                         }
                     }
+                    .padding()
                 
                     .task {
                         do {
                             self.albums = try await Album.query(on: .private)
                                 .all()
                                 .map(\.observable)
-                            albumViewModel.albums = albums.sorted{$0.startDate < $1.startDate}
+                            albumViewModel.albums = albums.sorted{$0.startDate > $1.startDate}
                         } catch {
                             print(error)
                         }
                     }
                 }
-                .padding()
             }
             .navigationTitle("Minhas Experiências")
 //            .accessibilityLabel(Text("Tela de Albums"))
