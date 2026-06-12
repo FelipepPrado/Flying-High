@@ -35,8 +35,7 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Minhas Experiências")
-//            .accessibilityLabel(Text("Tela de Albums"))
-//
+
             .toolbarTitleDisplayMode(.inline)
             .navigationDestination(for: NameViews.self){
                 destination in
@@ -54,6 +53,7 @@ struct ContentView: View {
             }
         }
     }
+
 }
 
 //#Preview {

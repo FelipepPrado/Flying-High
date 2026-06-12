@@ -42,6 +42,8 @@ struct CameraView: View {
         }
         .ignoresSafeArea(.all)
         .environmentObject(model)
+        
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 }
 
@@ -87,6 +89,7 @@ struct SaveImageView: View {
             }
         }
         .navigationTitle(challengeTitle)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .alert(
@@ -210,7 +213,8 @@ struct PhotoDetailView: View {
             
             
         }
-        .navigationTitle(challengeTitle)
+      .navigationTitle(challengeTitle)
+//       .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -257,7 +261,8 @@ struct ImageView: View {
             }
             .background(Color.vibrantPrimary)
         }
-        .navigationTitle(challengeTitle)
+       .navigationTitle(challengeTitle)
+       .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
@@ -280,7 +285,7 @@ struct ImageView: View {
 //visualizacao da camera + botoes
 struct PreviewView: View {
     @EnvironmentObject var model: CameraModel
-    private let footerHeight: CGFloat = 180.0
+    private let footerHeight: CGFloat = 150.0
     @State private var currentZoomFactor: CGFloat = 1.0
     @State private var lastZoomFactor: CGFloat = 1.0
     
@@ -319,25 +324,25 @@ struct PreviewView: View {
             VStack (alignment: .center, spacing: 15) {
                 
                 //slider exposicao
-                HStack {
-                    Image(systemName:"sun.min")
-                    Slider(
-                        value:Binding(
-                            get: {
-                                Double(model.exposureValue)
-                            },
-                            set: {newValue in
-                                model.exposureValue=Float(newValue)
-                                
-                                model.camera.setExposure(
-                                    bias:model.exposureValue
-                                )
-                            }
-                        ),
-                        in:-2...2
-                    )
-                    Image(systemName:"sun.max")
-                }
+//                HStack {
+//                    Image(systemName:"sun.min")
+//                    Slider(
+//                        value:Binding(
+//                            get: {
+//                                Double(model.exposureValue)
+//                            },
+//                            set: {newValue in
+//                                model.exposureValue=Float(newValue)
+//                                
+//                                model.camera.setExposure(
+//                                    bias:model.exposureValue
+//                                )
+//                            }
+//                        ),
+//                        in:-2...2
+//                    )
+//                    Image(systemName:"sun.max")
+//                }
                 
                 //botoes zoom
                 HStack(spacing: 30) {
@@ -352,7 +357,9 @@ struct PreviewView: View {
                     Button("3x") {
                         model.camera.setZoom(factor: 3)
                     }
-                }.font(.headline)
+                }
+                .foregroundStyle(.white)
+                .font(.headline)
                 
                 //numero de tentativas
                 HStack{
@@ -378,7 +385,7 @@ struct PreviewView: View {
                         ZStack {
                             Circle()
                                 .fill(.white)
-                                .frame(width: frameHeight - 200,height: frameHeight - 200)
+                                .frame(width: frameHeight - 150,height: frameHeight - 150)
                         }
                     }
                     
