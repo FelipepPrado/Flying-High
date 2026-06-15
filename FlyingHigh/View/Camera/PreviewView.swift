@@ -10,38 +10,56 @@ import Nuvem
 
 struct PreviewView: View {
     @EnvironmentObject var model: CameraModel
-    private let footerHeight: CGFloat = 150.0
+    private let footerHeight: CGFloat = 120.0
     @State private var currentZoomFactor: CGFloat = 1.0
     @State private var lastZoomFactor: CGFloat = 1.0
     
     var body: some View {
-        ImageView(image: model.previewImage, descriptionChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
-            .gesture(
-                MagnificationGesture()
-                    .onChanged { value in
-                        
-                        let zoom = lastZoomFactor * value
-                        
-                        currentZoomFactor = zoom
-                        
-                        model.camera.setZoom(
-                            factor: currentZoomFactor
-                        )
+        
+        ZStack {
+            GeometryReader { geometry in
+                ImageView(image: model.previewImage, descriptionChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
+                    .frame(maxWidth: .infinity)
+//                    .frame(height: geometry.size.height)
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                
+                                let zoom = lastZoomFactor * value
+                                
+                                currentZoomFactor = zoom
+                                
+                                model.camera.setZoom(
+                                    factor: currentZoomFactor
+                                )
+                            }
+                            .onEnded { _ in
+                                lastZoomFactor = currentZoomFactor
+                            }
+                    )
+                    .padding(.bottom, footerHeight)
+                    .overlay(alignment: .bottom) {
+                        buttonsView()
+                        //define a altura onde os botoes principais estao
+                            .frame(height: footerHeight + 100)
                     }
-                    .onEnded { _ in
-                        lastZoomFactor = currentZoomFactor
+                    .padding(.top, 30)
+                    .background(Color.vibrantPrimary)
+                
+                
+                VStack{
+                    Spacer()
+                    HStack{
+                        FilmCameraView(filmNumber: model.maxPhotos  - model.photosTaken)
+                        Spacer ()
                     }
-            )
-            .padding(.bottom, footerHeight)
-            .overlay(alignment: .bottom) {
-                buttonsView()
-                //define a altura onde os botoes principais estao
-                    .frame(height: footerHeight + 100)
+                    .padding(.bottom, geometry.size.height * 0.28)
+                    .padding(.horizontal, geometry.size.width * 0.07)
+                    
+                }
             }
-            .padding(.top, 30)
-            .background(Color.vibrantPrimary)
+        }
     }
-    
     //botoes da camera (tirar foto, zoom, exposicao)
     private func buttonsView() -> some View {
         GeometryReader { geometry in
@@ -66,14 +84,14 @@ struct PreviewView: View {
                 .font(.headline)
                 
                 //numero de tentativas
-                HStack{
-                    Text("\(model.photosTaken)/\(model.maxPhotos) Tentativas")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                }
-                .padding(10)
-                .background(.gray.opacity(0.3))
-                .cornerRadius(5)
+//                HStack{
+//                    Text("\(model.photosTaken)/\(model.maxPhotos) Tentativas")
+//                        .font(.headline)
+//                        .foregroundColor(.white)
+//                }
+//                .padding(10)
+//                .background(.gray.opacity(0.3))
+//                .cornerRadius(5)
                 
                 //botoes de tirar foto, flash e trocar
                 HStack {
@@ -89,7 +107,7 @@ struct PreviewView: View {
                         ZStack {
                             Circle()
                                 .fill(.white)
-                                .frame(width: frameHeight - 150,height: frameHeight - 150)
+                                .frame(width: frameHeight - 120,height: frameHeight - 120)
                         }
                     }
                     

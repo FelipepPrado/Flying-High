@@ -30,8 +30,6 @@ struct SaveImageView: View {
                     )
                     .frame(maxWidth: .infinity)
                     .frame(height: geometry.size.height * 0.6)
-                    
-                    
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Descrição da foto")
                             .font(.headline)
@@ -44,7 +42,7 @@ struct SaveImageView: View {
                         .foregroundStyle(.black)
                         .background(Color.white)
                         .cornerRadius(8)
-                        .lineLimit(3...6)
+                        .lineLimit(1...3)
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -53,7 +51,6 @@ struct SaveImageView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
-        
         .background(Color.vibrantPrimary)
         .onTapGesture {
             dismissKeyboard()
