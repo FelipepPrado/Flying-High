@@ -23,105 +23,7 @@ struct SwipeActionButtonView: View {
     @State var topCard: Int = 0
 
     var body: some View {
-        VStack {
-            Text("Selecione seus desafios")
-                .padding(30)
-            Text("\(selectedChallenges.count) desafios selecionados")
-            
-            ZStack {
-                ForEach(challenges.enumerated(), id: \.offset) { (i, challenge) in
-                    //CARDS COM CADA DESAFIO
-                    Card(challengeTitle: challenge.title)
-                        .cornerRadius(20)
-                        .shadow(radius: 6)
-                        .frame(width: 300, height: 400)
-                        
-                        
-                        //-----------------------------------
-                        .offset(x: self.x[i])
-                        .rotationEffect(.init(degrees: self.degree[i]))
-                        .gesture(
-                            DragGesture()
-                                .onChanged({ (value) in
-                                    if value.translation.width > 0 {
-                                        self.x[i] = value.translation.width
-                                        self.degree[i] = 10
-                                        self.buttonRighttColor = .blue
-                                        self.buttonLeftColor = .gray
-                                    } else {
-                                        self.x[i] = value.translation.width
-                                        self.degree[i] = -8
-                                        self.buttonLeftColor = .red
-                                        self.buttonRighttColor = .gray
-                                    }
-                                })
-                                .onEnded({ (value) in
-                                    if value.translation.width > 0 {
-                                        if value.translation.width > 100 {
-                                            self.x[i] = 500
-                                            self.degree[i] = 10
-                                            activateRightButton()
-                                            selectChallenge(challenge: challenge)
-                                            topCard -= 1
-                                        } else {
-                                            self.x[i] = 0
-                                            self.degree[i] = 0
-                                        }
-                                    } else {
-                                        if value.translation.width < -100 {
-                                            self.x[i] = -500
-                                            self.degree[i] = -15
-                                            activeLeftButton()
-                                            topCard -= 1 // Mantém o topo atualizado no drag para a esquerda também
-                                        } else {
-                                            self.x[i] = 0
-                                            self.degree[i] = 0
-                                        }
-                                    }
-                                })
-                        )
-                }
-            }.padding(60)
-
-            .animation(.default, value: x)
-
-            //Lógica:
-            //Se passar para o lado direito, então o botão "levar carta" fica azul
-            //Se passar para o lado esquerto, então o botão "deixar passar" fica vermelho
-            HStack(spacing: 50) {
-                Button {
-                    swipeLeft(index: topCard)
-                } label: {
-                    Text("Deixar passar")
-                        .frame(width: 130, height: 40)
-                }
-                .foregroundStyle(Color(.systemBackground))
-                .fontWeight(.bold)
-                .background {
-                    Rectangle()
-                        .fill(buttonLeftColor)
-                        .frame(width: 130, height: 40)
-                        .shadow(radius: 6)
-                        .cornerRadius(6)
-                }
-
-                Button {
-                    swipeRight(index: topCard)
-                } label: {
-                    Text("Levar carta")
-                        .frame(width: 125, height: 40) // Ajustado tamanho fixo correto para layout do botão
-                }
-                .foregroundStyle(Color(.systemBackground))
-                .fontWeight(.bold)
-                .background {
-                    Rectangle()
-                        .fill(buttonRighttColor)
-                        .frame(width: 125, height: 40)
-                        .shadow(radius: 6)
-                        .cornerRadius(6)
-                }
-            }
-        }
+        insideView
         .onChange(of: topCard) { _, newValue in
             if newValue < 0 {
                 Task {
@@ -143,6 +45,114 @@ struct SwipeActionButtonView: View {
         }
     }
 
+    var insideView: some View {
+        Group{
+            if topCard == -1 {
+                LoadingScreen()
+            }
+            else{
+                VStack {
+                    Text("Selecione seus desafios")
+                        .padding(30)
+                    Text("\(selectedChallenges.count) desafios selecionados")
+                    
+                    ZStack {
+                        ForEach(challenges.enumerated(), id: \.offset) { (i, challenge) in
+                            //CARDS COM CADA DESAFIO
+                            Card(challengeTitle: challenge.title)
+                                .cornerRadius(20)
+                                .shadow(radius: 6)
+                                .frame(width: 300, height: 400)
+                                
+                                
+                                //-----------------------------------
+                                .offset(x: self.x[i])
+                                .rotationEffect(.init(degrees: self.degree[i]))
+                                .gesture(
+                                    DragGesture()
+                                        .onChanged({ (value) in
+                                            if value.translation.width > 0 {
+                                                self.x[i] = value.translation.width
+                                                self.degree[i] = 10
+                                                self.buttonRighttColor = .blue
+                                                self.buttonLeftColor = .gray
+                                            } else {
+                                                self.x[i] = value.translation.width
+                                                self.degree[i] = -8
+                                                self.buttonLeftColor = .red
+                                                self.buttonRighttColor = .gray
+                                            }
+                                        })
+                                        .onEnded({ (value) in
+                                            if value.translation.width > 0 {
+                                                if value.translation.width > 100 {
+                                                    self.x[i] = 500
+                                                    self.degree[i] = 10
+                                                    activateRightButton()
+                                                    selectChallenge(challenge: challenge)
+                                                    topCard -= 1
+                                                } else {
+                                                    self.x[i] = 0
+                                                    self.degree[i] = 0
+                                                }
+                                            } else {
+                                                if value.translation.width < -100 {
+                                                    self.x[i] = -500
+                                                    self.degree[i] = -15
+                                                    activeLeftButton()
+                                                    topCard -= 1 // Mantém o topo atualizado no drag para a esquerda também
+                                                } else {
+                                                    self.x[i] = 0
+                                                    self.degree[i] = 0
+                                                }
+                                            }
+                                        })
+                                )
+                        }
+                    }.padding(60)
+
+                    .animation(.default, value: x)
+
+                    //Lógica:
+                    //Se passar para o lado direito, então o botão "levar carta" fica azul
+                    //Se passar para o lado esquerto, então o botão "deixar passar" fica vermelho
+                    HStack(spacing: 50) {
+                        Button {
+                            swipeLeft(index: topCard)
+                        } label: {
+                            Text("Deixar passar")
+                                .frame(width: 130, height: 40)
+                        }
+                        .foregroundStyle(Color(.systemBackground))
+                        .fontWeight(.bold)
+                        .background {
+                            Rectangle()
+                                .fill(buttonLeftColor)
+                                .frame(width: 130, height: 40)
+                                .shadow(radius: 6)
+                                .cornerRadius(6)
+                        }
+
+                        Button {
+                            swipeRight(index: topCard)
+                        } label: {
+                            Text("Levar carta")
+                                .frame(width: 125, height: 40) // Ajustado tamanho fixo correto para layout do botão
+                        }
+                        .foregroundStyle(Color(.systemBackground))
+                        .fontWeight(.bold)
+                        .background {
+                            Rectangle()
+                                .fill(buttonRighttColor)
+                                .frame(width: 125, height: 40)
+                                .shadow(radius: 6)
+                                .cornerRadius(6)
+                        }
+                    }
+                }
+            }
+        }
+    }
     //Função para jogar o card para esquerda
     func swipeLeft(index: Int) {
         guard index >= 0 else { return }
@@ -239,14 +249,14 @@ struct Card: View {
         }
         VStack {
             Circle()
-                .stroke(.gray, style: StrokeStyle(lineWidth: 2))
+                .stroke(.gray)
                 .fill(.clear)
                 .frame(width: 160, height: 160)
                 .offset(x: 0, y: 0)
                 
 
             Text(challengeTitle)
-                .font(.largeTitle)
+                .font(.title)
                 .foregroundColor(.gray)
         }
     }
