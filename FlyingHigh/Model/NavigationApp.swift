@@ -17,6 +17,7 @@ class ViewRouter{
     
     func clear(){
         path = .init()
+        
     }
     
     func initView(){
@@ -44,7 +45,7 @@ enum ViewManagar {
         case .AddInfoAlbum:
             AddAlbumView()
         case .AddChallenge:
-            AddChallengesView()
+            SwipeActionButtonView()
         }
     }
 }
