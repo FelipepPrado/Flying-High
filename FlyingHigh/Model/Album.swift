@@ -25,6 +25,8 @@ struct Album{
 @Observable
 class AlbumViewModel{
     var albums: [Album.Observable] = []
+    var challenges: [Challenge.Observable] = []
+    var loadChallenges: Bool = true
     var title: String?
     var startDate: Date?
     var endDate: Date?

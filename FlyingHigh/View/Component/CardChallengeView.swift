@@ -11,9 +11,7 @@ struct CardChallenge: View {
     
     var body: some View {
         Button(action:{
-            print(selected)
             selected.toggle()
-            print()
             if selected{
                 selectedChallenges.append(challenge)
             }

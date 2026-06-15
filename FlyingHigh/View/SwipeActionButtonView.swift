@@ -133,19 +133,13 @@ struct SwipeActionButtonView: View {
                 }
             }
         }
-        .task {
-            do {
-                self.challenges = try await Challenge.query(on: .public)
-                    .all()
-                    .map(\.observable)
-                self.x = Array(repeating: 0.0, count: challenges.count)
-                self.degree = x.map { _ in
-                    [6, 10, 0].randomElement()!
-                }
-                topCard = challenges.count - 1
-            } catch {
-                print(error)
+        .onAppear {
+            self.challenges = albumViewModel.challenges
+            self.x = Array(repeating: 0.0, count: challenges.count)
+            self.degree = x.map { _ in
+                [6, 10, 0].randomElement()!
             }
+            topCard = challenges.count - 1
         }
     }
 
@@ -199,6 +193,10 @@ struct SwipeActionButtonView: View {
             return
         }
         
+        await savePhotos(album: album)
+    }
+    
+    func savePhotos(album: Album) async {
         var photos: [any CKModel] = []
         for challenge in selectedChallenges {
             let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)

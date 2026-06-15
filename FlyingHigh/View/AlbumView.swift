@@ -3,10 +3,11 @@ import Nuvem
 
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(AlbumViewModel.self) var albumViewModel
+    
     var album: Album.Observable
     @Binding var progress: Double
     @State private var photos: [Photo.Observable] = []
-    @State private var challenges: [Challenge.Observable] = []
     @State private var selectedChallenge: Challenge.Observable?
     @State private var showingCamera = false
     @State private var editAlbum = false
@@ -128,9 +129,6 @@ struct AlbumView: View {
         .task {
             await loadPhotos()
         }
-        .task {
-            await loadChallenges()
-        }
     }
     func challengesDone() -> Bool{
         if progress < 1{
@@ -163,32 +161,30 @@ struct AlbumView: View {
                 .filter(\.$album == album.id)
                 .all()
                 .map(\.observable)
-            print(photos)
             returnProgress()
         } catch {
             print(error)
         }
     }
     
-    func loadChallenges() async {
-        do {
-            self.challenges = try await Challenge.query(on: .public)
-                .all()
-                .map(\.observable)
-        } catch {
-            print(error)
-        }
-    }
+//    func loadChallenges() async {
+//        do {
+//            self.challenges = try await Challenge.query(on: .public)
+//                .all()
+//                .map(\.observable)
+//        } catch {
+//            print(error)
+//        }
+//    }
     
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
         guard let challengeReference = challengeReference else { return nil }
-        return challenges.first(where: { $0.id == challengeReference })
+        return albumViewModel.challenges.first(where: { $0.id == challengeReference })
     }
     
     func deletAlbum() async{
         do{
-            print(album.id)
             try await album.delete(on: .private)
             dismiss()
         }
