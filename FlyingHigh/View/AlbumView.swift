@@ -16,120 +16,133 @@ struct AlbumView: View {
     @State private var selectedPhotoForDetail: Photo.Observable?
     @State private var selectedChallengeForDetail: Challenge.Observable?
     @State private var showPhotoDetail = false
+    @State private var loadingCloudKit = false
     
     let columns = [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)]
     
     var body: some View {
-        ZStack{
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 26){
-                    HStack(alignment: .center, spacing: 6){
-                        ProgressView(value: progress)
-                            .progressViewStyle(CustomProgressBar(progressHeight: 16))
-                            .frame(height: 12)
+        insideView
+            .navigationTitle(album.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar{
+                ToolbarItem(placement: .topBarTrailing){
+                    Menu(content: {
+                        Button("Editar álbum", systemImage: "square.and.pencil"){
+                            editAlbum.toggle()
+                        }
+                        .tint(Color.blue)
                         
-                        let progressText = String(format:"%.0f", (progress*100).rounded())
-                        Text("\(progressText)%")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.black)
+                        Button("Excluir", systemImage: "trash.fill", role: .destructive){
+                            deletAlbum.toggle()
+                        }
+                    }, label: {Image(systemName: "ellipsis")})
+                }
+            }
+            .alert(
+                "Deseja mesmo excluir o Álbum?",
+                isPresented: $deletAlbum
+            ) {
+                Button("Cancelar",role: .cancel) {}
+                
+                Button("Deletar"){
+                    Task{
+                        await deletAlbum()
                     }
-                    LazyVGrid(columns: columns, spacing: 20){
-                        ForEach(photos) { photo in
-                            if photo.data == nil { //ao clicar mostra a camera
-                                let challenge = getChallenge(
-                                    challengeReference: photo.challengeReference
-                                )
-                                if let challenge = challenge {
-                                    Button(action: {
-                                        selectedChallenge = challenge
-                                        selectedPhoto = photo
-                                        showingCamera = true
-                                    }){
-                                        PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil)
-                                    }
-                                }
-                            } else { //ao clicar mostra a foto
-                                if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
-                                    let challenge = getChallenge(challengeReference: photo.challengeReference)
-                                    Button(action: {
-                                        selectedPhotoForDetail = photo
-                                        selectedChallengeForDetail = challenge
-                                        showPhotoDetail = true})
-                                    {
-                                        if let imagem = UIImage(data: photo.data!) {
-                                            if let challenge = challenge{
-                                                PhotoChallengeView(status: 2, textChallenge: challenge.title, imageChallenge: imagem)
+                }
+            }message: {
+                Text("Após o envio não será possível tirar novas fotos.")
+            }
+            .navigationDestination(isPresented: $showingCamera){
+                CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
+            }
+            .navigationDestination(isPresented: $showPhotoDetail){
+                if let photo = selectedPhotoForDetail,
+                   let challenge = selectedChallengeForDetail {
+                    PhotoDetailView(
+                        photo: photo,
+                        challengeTitle: challenge.title, album: album
+                    )
+                }
+            }
+            .navigationDestination(isPresented: $editAlbum){
+                EditAlbumView(album: album)
+            }
+            .task {
+                await loadPhotos()
+            }
+    }
+    
+    var insideView: some View{
+        Group{
+            if loadingCloudKit{
+                LoadingScreen()
+            }
+            else{
+                ZStack{
+                    Color(.systemGroupedBackground).ignoresSafeArea()
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 26){
+                            HStack(alignment: .center, spacing: 20){
+                                ProgressView(value: progress)
+                                    .progressViewStyle(CustomProgressBar(progressHeight: 16))
+                                    .frame(height: 12)
+                                
+                                let progressText = String(format:"%.0f", (progress*100).rounded())
+                                Text("\(progressText)%")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.black)
+                            }
+                            LazyVGrid(columns: columns, spacing: 20){
+                                ForEach(photos) { photo in
+                                    if photo.data == nil { //ao clicar mostra a camera
+                                        let challenge = getChallenge(
+                                            challengeReference: photo.challengeReference
+                                        )
+                                        if let challenge = challenge {
+                                            Button(action: {
+                                                selectedChallenge = challenge
+                                                selectedPhoto = photo
+                                                showingCamera = true
+                                            }){
+                                                PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil)
+                                            }
+                                        }
+                                    } else { //ao clicar mostra a foto
+                                        if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
+                                            let challenge = getChallenge(challengeReference: photo.challengeReference)
+                                            Button(action: {
+                                                selectedPhotoForDetail = photo
+                                                selectedChallengeForDetail = challenge
+                                                showPhotoDetail = true})
+                                            {
+                                                if let imagem = UIImage(data: photo.data!) {
+                                                    if let challenge = challenge{
+                                                        PhotoChallengeView(status: 2, textChallenge: challenge.title, imageChallenge: imagem)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else{
+                                            let challenge = getChallenge(
+                                                challengeReference: photo.challengeReference
+                                            )
+                                            if let challenge = challenge {
+                                                PhotoChallengeView(status: 1, textChallenge: challenge.title, imageChallenge: nil)
                                             }
                                         }
                                     }
                                 }
-                                else{
-                                    let challenge = getChallenge(
-                                        challengeReference: photo.challengeReference
-                                    )
-                                    if let challenge = challenge {
-                                        PhotoChallengeView(status: 1, textChallenge: challenge.title, imageChallenge: nil)
-                                    }
-                                }
+                                .accessibilityElement(children: .combine)
                             }
                         }
-                        .accessibilityElement(children: .combine)
+                        .padding()
                     }
                 }
-                .padding()
             }
-        }
-        .navigationTitle(album.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar{
-            ToolbarItem(placement: .topBarTrailing){
-                Menu(content: {
-                    Button("Editar álbum", systemImage: "square.and.pencil"){
-                        editAlbum.toggle()
-                    }
-                    .tint(Color.blue)
-                    
-                    Button("Excluir", systemImage: "trash.fill", role: .destructive){
-                        deletAlbum.toggle()
-                    }
-                }, label: {Image(systemName: "ellipsis")})
-            }
-        }
-        .alert(
-            "Deseja mesmo excluir o Álbum?",
-            isPresented: $deletAlbum
-        ) {
-            Button("Cancelar",role: .cancel) {}
-            
-            Button("Deletar"){
-                Task{
-                    await deletAlbum()
-                }
-            }
-        }message: {
-            Text("Após o envio não será possível tirar novas fotos.")
-        }
-        .navigationDestination(isPresented: $showingCamera){
-            CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
-        }
-        .navigationDestination(isPresented: $showPhotoDetail){
-            if let photo = selectedPhotoForDetail,
-               let challenge = selectedChallengeForDetail {
-                PhotoDetailView(
-                    photo: photo,
-                    challengeTitle: challenge.title, album: album
-                )
-            }
-        }
-        .navigationDestination(isPresented: $editAlbum){
-            EditAlbumView(album: album)
-        }
-        .task {
-            await loadPhotos()
         }
     }
+    
     func challengesDone() -> Bool{
         if progress < 1{
             return false
@@ -156,6 +169,7 @@ struct AlbumView: View {
     }
     
     func loadPhotos() async {
+        loadingCloudKit = true
         do {
             self.photos = try await Photo.query(on: .private)
                 .filter(\.$album == album.id)
@@ -165,6 +179,7 @@ struct AlbumView: View {
         } catch {
             print(error)
         }
+        loadingCloudKit = false
     }
     
 //    func loadChallenges() async {
@@ -186,6 +201,7 @@ struct AlbumView: View {
     func deletAlbum() async{
         do{
             try await album.delete(on: .private)
+            albumViewModel.albums.removeAll(where: { $0.id == album.id })
             dismiss()
         }
         catch{
