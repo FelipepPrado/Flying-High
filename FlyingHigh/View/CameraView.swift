@@ -54,16 +54,50 @@ struct SaveImageView: View {
     var capturedPhoto: Data
     @EnvironmentObject var model: CameraModel
     let challengeTitle: String
-    
+    @State private var photoDescription = ""
+    private let footerHeight: CGFloat = 150.0
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     
     var body: some View {
-        ImageView(
-            image: model.photoToken?.image,
-            popUpChallenge: false,
-            challengeTitle: challengeTitle
-        )
+        GeometryReader { geometry in
+            ZStack {
+                VStack(spacing: 16) {
+                    ImageView(
+                        image: model.photoToken?.image,
+                        descriptionChallenge: false,
+                        challengeTitle: challengeTitle
+                    )
+                    .frame(maxWidth: .infinity)
+                    .frame(height: geometry.size.height * 0.6)
+                    
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Descrição da foto")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        TextField("Escreva algo sobre essa foto",
+                                  text: $photoDescription,
+                                  axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .foregroundStyle(.black)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .lineLimit(3...6)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(Color.vibrantPrimary)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+        
+        .background(Color.vibrantPrimary)
+        .onTapGesture {
+            dismissKeyboard()
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
@@ -92,10 +126,7 @@ struct SaveImageView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .alert(
-            "Deseja enviar esta foto?",
-            isPresented: $showSendAlert
-        ) {
+        .alert("Deseja enviar esta foto?", isPresented: $showSendAlert) {
             Button("Cancelar", role: .cancel) {}
             Button("Enviar") {
                 Task {
@@ -105,11 +136,7 @@ struct SaveImageView: View {
         } message: {
             Text("Após o envio não será possível tirar novas fotos.")
         }
-        
-        .alert(
-            "Última tentativa",
-            isPresented: $showLastAttemptAlert
-        ) {
+        .alert("Última tentativa", isPresented: $showLastAttemptAlert) {
             Button("Cancelar", role: .cancel) {}
             Button("Tentar novamente") {
                 model.retryPhoto()
@@ -119,14 +146,20 @@ struct SaveImageView: View {
         }
     }
     
-    func save() async{
-        do{
+    func save() async {
+        do {
             photo?.data = capturedPhoto
+            photo?.description = photoDescription
+            
             try await photo?.save(on: .private)
             dismiss()
         } catch {
             print(error)
         }
+    }
+    
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
@@ -145,84 +178,85 @@ struct PhotoDetailView: View {
     
     var body: some View {
         GeometryReader { geometry in
+          
+           
             
             VStack(spacing: 10){
                 Spacer()
                 
-                ZStack{
-                //Color.white.ignoresSafeArea()
-                if let imageData = photo.data,
-                   let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .scaleEffect(scale)
-                        .offset(offset)
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    let newScale = lastScale * value
-                                    scale = min(max(newScale, 1), 5)
-                                }
-                                .onEnded { _ in
-                                    lastScale = scale
-                                }
-                        )
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
+                        if let imageData = photo.data,
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .border(.pink)
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .scaleEffect(scale)
+                            .offset(offset)
+                            .gesture(
+                                MagnificationGesture()
+                                    .onChanged { value in
+                                        let newScale = lastScale * value
+                                        scale = min(max(newScale, 1), 5)
+                                    }
+                                    .onEnded { _ in
+                                        lastScale = scale
+                                    }
+                            )
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { value in
+                                        if scale > 1 {
+                                            offset = CGSize(
+                                                width: lastOffset.width + value.translation.width,
+                                                height: lastOffset.height + value.translation.height
+                                            )
+                                        }
+                                    }
+                                    .onEnded { _ in
+                                        lastOffset = offset
+                                    }
+                            )
+                            .onTapGesture(count: 2) {
+                                withAnimation {
                                     if scale > 1 {
-                                        offset = CGSize(
-                                            width: lastOffset.width + value.translation.width,
-                                            height: lastOffset.height + value.translation.height
-                                        )
+                                        scale = 1
+                                        lastScale = 1
+                                        offset = .zero
+                                        lastOffset = .zero
+                                    } else {
+                                        scale = 2
+                                        lastScale = 2
                                     }
                                 }
-                                .onEnded { _ in
-                                    lastOffset = offset
-                                }
-                        )
-                        .onTapGesture(count: 2) {
-                            withAnimation {
-                                if scale > 1 {
-                                    scale = 1
-                                    lastScale = 1
-                                    offset = .zero
-                                    lastOffset = .zero
-                                } else {
-                                    scale = 2
-                                    lastScale = 2
-                                }
                             }
+                    }
+                    if let description = photo.description,
+                       !description.isEmpty {
+                        VStack{
+                            Text(description)
+                                .font(.title2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                .background(.gray.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                }
-            }
-            
-                    // TODO: Identificar a data e hora que a foto foi tirada
-                
-                //Text("\(album.startDate.formatted(.dateTime.weekday().day().month().year()))")
-                // Text("\(album.startDate.formatted(.dateTime.weekday())), \(album.startDate.formatted(.dateTime.day())) de \(album.startDate.formatted(.dateTime.month())) de \(album.startDate.formatted(.dateTime.year())) as \(album.startDate.formatted(.dateTime.hour())):\(album.startDate.formatted(.dateTime.minute())) ")
-                
-                //Text("\(Calendar.current.component(.hour, from: album.startDate)):\(Calendar.current.component(.minute, from: album.startDate))")
+                    }
                 
                 Spacer()
-
+                        
             }
             .padding(.horizontal, 20)
-            
-            
         }
-      .navigationTitle(challengeTitle)
-//       .toolbarColorScheme(.dark, for: .navigationBar)
+        .navigationTitle(challengeTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if let imageData = photo.data,
                    let jpegData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.5) {
-                   let tempURL = FileManager.default.temporaryDirectory
+                    let tempURL = FileManager.default.temporaryDirectory
                         .appendingPathComponent("\(challengeTitle.replacingOccurrences(of: " ", with: "_")).jpeg")
-                        ShareLink(
+                    ShareLink(
                         item: tempURL,
                         preview: SharePreview(
                             challengeTitle,
@@ -241,7 +275,7 @@ struct PhotoDetailView: View {
 // apenas a view da camera
 struct ImageView: View {
     var image: Image?
-    var popUpChallenge: Bool
+    var descriptionChallenge: Bool
     let challengeTitle: String
     
     @EnvironmentObject var model: CameraModel
@@ -261,8 +295,8 @@ struct ImageView: View {
             }
             .background(Color.vibrantPrimary)
         }
-       .navigationTitle(challengeTitle)
-       .toolbarColorScheme(.dark, for: .navigationBar)
+        .navigationTitle(challengeTitle)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
@@ -290,7 +324,7 @@ struct PreviewView: View {
     @State private var lastZoomFactor: CGFloat = 1.0
     
     var body: some View {
-        ImageView(image: model.previewImage, popUpChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
+        ImageView(image: model.previewImage, descriptionChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
             .gesture(
                 MagnificationGesture()
                     .onChanged { value in
@@ -322,27 +356,6 @@ struct PreviewView: View {
         GeometryReader { geometry in
             let frameHeight = geometry.size.height
             VStack (alignment: .center, spacing: 15) {
-                
-                //slider exposicao
-//                HStack {
-//                    Image(systemName:"sun.min")
-//                    Slider(
-//                        value:Binding(
-//                            get: {
-//                                Double(model.exposureValue)
-//                            },
-//                            set: {newValue in
-//                                model.exposureValue=Float(newValue)
-//                                
-//                                model.camera.setExposure(
-//                                    bias:model.exposureValue
-//                                )
-//                            }
-//                        ),
-//                        in:-2...2
-//                    )
-//                    Image(systemName:"sun.max")
-//                }
                 
                 //botoes zoom
                 HStack(spacing: 30) {
@@ -407,3 +420,7 @@ struct PreviewView: View {
         
     }
 }
+
+
+
+
