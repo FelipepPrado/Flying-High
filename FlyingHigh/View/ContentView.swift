@@ -32,6 +32,18 @@ struct ContentView: View {
                             print(error)
                         }
                     }
+                    .task{
+                        if albumViewModel.loadChallenges{
+                            do {
+                                albumViewModel.challenges = try await Challenge.query(on: .public)
+                                    .all()
+                                    .map(\.observable)
+                                albumViewModel.loadChallenges = false
+                            } catch{
+                                print(error)
+                            }
+                        }
+                    }
                 }
             }
             .navigationTitle("Minhas Experiências")
