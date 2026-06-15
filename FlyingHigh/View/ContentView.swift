@@ -8,64 +8,78 @@ struct ContentView: View {
     
     @State private var albums : [Album.Observable] = []
     @State private var addAlbum: Bool = false
+    @State private var loadingCloudKit = false
     
     var body: some View {
-        @Bindable var path = viewRouter
-        NavigationStack(path: $path.path){
-            ZStack{
-                Color(.systemGroupedBackground).ignoresSafeArea()
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        ForEach(albumViewModel.albums){ album in
-                            CardAlbumView(album: album)
-                        }
-                    }
-                    .padding()
-                
-                    .task {
-                        do {
-                            self.albums = try await Album.query(on: .private)
-                                .all()
-                                .map(\.observable)
-                            albumViewModel.albums = albums.sorted{$0.startDate > $1.startDate}
-                        } catch {
-                            print(error)
-                        }
-                    }
-                    .task{
-                        if albumViewModel.loadChallenges{
-                            do {
-                                albumViewModel.challenges = try await Challenge.query(on: .public)
-                                    .all()
-                                    .map(\.observable)
-                                albumViewModel.loadChallenges = false
-                            } catch{
-                                print(error)
-                            }
-                        }
+        insideView
+            .task {
+                do {
+                    loadingCloudKit = true
+                    self.albums = try await Album.query(on: .private)
+                        .all()
+                        .map(\.observable)
+                    albumViewModel.albums = albums.sorted{$0.startDate > $1.startDate}
+                } catch {
+                    print(error)
+                }
+                loadingCloudKit = false
+            }
+            .task{
+                if albumViewModel.loadChallenges{
+                    do {
+                        albumViewModel.challenges = try await Challenge.query(on: .public)
+                            .all()
+                            .map(\.observable)
+                        albumViewModel.loadChallenges = false
+                    } catch{
+                        print(error)
                     }
                 }
             }
-            .navigationTitle("Minhas Experiências")
-
-            .toolbarTitleDisplayMode(.inline)
-            .navigationDestination(for: NameViews.self){
-                destination in
-                ViewManagar.viewForDestination(destination)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Adcionar experiência", systemImage: "plus"){
-                        viewRouter.addInfoAlbum()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .buttonStyle(.glassProminent)
-                    .tint(.blue)
-                }
-            }
-        }
     }
+    
+    var insideView: some View {
+        Group{
+            if loadingCloudKit{
+                LoadingScreen()
+            }
+            else{
+                @Bindable var path = viewRouter
+                NavigationStack(path: $path.path){
+                    ZStack{
+                        Color(.systemGroupedBackground).ignoresSafeArea()
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 16) {
+                                ForEach(albumViewModel.albums){ album in
+                                    CardAlbumView(album: album)
+                                }
+                            }
+                            .padding()
+                        }
+                    }
+                    .navigationTitle("Minhas Experiências")
 
+                    .toolbarTitleDisplayMode(.inline)
+                    .navigationDestination(for: NameViews.self){
+                        destination in
+                        ViewManagar.viewForDestination(destination)
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Adcionar experiência", systemImage: "plus"){
+                                viewRouter.addInfoAlbum()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(.glassProminent)
+                            .tint(.blue)
+                        }
+                    }
+                }
+            }
+            
+        }
+        
+    }
 }
 
 //#Preview {
