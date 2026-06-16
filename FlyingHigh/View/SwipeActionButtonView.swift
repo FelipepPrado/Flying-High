@@ -47,7 +47,7 @@ struct SwipeActionButtonView: View {
 
     var insideView: some View {
         Group{
-            if topCard == 0 {
+            if topCard == -1 {
                 LoadingScreen()
             }
             else{
