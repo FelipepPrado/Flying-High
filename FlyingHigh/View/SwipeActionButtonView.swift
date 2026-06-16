@@ -47,7 +47,7 @@ struct SwipeActionButtonView: View {
 
     var insideView: some View {
         Group{
-            if topCard == -1 {
+            if topCard == 0 {
                 LoadingScreen()
             }
             else{
@@ -241,11 +241,10 @@ struct Card: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.white]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            Rectangle()
+                .fill(.white)
+                .frame(width: 300, height: 300)
+            
         }
         VStack {
             Circle()
@@ -256,8 +255,7 @@ struct Card: View {
                 
 
             Text(challengeTitle)
-                .font(.title)
-                .foregroundColor(.gray)
+                .foregroundColor(.black)
         }
     }
 }
