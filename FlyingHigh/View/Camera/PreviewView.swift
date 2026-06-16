@@ -14,13 +14,14 @@ struct PreviewView: View {
     @State private var currentZoomFactor: CGFloat = 1.0
     @State private var lastZoomFactor: CGFloat = 1.0
     
+    @State private var cameraTimer  = 0
+    @State private var countdown: Int?
+    
     var body: some View {
-        
         ZStack {
             GeometryReader { geometry in
                 ImageView(image: model.previewImage, descriptionChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
                     .frame(maxWidth: .infinity)
-//                    .frame(height: geometry.size.height)
                     .gesture(
                         MagnificationGesture()
                             .onChanged { value in
@@ -46,7 +47,17 @@ struct PreviewView: View {
                     .padding(.top, 30)
                     .background(Color.vibrantPrimary)
                 
+                /* TODO: Picker dos Desafios
+                 
+                 VStack{
+                 Picker("Flavor", selection: $selectedFlavor) {
+                 Text("Chocolate").tag(Flavor.chocolate)
+                 Text("Vanilla").tag(Flavor.vanilla)
+                 Text("Strawberry").tag(Flavor.strawberry)
+                 }
+                 */
                 
+                //Filme com a contagem
                 VStack{
                     Spacer()
                     HStack{
@@ -58,19 +69,50 @@ struct PreviewView: View {
                     
                 }
             }
+            
+            if let countdown = countdown {
+                Text("\(countdown)")
+                    .font(.system(size: 100, weight: .bold))
+                    .foregroundStyle(.white)
+                    .shadow(radius: 10)
+            }
+            
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button("Desativado") {
+                        cameraTimer = 0
+                    }
+                    
+                    Button("3 segundos") {
+                        cameraTimer = 3
+                    }
+                   
+                    Button("5 segundos") {
+                        cameraTimer = 5
+                    }
+                    Button("10 segundos") {
+                        cameraTimer = 10
+                    }}
+                label: {
+                    Image(systemName: "timer")
+                }
+            }
+        }
+
     }
+    
     //botoes da camera (tirar foto, zoom, exposicao)
     private func buttonsView() -> some View {
         GeometryReader { geometry in
             let frameHeight = geometry.size.height
             VStack (alignment: .center, spacing: 15) {
-                
                 //botoes zoom
                 HStack(spacing: 30) {
                     Button("1x") {
                         model.camera.setZoom(factor: 1)
-                    }
+                    }.toggleStyle(.button)
                     
                     Button("2x") {
                         model.camera.setZoom(factor: 2)
@@ -82,9 +124,7 @@ struct PreviewView: View {
                 }
                 .foregroundStyle(.white)
                 .font(.headline)
-                
-                //numero de tentativas
-                
+
                 //botoes de tirar foto, flash e trocar
                 HStack {
                     Button {
@@ -94,7 +134,7 @@ struct PreviewView: View {
                     }
                     Spacer()
                     Button {
-                        model.camera.takePhoto()
+                        startCameraTimer()
                     } label: {
                         ZStack {
                             Circle()
@@ -120,4 +160,36 @@ struct PreviewView: View {
         .padding(.horizontal, 62)
         
     }
+    
+    func startCameraTimer() {
+        guard cameraTimer > 0 else {
+            model.camera.takePhoto()
+            return
+        }
+        
+        countdown = cameraTimer
+        
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+            guard let current = countdown else {
+                timer.invalidate()
+                return
+            }
+            
+            if current <= 1 {
+                timer.invalidate()
+                countdown = nil
+                model.camera.takePhoto()
+            } else {
+                countdown = current - 1
+            }
+            
+        }
+        
+        
+    }
+    
+    
 }
+
+
+
