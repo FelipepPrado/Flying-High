@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct CustonColor: View {
-    @State private var color: Color = .blue
+    @State private var colors: Color = .blue
     var body: some View {
         
         VStack(spacing: 20) {
 
             // 2. O ColorPicker nativo
             RoundedRectangle(cornerRadius: 50)
-                .fill(color)
+                .fill(colors)
                 .frame(width: 150, height: 150)
         }
-            ColorPicker("Escolha uma cor", selection: $color)
+            ColorPicker("Escolha uma cor", selection: $colors)
                 .padding()
            
     }
