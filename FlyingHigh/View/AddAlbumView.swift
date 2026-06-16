@@ -3,6 +3,7 @@ import SwiftUI
 struct AddAlbumView: View {
     @Environment(AlbumViewModel.self) var albumViewModel
     @Environment(ViewRouter.self) var viewRouter
+    @Environment(\.dismiss) var dismiss
     
     @State var title: String = ""
     @State var startDate: Date = Date.now
@@ -160,6 +161,13 @@ struct AddAlbumView: View {
                 .tint(.blue)
             }
         }
+        .onTapGesture {
+            dismissKeyboard()
+        }
+    }
+    
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
