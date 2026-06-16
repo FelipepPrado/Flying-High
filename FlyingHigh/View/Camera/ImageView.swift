@@ -17,17 +17,23 @@ struct ImageView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            VStack{
-                if let image = image {
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .padding(.horizontal, 20)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
+      
+                VStack{
+                    if let image = image {
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    }
+                    
+                    
                 }
-            }
-            .background(Color.vibrantPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .frame(maxWidth: .infinity)
+                .frame(height: geometry.size.height)
+                .padding(.horizontal, 20)
+                .background(Color.vibrantPrimary)
+
+            
         }
         .navigationTitle(challengeTitle)
         .toolbarColorScheme(.dark, for: .navigationBar)

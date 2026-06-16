@@ -22,73 +22,67 @@ struct PhotoDetailView: View {
     
     var body: some View {
         GeometryReader { geometry in
-          
-           
-            
             VStack(spacing: 10){
                 Spacer()
-                
-                        if let imageData = photo.data,
-                       let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .border(.pink)
-                            .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .scaleEffect(scale)
-                            .offset(offset)
-                            .gesture(
-                                MagnificationGesture()
-                                    .onChanged { value in
-                                        let newScale = lastScale * value
-                                        scale = min(max(newScale, 1), 5)
-                                    }
-                                    .onEnded { _ in
-                                        lastScale = scale
-                                    }
-                            )
-                            .gesture(
-                                DragGesture()
-                                    .onChanged { value in
-                                        if scale > 1 {
-                                            offset = CGSize(
-                                                width: lastOffset.width + value.translation.width,
-                                                height: lastOffset.height + value.translation.height
-                                            )
-                                        }
-                                    }
-                                    .onEnded { _ in
-                                        lastOffset = offset
-                                    }
-                            )
-                            .onTapGesture(count: 2) {
-                                withAnimation {
+                if let imageData = photo.data,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .scaleEffect(scale)
+                        .offset(offset)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let newScale = lastScale * value
+                                    scale = min(max(newScale, 1), 5)
+                                }
+                                .onEnded { _ in
+                                    lastScale = scale
+                                }
+                        )
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
                                     if scale > 1 {
-                                        scale = 1
-                                        lastScale = 1
-                                        offset = .zero
-                                        lastOffset = .zero
-                                    } else {
-                                        scale = 2
-                                        lastScale = 2
+                                        offset = CGSize(
+                                            width: lastOffset.width + value.translation.width,
+                                            height: lastOffset.height + value.translation.height
+                                        )
                                     }
                                 }
+                                .onEnded { _ in
+                                    lastOffset = offset
+                                }
+                        )
+                        .onTapGesture(count: 2) {
+                            withAnimation {
+                                if scale > 1 {
+                                    scale = 1
+                                    lastScale = 1
+                                    offset = .zero
+                                    lastOffset = .zero
+                                } else {
+                                    scale = 2
+                                    lastScale = 2
+                                }
                             }
-                    }
-                    if let description = photo.description,
-                       !description.isEmpty {
-                        VStack{
-                            Text(description)
-                                .font(.title2)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding()
-                                .background(.gray.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                    }
+                }
+                if let description = photo.description,
+                   !description.isEmpty {
+                    ScrollView {
+                     Text(description)
+                     .frame(maxWidth: .infinity, alignment: .leading)}
+                     .frame(height: 80)
+                     .padding()
+                     .background(.gray.opacity(0.1))
+                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
                 
                 Spacer()
-                        
+                
             }
             .padding(.horizontal, 20)
         }
