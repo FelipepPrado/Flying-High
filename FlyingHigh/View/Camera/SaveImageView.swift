@@ -19,6 +19,8 @@ struct SaveImageView: View {
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     @State private var loadingCloudKit = false
+    @FocusState private var isDescriptionFocused: Bool
+
     
     var body: some View {
         insideView
@@ -32,7 +34,7 @@ struct SaveImageView: View {
             else{
                 GeometryReader { geometry in
                     ZStack {
-                        VStack(spacing: 16) {
+                        VStack(spacing: 12) {
                             ImageView(
                                 image: model.photoToken?.image,
                                 descriptionChallenge: false,
@@ -40,22 +42,20 @@ struct SaveImageView: View {
                             )
                             .frame(maxWidth: .infinity)
                             .frame(height: geometry.size.height * 0.6)
-                            
-                            
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("Descrição da foto")
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 
-                                TextField("Escreva algo sobre essa foto",
-                                          text: $photoDescription,
-                                          axis: .vertical)
-                                .textFieldStyle(.roundedBorder)
-                                .foregroundStyle(.black)
-                                .background(Color.white)
-                                .cornerRadius(8)
-                                .lineLimit(3...6)
+                                TextEditor (text:$photoDescription)
+                                    .focused($isDescriptionFocused)
+                                    .frame(height: 80)
+                                    .padding(8)
+                                    .background(Color.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8)
+                                    )
                             }
+                            .onAppear {isDescriptionFocused = true}
                             .padding(.horizontal, 20)
                             .padding(.vertical, 16)
                             .background(Color.vibrantPrimary)

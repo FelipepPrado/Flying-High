@@ -28,7 +28,6 @@ struct PhotoDetailView: View {
                    let uiImage = UIImage(data: imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
-                        .border(.pink)
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .scaleEffect(scale)
@@ -73,14 +72,13 @@ struct PhotoDetailView: View {
                 }
                 if let description = photo.description,
                    !description.isEmpty {
-                    VStack{
-                        Text(description)
-                            .font(.title2)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .background(.gray.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
+                    ScrollView {
+                     Text(description)
+                     .frame(maxWidth: .infinity, alignment: .leading)}
+                     .frame(height: 80)
+                     .padding()
+                     .background(.gray.opacity(0.1))
+                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 
                 Spacer()

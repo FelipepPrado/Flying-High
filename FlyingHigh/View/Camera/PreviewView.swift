@@ -84,14 +84,6 @@ struct PreviewView: View {
                 .font(.headline)
                 
                 //numero de tentativas
-//                HStack{
-//                    Text("\(model.photosTaken)/\(model.maxPhotos) Tentativas")
-//                        .font(.headline)
-//                        .foregroundColor(.white)
-//                }
-//                .padding(10)
-//                .background(.gray.opacity(0.3))
-//                .cornerRadius(5)
                 
                 //botoes de tirar foto, flash e trocar
                 HStack {
