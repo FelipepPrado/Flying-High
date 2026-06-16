@@ -92,6 +92,11 @@ struct AddAlbumView: View {
                                         )
                                             .labelsHidden()
                                             .colorMultiply(.clear)
+                                            .onChange(of: startDate) {
+                                                if startDate > endDate{
+                                                    endDate = startDate
+                                                }
+                                            }
                                     }
                                 
                             }
