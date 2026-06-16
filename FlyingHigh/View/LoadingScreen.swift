@@ -9,8 +9,10 @@ import SwiftUI
 
 struct LoadingScreen: View {
     var body: some View {
-        ProgressView()
-        Text("Carregando...")
+        VStack{
+            ProgressView()
+            Text("Carregando...")
+        }
 
     }
 }

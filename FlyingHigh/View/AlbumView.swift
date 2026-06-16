@@ -21,7 +21,9 @@ struct AlbumView: View {
     let columns = [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)]
     
     var body: some View {
-        insideView
+        VStack{
+            insideView
+        }
             .navigationTitle(album.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar{
