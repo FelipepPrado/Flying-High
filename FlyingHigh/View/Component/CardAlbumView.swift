@@ -5,62 +5,82 @@ struct CardAlbumView: View {
     var album: Album.Observable
     
     @State private var photos: [Photo.Observable] = []
-    @State private var progress: Double = 0
+    @State private var progress: Double = 0.5
     
     var body: some View {
         ZStack{
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            //Color(.bgPrimary).ignoresSafeArea()
             NavigationLink(destination: AlbumView(album: album, progress: $progress)){
                 Group {
-                    HStack {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 20) {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(album.title)
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(.black)
-                                        .multilineTextAlignment(.leading)
-                                    Text("\(album.startDate.formatted(.dateTime.day().month().year())) - \(album.endDate.formatted(.dateTime.day().month().year()))")
-                                        .font(.callout)
-                                        .foregroundStyle(.black)
-                                        .multilineTextAlignment(.leading)
-                                }
-                                .padding(.leading, 2)
-                                HStack(alignment: .center, spacing: 6){
-                                    ProgressView(value: progress)
-                                        .progressViewStyle(CustomProgressBar(progressHeight: 12))
-                                        .frame(height: 12)
-                                        
-                                    let progressText = String(format:"%.0f", (progress*100).rounded())
-                                    Text("\(progressText)%")
-                                        .font(.footnote)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(.black)
-                                }
-                                
-                            }
-                            .padding(.vertical, 20)
-                            .padding(.horizontal,20)
-                            Spacer()
-                            
-                        }
-                        .overlay {
-                            TrailingBorder()
-                                .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
-                                .foregroundStyle(.gray)
-                        }
-                        
+                    VStack(alignment: .leading, spacing: 0) {
                         Rectangle()
-                            .fill(Color(.systemGray3))
-                            .frame(maxHeight: .infinity)
-                            .frame(width: 20)
-                            .padding(.leading, 42)
+                            .fill(Color(.userBlue))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 20)
+                        
+                        HStack {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text(album.title)
+                                    .font(Font.custom("YoungSerif-Regular", size: 34, relativeTo: .largeTitle))
+                                    .fontWeight(.semibold)
+                                    .lineLimit(2)
+                                    .lineSpacing(-8)
+                                    .lineHeight(.multiple(factor: 1.2))
+                                    .foregroundStyle(.primaryBrown)
+                                    .multilineTextAlignment(.leading)
+                                Text("\(album.startDate.formatted(.dateTime.day().month().year())) - \(album.endDate.formatted(.dateTime.day().month().year()))")
+                                    .font(.callout)
+                                    .foregroundStyle(.primaryBrown)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 24)
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .background(Color(.bgTertiary))
+                        
+                        HStack(spacing: 0) {
+                            Image(.ticketCut)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 15, height: 30)
+                                .colorMultiply(.bgTertiary)
+                            Rectangle()
+                                .fill(Color(.bgTertiary))
+                                .frame(height: 30)
+                            Image(.ticketCut)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 15, height: 30)
+                                .colorMultiply(.bgTertiary)
+                                .scaleEffect(x: -1, y: 1)
+                        }
+                        .overlay(BottomBorder()
+                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
+                            .foregroundStyle(.primaryBrown)
+                        )
+                        
+                        HStack(alignment: .center, spacing: 6){
+                            ProgressView(value: progress)
+                                .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgSecondary, progressColor: .userBlue))
+                                .frame(height: 12)
+                            
+                            let progressText = String(format:"%.0f", (progress*100).rounded())
+                            Text("\(progressText)%")
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.black)
+                        }
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 16)
+                        .background(Color(.bgTertiary))
+                        
                     }
                     .fixedSize(horizontal: false, vertical: true)
-                    .background(Color(.white))
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                
                 .accessibilityElement(children: .combine)
                 .task{
                     await loadPhotos()
@@ -94,19 +114,10 @@ struct CardAlbumView: View {
     }
 }
 
-struct TrailingBorder: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        path.move(to: CGPoint(x: rect.maxX, y: rect.minY-5))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        
-        return path
-    }
-}
-
 struct CustomProgressBar: ProgressViewStyle {
     let progressHeight: Int
+    let backgroundColor: Color
+    let progressColor: Color
     
     func makeBody(configuration: Configuration) -> some View {
         GeometryReader { geometry in
@@ -115,11 +126,11 @@ struct CustomProgressBar: ProgressViewStyle {
                 Rectangle()
                     .frame(maxWidth: .infinity)
                     .frame(height: CGFloat(progressHeight))
-                    .foregroundStyle(Color(.systemGray5))
+                    .foregroundStyle(Color(backgroundColor))
                     .clipShape(RoundedRectangle(cornerRadius: CGFloat(progressHeight)/2))
                 Rectangle()
                     .frame(width: width * CGFloat(configuration.fractionCompleted ?? 0.0), height: CGFloat(progressHeight))
-                    .foregroundStyle(Color(.systemGray))
+                    .foregroundStyle(Color(progressColor))
                     .clipShape(RoundedRectangle(cornerRadius: CGFloat(progressHeight)/2))
             }
         }
@@ -128,7 +139,7 @@ struct CustomProgressBar: ProgressViewStyle {
 
 #Preview {
     let album = Album(
-        title: "Guaramiranga",
+        title: "Nome da Experiência",
         startDate: .now,
         endDate: .now,
     )

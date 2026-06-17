@@ -14,9 +14,22 @@
 		55C3F5572FCDD4E100179746 /* FlyingHigh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlyingHigh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		37A876782FE2D95600015757 /* Exceptions for "FlyingHigh" folder in "FlyingHigh" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 55C3F5562FCDD4E100179746 /* FlyingHigh */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		55C3F5592FCDD4E100179746 /* FlyingHigh */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				37A876782FE2D95600015757 /* Exceptions for "FlyingHigh" folder in "FlyingHigh" target */,
+			);
 			path = FlyingHigh;
 			sourceTree = "<group>";
 		};
@@ -266,6 +279,7 @@
 				DEVELOPMENT_TEAM = Y63278G98Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlyingHigh/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Desvio;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Permitir uso de câmera?";
@@ -307,6 +321,7 @@
 				DEVELOPMENT_TEAM = Y63278G98Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlyingHigh/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Desvio;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Permitir uso de câmera?";
