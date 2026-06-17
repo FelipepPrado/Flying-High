@@ -24,7 +24,7 @@ struct CardAlbumView: View {
                                     .font(Font.custom("YoungSerif-Regular", size: 34, relativeTo: .largeTitle))
                                     .fontWeight(.semibold)
                                     .lineLimit(2)
-                                    .lineSpacing(-8)
+                                    .lineSpacing(-4)
                                     .lineHeight(.multiple(factor: 1.2))
                                     .foregroundStyle(.primaryBrown)
                                     .multilineTextAlignment(.leading)

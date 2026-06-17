@@ -49,17 +49,15 @@ struct ContentView: View {
                     ZStack{
                         Color(.bgPrimary).ignoresSafeArea()
                         ScrollView(showsIndicators: false) {
-                            VStack(spacing: 16) {
+                            VStack(spacing: 20) {
                                 ForEach(albumViewModel.albums){ album in
                                     CardAlbumView(album: album)
                                 }
                             }
-                            .shadow(color: .black.opacity(0.2),radius: 20, x: 0, y: 2)
+                            .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
                             .padding()
                         }
                     }
-                    .navigationTitle("Minhas Experiências")
-
                     .toolbarTitleDisplayMode(.inline)
                     .navigationDestination(for: NameViews.self){
                         destination in
@@ -74,7 +72,13 @@ struct ContentView: View {
                             .buttonStyle(.glassProminent)
                             .tint(.accent)
                         }
+                        ToolbarItem(placement: .principal) {
+                            Text("Minhas Experiências")
+                                .font(.custom("YoungSerif-Regular", size: 17))
+                                .foregroundStyle(.primaryBrown)
+                        }
                     }
+
                 }
             }
             
