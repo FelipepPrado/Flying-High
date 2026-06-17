@@ -19,7 +19,7 @@ struct SaveImageView: View {
     @State private var showSendAlert = false
     @State private var showLastAttemptAlert = false
     @State private var loadingCloudKit = false
-    @FocusState private var isDescriptionFocused: Bool
+    //@FocusState private var isDescriptionFocused: Bool
 
     
     var body: some View {
@@ -37,8 +37,8 @@ struct SaveImageView: View {
                         VStack(spacing: 12) {
                             ImageView(
                                 image: model.photoToken?.image,
-                                descriptionChallenge: false,
-                                challengeTitle: challengeTitle
+//                                descriptionChallenge: false,
+//                                challengeTitle: challengeTitle
                             )
                             .frame(maxWidth: .infinity)
                             .frame(height: geometry.size.height * 0.6)
@@ -48,14 +48,14 @@ struct SaveImageView: View {
                                     .foregroundColor(.white)
                                 
                                 TextEditor (text:$photoDescription)
-                                    .focused($isDescriptionFocused)
+                                    //.focused($isDescriptionFocused)
                                     .frame(height: 80)
                                     .padding(8)
                                     .background(Color.white)
                                     .clipShape(RoundedRectangle(cornerRadius: 8)
                                     )
                             }
-                            .onAppear {isDescriptionFocused = true}
+                            //.onAppear {isDescriptionFocused = true}
                             .padding(.horizontal, 20)
                             .padding(.vertical, 16)
                             .background(Color.vibrantPrimary)

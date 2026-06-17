@@ -19,33 +19,37 @@ struct PreviewView: View {
     
     var body: some View {
         ZStack {
+            Color.vibrantPrimary
             GeometryReader { geometry in
-                ImageView(image: model.previewImage, descriptionChallenge: true, challengeTitle: model.currentChallengeTitle ?? "Desafio" )
-                    .frame(maxWidth: .infinity)
-                    .gesture(
-                        MagnificationGesture()
-                            .onChanged { value in
-                                
-                                let zoom = lastZoomFactor * value
-                                
-                                currentZoomFactor = zoom
-                                
-                                model.camera.setZoom(
-                                    factor: currentZoomFactor
-                                )
-                            }
-                            .onEnded { _ in
-                                lastZoomFactor = currentZoomFactor
-                            }
-                    )
-                    .padding(.bottom, footerHeight)
-                    .overlay(alignment: .bottom) {
-                        buttonsView()
-                        //define a altura onde os botoes principais estao
-                            .frame(height: footerHeight + 100)
-                    }
-                    .padding(.top, 30)
-                    .background(Color.vibrantPrimary)
+                ImageView(
+                    image: model.previewImage,
+                    //                    descriptionChallenge: true,
+                    //                    challengeTitle: model.currentChallengeTitle ?? "Desafio",
+                )
+//                .frame(maxWidth: .infinity)
+                .gesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            
+                            let zoom = lastZoomFactor * value
+                            
+                            currentZoomFactor = zoom
+                            
+                            model.camera.setZoom(
+                                factor: currentZoomFactor
+                            )
+                        }
+                        .onEnded { _ in
+                            lastZoomFactor = currentZoomFactor
+                        }
+                )
+                .padding(.bottom, footerHeight)
+                .overlay(alignment: .bottom) {
+                    buttonsView()
+                    //define a altura onde os botoes principais estao
+                        .frame(height: footerHeight + 100)
+                }
+                .padding(.top, 30)
                 
                 /* TODO: Picker dos Desafios
                  
@@ -56,6 +60,7 @@ struct PreviewView: View {
                  Text("Strawberry").tag(Flavor.strawberry)
                  }
                  */
+                
                 
                 //Filme com a contagem
                 VStack{
@@ -68,6 +73,7 @@ struct PreviewView: View {
                     .padding(.horizontal, geometry.size.width * 0.07)
                     
                 }
+                
             }
             
             if let countdown = countdown {
@@ -78,29 +84,29 @@ struct PreviewView: View {
             }
             
         }
+        .navigationTitle( model.currentChallengeTitle ?? "Desafio")
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button("Desativado") {
-                        cameraTimer = 0
+                Button {
+                    changeCameraTimer()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "timer")
+                        Text(timerLabel)
                     }
-                    
-                    Button("3 segundos") {
-                        cameraTimer = 3
-                    }
-                   
-                    Button("5 segundos") {
-                        cameraTimer = 5
-                    }
-                    Button("10 segundos") {
-                        cameraTimer = 10
-                    }}
-                label: {
-                    Image(systemName: "timer")
                 }
+                .foregroundStyle(
+                    cameraTimer == 0
+                        ? .white
+                        : .yellow
+                )
             }
         }
-
+        .disabled(countdown != nil)
     }
     
     //botoes da camera (tirar foto, zoom, exposicao)
@@ -124,7 +130,7 @@ struct PreviewView: View {
                 }
                 .foregroundStyle(.white)
                 .font(.headline)
-
+                
                 //botoes de tirar foto, flash e trocar
                 HStack {
                     Button {
@@ -160,6 +166,33 @@ struct PreviewView: View {
         .padding(.horizontal, 62)
         
     }
+    
+    var timerLabel: String {
+        switch cameraTimer {
+        case 0:
+            return "Off"
+
+        default:
+            return "\(cameraTimer)s"
+        }
+    }
+    
+    func changeCameraTimer() {
+        switch cameraTimer {
+        case 0:
+            cameraTimer = 3
+
+        case 3:
+            cameraTimer = 5
+
+        case 5:
+            cameraTimer = 10
+
+        default:
+            cameraTimer = 0
+        }
+    }
+    
     
     func startCameraTimer() {
         guard cameraTimer > 0 else {

@@ -8,8 +8,19 @@
 import SwiftUI
 
 struct ChallengePickerView: View {
+    
+    enum Flavor: String, CaseIterable, Identifiable {
+        case chocolate, vanilla, strawberry
+        var id: Self { self }
+    }
+
+    @State private var selectedFlavor: Flavor = .chocolate
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+               
+            //.clipShape(RoundedRectangle(cornerRadius: 12))
+           // .border(.pink)
     }
 }
 
