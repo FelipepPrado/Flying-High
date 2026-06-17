@@ -86,8 +86,7 @@ struct AlbumView: View {
                         VStack(spacing: 26){
                             HStack(alignment: .center, spacing: 20){
                                 ProgressView(value: progress)
-                                    .progressViewStyle(CustomProgressBar(progressHeight: 16))
-                                    .frame(height: 12)
+                                    .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgTertiary, progressColor: .userBlue))                                    .frame(height: 12)
                                 
                                 let progressText = String(format:"%.0f", (progress*100).rounded())
                                 Text("\(progressText)%")

@@ -47,13 +47,14 @@ struct ContentView: View {
                 @Bindable var path = viewRouter
                 NavigationStack(path: $path.path){
                     ZStack{
-                        Color(.systemGroupedBackground).ignoresSafeArea()
+                        Color(.bgPrimary).ignoresSafeArea()
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 16) {
                                 ForEach(albumViewModel.albums){ album in
                                     CardAlbumView(album: album)
                                 }
                             }
+                            .shadow(color: .black.opacity(0.2),radius: 20, x: 0, y: 2)
                             .padding()
                         }
                     }
@@ -71,7 +72,7 @@ struct ContentView: View {
                             }
                             .buttonStyle(.borderedProminent)
                             .buttonStyle(.glassProminent)
-                            .tint(.blue)
+                            .tint(.accent)
                         }
                     }
                 }
