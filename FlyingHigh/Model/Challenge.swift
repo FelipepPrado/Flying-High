@@ -1,5 +1,6 @@
 import CloudKit
 import Nuvem
+import SwiftUI
 
 @CKModel
 struct Challenge{
@@ -7,5 +8,5 @@ struct Challenge{
     var title: String
     
     @CKAssetField("icon")
-    var icon: Data
+    var icon: UIImage
 }
