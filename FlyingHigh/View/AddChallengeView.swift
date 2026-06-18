@@ -1,5 +1,5 @@
 //
-//  SwipeActionButtonView.swift
+//  AddChallengeView.swift
 //  FlyingHigh
 //
 //  Created by Carlos Eduardo de Sousa Meneses on 09/06/26.
@@ -8,7 +8,7 @@
 import Nuvem
 import SwiftUI
 
-struct SwipeActionButtonView: View {
+struct AddChallengeView: View {
     @State var x: [CGFloat] = []  //-> 7 cartas num array
     @State var degree: [CGFloat] = []  //-> Inclinação das cartas
     @State var isActive: Bool = false
@@ -67,7 +67,7 @@ struct SwipeActionButtonView: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(.primaryBrown)
                             
-                            Text("\(j+3) Desafios Restantes")
+                            Text("\(j+3) Desafio(s) Restante(s)")
                                 .foregroundStyle(.primaryBrown)
                                 .font(.footnote)
                         }
@@ -315,7 +315,7 @@ struct Card: View {
     var vm = AlbumViewModel()
     var vr = ViewRouter()
     
-    SwipeActionButtonView()
+    AddChallengeView()
         .environment(vm)
         .environment(vr)
 }
