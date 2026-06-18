@@ -105,11 +105,11 @@
 				};
 			};
 			buildConfigurationList = 55C3F5522FCDD4E100179746 /* Build configuration list for PBXProject "FlyingHigh" */;
-			developmentRegion = en;
+			developmentRegion = "pt-BR";
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				"pt-BR",
 			);
 			mainGroup = 55C3F54E2FCDD4E100179746;
 			minimizedProjectReferenceProxies = 1;
