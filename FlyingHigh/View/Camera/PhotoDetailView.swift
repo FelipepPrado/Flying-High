@@ -21,72 +21,81 @@ struct PhotoDetailView: View {
     private let footerHeight: CGFloat = 180.0
     
     var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 10){
-                Spacer()
-                if let imageData = photo.data,
-                   let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .scaleEffect(scale)
-                        .offset(offset)
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    let newScale = lastScale * value
-                                    scale = min(max(newScale, 1), 5)
-                                }
-                                .onEnded { _ in
-                                    lastScale = scale
-                                }
-                        )
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
+        ZStack {
+            Color(.bgPrimary).ignoresSafeArea()
+            GeometryReader { geometry in
+                VStack(spacing: 24){
+                    Spacer()
+                    if let imageData = photo.data,
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .scaleEffect(scale)
+                            .offset(offset)
+                            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 2)
+                            .gesture(
+                                MagnificationGesture()
+                                    .onChanged { value in
+                                        let newScale = lastScale * value
+                                        scale = min(max(newScale, 1), 5)
+                                    }
+                                    .onEnded { _ in
+                                        lastScale = scale
+                                    }
+                            )
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { value in
+                                        if scale > 1 {
+                                            offset = CGSize(
+                                                width: lastOffset.width + value.translation.width,
+                                                height: lastOffset.height + value.translation.height
+                                            )
+                                        }
+                                    }
+                                    .onEnded { _ in
+                                        lastOffset = offset
+                                    }
+                            )
+                            .onTapGesture(count: 2) {
+                                withAnimation {
                                     if scale > 1 {
-                                        offset = CGSize(
-                                            width: lastOffset.width + value.translation.width,
-                                            height: lastOffset.height + value.translation.height
-                                        )
+                                        scale = 1
+                                        lastScale = 1
+                                        offset = .zero
+                                        lastOffset = .zero
+                                    } else {
+                                        scale = 2
+                                        lastScale = 2
                                     }
                                 }
-                                .onEnded { _ in
-                                    lastOffset = offset
-                                }
-                        )
-                        .onTapGesture(count: 2) {
-                            withAnimation {
-                                if scale > 1 {
-                                    scale = 1
-                                    lastScale = 1
-                                    offset = .zero
-                                    lastOffset = .zero
-                                } else {
-                                    scale = 2
-                                    lastScale = 2
-                                }
                             }
+                    }
+                    if let description = photo.description,
+                       !description.isEmpty {
+                        ScrollView {
+                            Text(description)
+                                .font(.body.bold())
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .foregroundStyle(.primaryBrown)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 20)
                         }
+                        .padding(.vertical, 20)
+                        .frame(maxHeight: 96)
+                        .background(.bgTertiary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    
+                    Spacer()
+                    
                 }
-                if let description = photo.description,
-                   !description.isEmpty {
-                    ScrollView {
-                     Text(description)
-                     .frame(maxWidth: .infinity, alignment: .leading)}
-                     .frame(height: 80)
-                     .padding()
-                     .background(.gray.opacity(0.1))
-                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                
-                Spacer()
-                
+                .padding(.horizontal, 20)
+                .padding(.bottom, 40)
             }
-            .padding(.horizontal, 20)
         }
-        .navigationTitle(challengeTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -105,6 +114,11 @@ struct PhotoDetailView: View {
                         try? jpegData.write(to: tempURL)
                     }
                 }
+            }
+            ToolbarItem(placement: .principal) {
+                Text(challengeTitle)
+                    .font(.custom("YoungSerif-Regular", size: 17))
+                    .foregroundStyle(.primaryBrown)
             }
         }
     }
