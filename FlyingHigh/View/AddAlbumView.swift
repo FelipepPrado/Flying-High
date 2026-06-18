@@ -11,141 +11,153 @@ struct AddAlbumView: View {
     @State var selectedColor: String = "user-blue"
     @State var addChallenges: Bool = false
     
+    
+    
     var body: some View {
         ZStack{
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            Color(.bgPrimary).ignoresSafeArea()
             VStack (spacing: 0){
                 Rectangle()
                     .fill(Color(selectedColor))
                     .frame(height: 24)
                 
-                VStack (spacing: 26){
+                VStack (spacing: 22){
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Nome da experiência")
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
                             .padding(.leading,8)
-                        TextField(text: $title, label: {
+                            .font(Font.body.smallCaps())
+                            .foregroundStyle(.primaryBrown)
+                        TextField(text: $title,
+                                  label: {
                             Text("Digite o nome")
-                                .foregroundStyle(Color(.systemGray3))
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color(.tertiaryBrown))
                         })
-                            .fontWeight(.medium)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .stroke(Color(.systemGray5), lineWidth: 2)
-                            )
+                        .foregroundStyle(Color(.primaryBrown))
+                        .fontWeight(.medium)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .padding(.horizontal, 20)
                     
                     HStack (alignment: .top){
                         VStack (alignment: .leading, spacing: 26) {
                             VStack (alignment: .leading, spacing: 12) {
                                 Text("Data da Ida")
-                                    .fontWeight(.medium)
+                                    .fontWeight(.semibold)
                                     .padding(.leading,8)
+                                    .font(Font.body.smallCaps())
+                                    .foregroundStyle(.primaryBrown)
                                 HStack {
-                                    Text(startDate.formatted(.dateTime.day().month().year()))
+                                    Text(format(startDate))
                                         .fontWeight(.medium)
-                                    
+                                        .foregroundStyle(.primaryBrown)
                                     Spacer()
                                 }
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 16)
-                                    .frame(maxWidth: 170)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14)
-                                            .stroke(Color(.systemGray5), lineWidth: 2)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                                .frame(maxWidth: 170)
+                                .background(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
+                                .overlay {
+                                    DatePicker(
+                                        "Selecione uma data de ida",
+                                        selection: $startDate,
+                                        in: Date.now...,
+                                        displayedComponents: .date,
                                     )
-                                    .overlay {
-                                        DatePicker(
-                                            "Selecione uma data de ida",
-                                            selection: $startDate,
-                                            in: Date.now...,
-                                            displayedComponents: .date,
-                                        )
-                                            .labelsHidden()
-                                            .colorMultiply(.clear)
-                                    }
+                                    .labelsHidden()
+                                    .colorMultiply(.clear)
+                                }
                             }
+                            
                             VStack (alignment: .leading, spacing: 12) {
                                 Text("Data da Volta")
-                                    .fontWeight(.medium)
+                                    .fontWeight(.semibold)
                                     .padding(.leading,8)
+                                    .font(Font.body.smallCaps())
+                                    .foregroundStyle(.primaryBrown)
                                 HStack {
-                                    Text(endDate.formatted(.dateTime.day().month().year()))
+                                    Text(format(endDate))
                                         .fontWeight(.medium)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(.primaryBrown)
                                     Spacer()
                                 }
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 16)
-                                    .frame(maxWidth: 170)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14)
-                                            .stroke(Color(.systemGray5), lineWidth: 2)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                                .frame(maxWidth: 170)
+                                .background(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
+                                .overlay {
+                                    DatePicker(
+                                        "Selecione uma data de volta",
+                                        selection: $endDate,
+                                        in: startDate...,
+                                        displayedComponents: .date
                                     )
-                                    .overlay {
-                                        DatePicker(
-                                            "Selecione uma data de volta",
-                                            selection: $endDate,
-                                            in: startDate...,
-                                            displayedComponents: .date
-                                        )
-                                            .labelsHidden()
-                                            .colorMultiply(.clear)
-                                            .onChange(of: startDate) {
-                                                if startDate > endDate{
-                                                    endDate = startDate
-                                                }
-                                            }
+                                    .labelsHidden()
+                                    .colorMultiply(.clear)
+                                    .onChange(of: startDate) {
+                                        if startDate > endDate{
+                                            endDate = startDate
+                                        }
                                     }
+                                }
                             }
                         }
                         Spacer()
                         
-                        RoundedRectangle(cornerRadius: 60)
-                            .stroke(Color(.systemGray5), lineWidth: 2)
+                        Image("stamp-ticket")
+                            .resizable()
+                            .scaledToFit()
                             .frame(width: 120, height: 120)
-                            
                     }
-                    .padding(.leading, 20)
-                    .padding(.trailing, 6)
+                    
+                    CustonColorView(selectedColor: $selectedColor)
                 }
                 .padding(.top, 30)
-                .padding(.bottom, 100)
-                .background(.white)
+                .padding(.bottom, 40)
+                .padding(.horizontal, 20)
+                
+                .background(.bgTertiary)
                 
                 HStack(spacing: 0) {
                     Image(.ticketCut)
+                        .colorMultiply(.bgTertiary)
                     Rectangle()
-                        .fill(Color(.white))
+                        .fill(Color(.bgTertiary))
                         .frame(height: 40)
                     Image(.ticketCut)
                         .scaleEffect(x: -1, y: 1)
+                        .colorMultiply(.bgTertiary)
                 }
                 .overlay(BottomBorder()
                     .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.primaryBrown)
                 )
                 
                 HStack(alignment: .bottom){
-                    CustonColorView(selectedColor: $selectedColor)
                     Spacer()
-                    Text("Nome do App")
-                        .font(.system(size: 13, weight: .semibold))
+                    Text("Desvio")
+                        .font(.custom("YoungSerif-Regular", size: 13))
+                        .foregroundStyle(.primaryBrown)
                 }
-                .padding(EdgeInsets(top: 4, leading: 16, bottom: 16, trailing: 22))
-                .background(.white)
+                .padding(EdgeInsets(top: 4, leading: 22, bottom: 16, trailing: 22))
+                .background(.bgTertiary)
                 
                 Rectangle()
                     .fill(Color(selectedColor))
                     .frame(height: 24)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 2)
             .padding(.horizontal, 24)
         }
-        .navigationTitle("Adicionar Experiência")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
@@ -162,12 +174,28 @@ struct AddAlbumView: View {
                 .disabled(title.isEmpty || endDate < startDate)
                 .buttonStyle(.borderedProminent)
                 .buttonStyle(.glassProminent)
-                .tint(.blue)
+                .tint(.accent)
+            }
+            ToolbarItem(placement: .principal) {
+                Text("Adicionar Experiência")
+                    .font(.custom("YoungSerif-Regular", size: 17))
+                    .foregroundStyle(.primaryBrown)
             }
         }
         .onTapGesture {
             dismissKeyboard()
         }
+    }
+    
+    func format(_ date: Date) -> String {
+        date.formatted(
+            .verbatim(
+                "\(day: .defaultDigits) \(month: .abbreviated) \(year: .defaultDigits)",
+                locale: .current,
+                timeZone: .current,
+                calendar: .current,
+            )
+        )
     }
     
     func dismissKeyboard() {
