@@ -103,7 +103,7 @@ struct AlbumView: View {
                     VStack(spacing: 26){
                         HStack(alignment: .center, spacing: 20){
                             ProgressView(value: progress)
-                                .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgTertiary, progressColor: .userBlue))                                    .frame(height: 12)
+                                .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgTertiary, progressColor: album.color ?? "user-blue"))                                    .frame(height: 12)
                             
                             let progressText = String(format:"%.0f", (progress*100).rounded())
                             Text("\(progressText)%")
@@ -124,7 +124,7 @@ struct AlbumView: View {
                                             selectedPhoto = photo
                                             showingCamera = true
                                         }){
-                                            PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon)
+                                            PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
                                         }
                                     }
                                 } else { //ao clicar mostra a foto
@@ -137,7 +137,7 @@ struct AlbumView: View {
                                         {
                                             if let imagem = UIImage(data: photo.data!) {
                                                 if let challenge = challenge{
-                                                    PhotoChallengeView(status: 2, textChallenge: challenge.title, imageChallenge: imagem, challengeIcon: challenge.icon)
+                                                    PhotoChallengeView(status: 2, textChallenge: challenge.title, imageChallenge: imagem, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
                                                 }
                                             }
                                         }
@@ -147,7 +147,7 @@ struct AlbumView: View {
                                             challengeReference: photo.challengeReference
                                         )
                                         if let challenge = challenge {
-                                            PhotoChallengeView(status: 1, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon)
+                                            PhotoChallengeView(status: 1, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
                                         }
                                     }
                                 }
