@@ -1,5 +1,5 @@
 //
-//  SwipeActionButtonView.swift
+//  AddChallengeView.swift
 //  FlyingHigh
 //
 //  Created by Carlos Eduardo de Sousa Meneses on 09/06/26.
@@ -8,7 +8,7 @@
 import Nuvem
 import SwiftUI
 
-struct SwipeActionButtonView: View {
+struct AddChallengeView: View {
     @State var x: [CGFloat] = []  //-> 7 cartas num array
     @State var degree: [CGFloat] = []  //-> Inclinação das cartas
     @State var isActive: Bool = false
@@ -19,7 +19,9 @@ struct SwipeActionButtonView: View {
     @State var selectedChallenges: [Challenge.Observable] = []
     
     @State var buttonLeftColor: Color = .white
+    @State var textLeftColor: Color = .primaryBrown
     @State var buttonRighttColor: Color = .white
+    @State var textRightColor: Color = .primaryBrown
     @State var topCard: Int = 0
     
     // Variável de Tratamento de opacity na ZStack e
@@ -56,20 +58,24 @@ struct SwipeActionButtonView: View {
             }
             else{
                 ZStack{
-                    Color(.systemGroupedBackground).ignoresSafeArea()
-                    VStack(spacing: 50){
-                        VStack(alignment: .center, spacing: 8){
-                            Text("Aceite os desafios de registro para cumprir durante a sua experiência.")
+                    Color(.bgPrimary).ignoresSafeArea()
+                    VStack{
+                        VStack(alignment: .center, spacing: 10){
+                            Text("Aceite desafios de registro para cumprir durante a sua experiência.")
                                 .multilineTextAlignment(.center)
                                 .font(.body)
+                                .fontWeight(.medium)
+                                .foregroundColor(.primaryBrown)
                             
-                            Text("Restantes \(j+3)")
-                                .foregroundStyle(.secondary)
+                            Text("\(j+3) Desafio(s) Restante(s)")
+                                .foregroundStyle(.primaryBrown)
                                 .font(.footnote)
                         }
                         .frame(maxWidth: 292)
+                        .padding(.top)
                         .padding(.horizontal)
-                        VStack(spacing: 66){
+                        
+                        Spacer()
                             ZStack {
                                 ForEach(challenges.enumerated(), id: \.offset) { (i, challenge) in
                                     //CARDS COM CADA DESAFIO
@@ -84,13 +90,17 @@ struct SwipeActionButtonView: View {
                                                     if value.translation.width > 0 {
                                                         self.x[i] = value.translation.width
                                                         self.degree[i] = 10
-                                                        self.buttonRighttColor = .blue
+                                                        self.buttonRighttColor = .accentColor
+                                                        self.textRightColor = .white
+                                                        self.textLeftColor = .primaryBrown
                                                         self.buttonLeftColor = .white
                                                     }
                                                     else {
                                                         self.x[i] = value.translation.width
                                                         self.degree[i] = -8
-                                                        self.buttonLeftColor = .red
+                                                        self.buttonLeftColor = .accentColor
+                                                        self.textLeftColor = .white
+                                                        self.textRightColor = .primaryBrown
                                                         self.buttonRighttColor = .white
                                                     }
                                                 })
@@ -107,6 +117,8 @@ struct SwipeActionButtonView: View {
                                                             self.x[i] = 0
                                                             self.degree[i] = 0
                                                             self.buttonRighttColor = .white
+                                                            self.textRightColor = .primaryBrown
+                                                            
                                                         }
                                                     } else {
                                                         if value.translation.width < -100 {
@@ -119,6 +131,7 @@ struct SwipeActionButtonView: View {
                                                             self.x[i] = 0
                                                             self.degree[i] = 0
                                                             self.buttonLeftColor = .white
+                                                            self.textLeftColor = .primaryBrown
                                                         }
                                                     }
                                                 })
@@ -126,6 +139,8 @@ struct SwipeActionButtonView: View {
                                 }
                             }
                             .animation(.default, value: x)
+                            
+                            Spacer()
                             
                             //Lógica:
                             //Se passar para o lado direito, então o botão "levar carta" fica azul
@@ -137,13 +152,15 @@ struct SwipeActionButtonView: View {
                                 label:{
                                     Text("Deixar\nPassar")
                                         .padding(.horizontal, 20)
-                                        .padding(.vertical, 25)
+                                        .padding(.vertical, 22)
+                                        .foregroundStyle(textLeftColor)
+                                        .fontWeight(.medium)
                                 }
                                 .foregroundStyle(Color.black)
                                 .buttonBorderShape(.roundedRectangle(radius: 20))
+                                .tint(buttonLeftColor)
                                 .buttonStyle(.glassProminent)
                                 .buttonStyle(.borderedProminent)
-                                .tint(buttonLeftColor)
                                 
                                 Button{
                                     swipeRight(index: topCard)
@@ -151,23 +168,30 @@ struct SwipeActionButtonView: View {
                                 label:{
                                     Text("Aceitar\nDesafio")
                                         .padding(.horizontal, 20)
-                                        .padding(.vertical, 25)
+                                        .padding(.vertical, 22)
+                                        .foregroundStyle(textRightColor)
+                                        .fontWeight(.medium)
                                 }
                                 .foregroundStyle(Color.black)
                                 .buttonBorderShape(.roundedRectangle(radius: 20))
+                                .tint(buttonRighttColor)
                                 .buttonStyle(.glassProminent)
                                 .buttonStyle(.borderedProminent)
-                                .tint(buttonRighttColor)
-                            }
+                            
                         }
                         Spacer()
                     }
-                    .padding(.top)
                 }
             }
         }
-        .navigationTitle("Selecionar Desafios")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar{
+            ToolbarItem(placement: .principal) {
+                Text("Selecionar Desafios")
+                    .font(.custom("YoungSerif-Regular", size: 17))
+                    .foregroundStyle(.primaryBrown)
+            }
+        }
 //        .padding()
     }
     //Função para jogar o card para esquerda
@@ -178,6 +202,7 @@ struct SwipeActionButtonView: View {
             self.x[index] = -500
             self.degree[index] = -15
             self.buttonLeftColor = .white
+            self.buttonLeftColor = .primaryBrown
                         
             topCard -= 1
         }
@@ -192,6 +217,7 @@ struct SwipeActionButtonView: View {
             self.x[index] = 500
             self.degree[index] = 10
             self.buttonRighttColor = .white
+            self.textRightColor = .primaryBrown
         }
 
         activateRightButton()
@@ -239,18 +265,22 @@ struct SwipeActionButtonView: View {
     }
 
     func activateRightButton() {
-        self.buttonRighttColor = .blue
+        self.buttonRighttColor = .accent
+        self.textRightColor = .white
         j -= 1
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.buttonRighttColor = .white
+            self.textRightColor = .primaryBrown
         }
     }
     
     func activeLeftButton() {
-        self.buttonLeftColor = .red
+        self.buttonLeftColor = .accent
+        self.textLeftColor = .white
         j -= 1
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.buttonLeftColor = .white
+            self.textLeftColor = .primaryBrown
         }
     }
 }
@@ -261,20 +291,21 @@ struct Card: View {
 
     var body: some View {
         ZStack {
-            VStack (alignment: .center, spacing: 52){
+            VStack (alignment: .center, spacing: 30){
                 Image(uiImage: challenge.icon)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 222, height: 220)
-                    .colorMultiply(.blue)
+                    .colorMultiply(.userBlue)
                     
                 Text(challenge.title)
-                    .fontWeight(.medium)
+                    .font(.custom("YoungSerif-Regular", size: 28))
+                    .foregroundStyle(.primaryBrown)
             }
             .padding(.top, 60)
             .padding(.horizontal, 31)
             .padding(.bottom, 50)
-            .background(.white)
+            .background(.bgTertiary)
             .cornerRadius(20)
         }
         
@@ -285,7 +316,7 @@ struct Card: View {
     var vm = AlbumViewModel()
     var vr = ViewRouter()
     
-    SwipeActionButtonView()
+    AddChallengeView()
         .environment(vm)
         .environment(vr)
 }
