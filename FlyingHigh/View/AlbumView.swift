@@ -119,12 +119,16 @@ struct AlbumView: View {
                                         challengeReference: photo.challengeReference
                                     )
                                     if let challenge = challenge {
-                                        Button(action: {
-                                            selectedChallenge = challenge
-                                            selectedPhoto = photo
-                                            showingCamera = true
-                                        }){
-                                            PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
+                                        if Date.now >= album.endDate{
+                                            PhotoChallengeView(status: 3, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
+                                        }else{
+                                            Button(action: {
+                                                selectedChallenge = challenge
+                                                selectedPhoto = photo
+                                                showingCamera = true
+                                            }){
+                                                PhotoChallengeView(status: 0, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
+                                            }
                                         }
                                     }
                                 } else { //ao clicar mostra a foto
