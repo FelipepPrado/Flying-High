@@ -142,6 +142,7 @@ struct CustomProgressBar: ProgressViewStyle {
         title: "Nome da Experiência",
         startDate: .now,
         endDate: .now,
+        color: "user-red"
     )
     CardAlbumView(album: album.observable)
 }
