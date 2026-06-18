@@ -9,4 +9,7 @@ struct Challenge{
     
     @CKAssetField("icon")
     var icon: UIImage
+    
+    @CKField("color")
+    var color: String?
 }
