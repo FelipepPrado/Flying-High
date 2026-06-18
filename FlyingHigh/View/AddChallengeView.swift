@@ -50,6 +50,7 @@ struct AddChallengeView: View {
                         [-4, 6, 0].randomElement()!
                     }
                     topCard = challenges.count - 1
+                    
                 }
         }
     }
@@ -60,7 +61,6 @@ struct AddChallengeView: View {
                 LoadingScreen()
             }
             else{
-                
                 VStack{
                     VStack(alignment: .center, spacing: 10){
                         Text("Aceite desafios de registro para cumprir durante a sua experiência.")
@@ -138,6 +138,12 @@ struct AddChallengeView: View {
                                             }
                                         })
                                 )
+                                .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel(Text("Desafio: \(challenge.title)"))
+//                            if  challenges.count == 0{
+//                                .accessibilityHint(Text("Último desafio disponível"))
+//                            }
                         }
                     }
                     .animation(.default, value: x)
@@ -152,7 +158,7 @@ struct AddChallengeView: View {
                             swipeLeft(index: topCard)
                         }
                         label:{
-                            Text("Deixar\nPassar")
+                            Text("Rejeitar\n Desafio")
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 22)
                                 .foregroundStyle(textLeftColor)
@@ -183,7 +189,13 @@ struct AddChallengeView: View {
                     }
                     Spacer()
                 }
+                .onAppear {
+                    notificationLastCard()
+                }
+              
             }
+            
+            
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
@@ -284,6 +296,10 @@ struct AddChallengeView: View {
             self.textLeftColor = .primaryBrown
         }
     }
+    func notificationLastCard(){
+        let notification = AccessibilityNotification.Announcement("Albúm criado com sucesso!")
+        notification.post()
+    }
 }
 
 //Struct responsável pelos cards
@@ -291,27 +307,34 @@ struct Card: View {
     let challenge: Challenge.Observable
     
     var body: some View {
-        ZStack {
-            VStack (alignment: .center, spacing: 30){
-                Image(uiImage: challenge.icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 222, height: 220)
-                    .colorMultiply(Color(challenge.color ?? "user-blue"))
-                    .accessibilityHidden(true)
-                
-                Text(challenge.title)
-                    .font(.custom("YoungSerif-Regular", size: 28))
-                    .foregroundStyle(.primaryBrown)
+        Group {
+            ZStack {
+                VStack (alignment: .center, spacing: 30){
+                    Image(uiImage: challenge.icon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 222, height: 220)
+                        .colorMultiply(Color(challenge.color ?? "user-blue"))
+                        .accessibilityHidden(true)
+                    
+                    Text(challenge.title)
+                        .font(.custom("YoungSerif-Regular", size: 28))
+                        .foregroundStyle(.primaryBrown)
+                }
+                .padding(.top, 60)
+                .padding(.horizontal, 31)
+                .padding(.bottom, 50)
+                .background(.bgTertiary)
+                .cornerRadius(20)
             }
-            .padding(.top, 60)
-            .padding(.horizontal, 31)
-            .padding(.bottom, 50)
-            .background(.bgTertiary)
-            .cornerRadius(20)
         }
+//        .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
+//        .accessibilityElement(children: .combine)
+//        .accessibilityLabel(Text("Desafio: \(challenge.title)"))
+
         
     }
+   
 }
 
 #Preview {
