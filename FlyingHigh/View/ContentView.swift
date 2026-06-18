@@ -19,6 +19,7 @@ struct ContentView: View {
                         .all()
                         .map(\.observable)
                     albumViewModel.albums = albums.sorted{$0.startDate > $1.startDate}
+                        
                 } catch {
                     print(error)
                 }
@@ -36,7 +37,9 @@ struct ContentView: View {
                     }
                 }
             }
+        
     }
+    
     
     var insideView: some View {
         Group{
@@ -53,6 +56,7 @@ struct ContentView: View {
                                 ForEach(albumViewModel.albums){ album in
                                     CardAlbumView(album: album)
                                 }
+                               
                             }
                             .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
                             .padding()
@@ -83,6 +87,7 @@ struct ContentView: View {
             }
             
         }
+        
         
     }
 }

@@ -298,6 +298,7 @@ struct Card: View {
                     .scaledToFit()
                     .frame(width: 222, height: 220)
                     .colorMultiply(Color(challenge.color ?? "user-blue"))
+                    .accessibilityHidden(true)
                 
                 Text(challenge.title)
                     .font(.custom("YoungSerif-Regular", size: 28))

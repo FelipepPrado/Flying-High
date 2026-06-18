@@ -29,10 +29,13 @@ struct CardAlbumView: View {
                                     .lineHeight(.multiple(factor: 1.2))
                                     .foregroundStyle(.primaryBrown)
                                     .multilineTextAlignment(.leading)
+                                    .accessibilityLabel(Text("Nome da experiência:  \(album.title)"))
                                 Text("\(album.startDate.formatted(.dateTime.day().month().year())) - \(album.endDate.formatted(.dateTime.day().month().year()))")
                                     .font(.callout)
                                     .foregroundStyle(.primaryBrown)
                                     .multilineTextAlignment(.leading)
+                                    .accessibilityLabel(Text("Data de início:  \(album.startDate.formatted(.dateTime.day().month().year())) - Data de término: \(album.endDate.formatted(.dateTime.day().month().year()))"))
+
                             }
                             .padding(.horizontal, 22)
                             .padding(.vertical, 24)
