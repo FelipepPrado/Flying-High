@@ -211,7 +211,8 @@ struct SwipeActionButtonView: View {
             album = Album(
                 title: albumViewModel.title ?? "",
                 startDate: albumViewModel.startDate ?? Date.now,
-                endDate: albumViewModel.endDate ?? Date.now
+                endDate: albumViewModel.endDate ?? Date.now,
+                color: albumViewModel.color ?? "user-blue"
             )
             try await album.save(on: .private) // Persiste na base privada CloudKit
             albumViewModel.addAlbum(album: album)

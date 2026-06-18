@@ -8,6 +8,7 @@ struct AddAlbumView: View {
     @State var title: String = ""
     @State var startDate: Date = Date.now
     @State var endDate: Date = Date.now
+    @State var selectedColor: String = "user-blue"
     @State var addChallenges: Bool = false
     
     var body: some View {
@@ -15,7 +16,7 @@ struct AddAlbumView: View {
             Color(.systemGroupedBackground).ignoresSafeArea()
             VStack (spacing: 0){
                 Rectangle()
-                    .fill(Color(.systemGray3))
+                    .fill(Color(selectedColor))
                     .frame(height: 24)
                 
                 VStack (spacing: 26){
@@ -98,7 +99,6 @@ struct AddAlbumView: View {
                                                 }
                                             }
                                     }
-                                
                             }
                         }
                         Spacer()
@@ -129,9 +129,7 @@ struct AddAlbumView: View {
                 )
                 
                 HStack(alignment: .bottom){
-                    Circle()
-                        .fill(Color(.systemGray5))
-                        .frame(width: 36)
+                    CustonColorView(selectedColor: $selectedColor)
                     Spacer()
                     Text("Nome do App")
                         .font(.system(size: 13, weight: .semibold))
@@ -140,7 +138,7 @@ struct AddAlbumView: View {
                 .background(.white)
                 
                 Rectangle()
-                    .fill(Color(.systemGray3))
+                    .fill(Color(selectedColor))
                     .frame(height: 24)
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -155,6 +153,7 @@ struct AddAlbumView: View {
                     albumViewModel.title = title
                     albumViewModel.startDate = startDate
                     albumViewModel.endDate = endDate
+                    albumViewModel.color = selectedColor
                     
                     viewRouter.addChallenge()
                 }

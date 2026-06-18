@@ -13,10 +13,14 @@ struct Album{
     @CKField("endDate")
     var endDate: Date
     
-    init(title: String, startDate: Date, endDate: Date) {
+    @CKField("color")
+    var color: String
+    
+    init(title: String, startDate: Date, endDate: Date, color: String) {
         self.title = title
         self.startDate = startDate
         self.endDate = endDate
+        self.color = color
         self.record = CKRecord(recordType: "Album")
     }
 }
@@ -30,6 +34,7 @@ class AlbumViewModel{
     var title: String?
     var startDate: Date?
     var endDate: Date?
+    var color: String?
     var photos: [Photo]?
     
     func addAlbum(album: Album) {
