@@ -9,9 +9,12 @@ import SwiftUI
 
 struct LoadingScreen: View {
     var body: some View {
-        VStack{
-            ProgressView()
-            Text("Carregando...")
+        ZStack{
+            Color(.bgPrimary).ignoresSafeArea()
+            VStack{
+                ProgressView()
+                Text("Carregando...")
+            }
         }
 
     }
