@@ -8,6 +8,7 @@ struct EditAlbumView: View {
     @State var title: String = ""
     @State var startDate: Date = Date.now
     @State var endDate: Date = Date.now
+    @State var selectedColor: String = "user-blue"
     @State var addChallenges: Bool = false
     
     var body: some View {
@@ -15,7 +16,7 @@ struct EditAlbumView: View {
             Color(.systemGroupedBackground).ignoresSafeArea()
             VStack (spacing: 0){
                 Rectangle()
-                    .fill(Color(.systemGray3))
+                    .fill(Color(selectedColor))
                     .frame(height: 24)
                 
                 VStack (spacing: 26){
@@ -92,6 +93,11 @@ struct EditAlbumView: View {
                                     )
                                     .labelsHidden()
                                     .colorMultiply(.clear)
+                                    .onChange(of: startDate) {
+                                        if startDate > endDate{
+                                            endDate = startDate
+                                        }
+                                    }
                                 }
                                 
                             }
@@ -124,9 +130,7 @@ struct EditAlbumView: View {
                 )
                 
                 HStack(alignment: .bottom){
-                    Circle()
-                        .fill(Color(.systemGray5))
-                        .frame(width: 36)
+                    CustonColorView(selectedColor: $selectedColor)
                     Spacer()
                     Text("Nome do App")
                         .font(.system(size: 13, weight: .semibold))
@@ -135,7 +139,7 @@ struct EditAlbumView: View {
                 .background(.white)
                 
                 Rectangle()
-                    .fill(Color(.systemGray3))
+                    .fill(Color(selectedColor))
                     .frame(height: 24)
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -148,6 +152,7 @@ struct EditAlbumView: View {
             title = album.title
             startDate = album.startDate
             endDate = album.endDate
+            selectedColor = album.color ?? "user-color"
         }
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
@@ -164,7 +169,15 @@ struct EditAlbumView: View {
                 .tint(.blue)
             }
         }
+        .onTapGesture {
+            dismissKeyboard()
+        }
     }
+    
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
     func save() async{
         do{
             album.title = title

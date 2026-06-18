@@ -13,8 +13,9 @@ struct CardAlbumView: View {
             NavigationLink(destination: AlbumView(album: album, progress: $progress)){
                 Group {
                     VStack(alignment: .leading, spacing: 0) {
+                        
                         Rectangle()
-                            .fill(Color(.userBlue))
+                            .fill(Color(album.color ?? "user-blue"))
                             .frame(maxWidth: .infinity)
                             .frame(height: 20)
                         
@@ -63,7 +64,7 @@ struct CardAlbumView: View {
                         
                         HStack(alignment: .center, spacing: 6){
                             ProgressView(value: progress)
-                                .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgSecondary, progressColor: .userBlue))
+                                .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgSecondary, progressColor: album.color ?? "user-blue"))
                                 .frame(height: 12)
                             
                             let progressText = String(format:"%.0f", (progress*100).rounded())
@@ -117,7 +118,7 @@ struct CardAlbumView: View {
 struct CustomProgressBar: ProgressViewStyle {
     let progressHeight: Int
     let backgroundColor: Color
-    let progressColor: Color
+    let progressColor: String
     
     func makeBody(configuration: Configuration) -> some View {
         GeometryReader { geometry in
@@ -142,7 +143,7 @@ struct CustomProgressBar: ProgressViewStyle {
         title: "Nome da Experiência",
         startDate: .now,
         endDate: .now,
-        color: "user-red"
+        color: nil
     )
     CardAlbumView(album: album.observable)
 }

@@ -12,6 +12,7 @@ struct PhotoChallengeView: View {
     var textChallenge: String
     var imageChallenge: UIImage?
     var challengeIcon: UIImage?
+    var colorAlbum:  String
     
     var body: some View {
         VStack(spacing: -6){
@@ -22,7 +23,7 @@ struct PhotoChallengeView: View {
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(width: 24, height: 24)
-                        .background(.userBlue)
+                        .background(Color(colorAlbum))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal, 10)
                         .padding(.top, 10)
@@ -41,7 +42,7 @@ struct PhotoChallengeView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 111, height: 110)
-                    .colorMultiply(status == 1 ? Color.userBlue : Color.secondaryBrown)
+                    .colorMultiply(status == 1 ? Color(colorAlbum) : Color.secondaryBrown)
                     .padding(.vertical, 10)
                 
                 VStack(spacing: 0) {
@@ -65,10 +66,10 @@ struct PhotoChallengeView: View {
                         else {
                             Text("Revelando")
                                 .fontWeight(.medium)
-                                .foregroundStyle(Color.userBlue)
+                                .foregroundStyle(Color(colorAlbum))
                             Text("\(textChallenge)")
                                 .fontWeight(.medium)
-                                .foregroundStyle(Color.userBlue)
+                                .foregroundStyle(Color(colorAlbum))
                         }
                     }
                 }
@@ -82,7 +83,7 @@ struct PhotoChallengeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay{
             RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(status == 1 ? Color.userBlue : Color.secondaryBrown, lineWidth: 2)
+                .strokeBorder(status == 1 ? Color(colorAlbum) : Color.secondaryBrown, lineWidth: 2)
         }
         .overlay {
             if status == 2 {

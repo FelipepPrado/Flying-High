@@ -14,9 +14,9 @@ struct Album{
     var endDate: Date
     
     @CKField("color")
-    var color: String
+    var color: String?
     
-    init(title: String, startDate: Date, endDate: Date, color: String) {
+    init(title: String, startDate: Date, endDate: Date, color: String?) {
         self.title = title
         self.startDate = startDate
         self.endDate = endDate
