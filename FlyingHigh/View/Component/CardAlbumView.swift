@@ -5,7 +5,7 @@ struct CardAlbumView: View {
     var album: Album.Observable
     
     @State private var photos: [Photo.Observable] = []
-    @State private var progress: Double = 0.5
+    @State private var progress: Double = 0
     
     var body: some View {
         ZStack{
