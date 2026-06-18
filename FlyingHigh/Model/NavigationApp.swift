@@ -45,7 +45,7 @@ enum ViewManagar {
         case .AddInfoAlbum:
             AddAlbumView()
         case .AddChallenge:
-            SwipeActionButtonView()
+            AddChallengeView()
         }
     }
 }
