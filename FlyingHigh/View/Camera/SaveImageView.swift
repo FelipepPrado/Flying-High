@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Nuvem
+import CloudKit
 
 struct SaveImageView: View {
     @Environment(\.dismiss) var dismiss
@@ -17,6 +18,7 @@ struct SaveImageView: View {
     @State private var photoDescription = ""
     private let footerHeight: CGFloat = 150.0
     @State private var showSendAlert = false
+    @State private var showAlertCloudKit = false
     @State private var showLastAttemptAlert = false
     @State private var loadingCloudKit = false
     //@FocusState private var isDescriptionFocused: Bool
@@ -114,6 +116,13 @@ struct SaveImageView: View {
 //                .toolbarColorScheme(.dark, for: .navigationBar)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarBackButtonHidden(true)
+                .alert("iCloud possivelmente Cheio", isPresented: $showAlertCloudKit){
+                    Button("Confirmar", role: .confirm){
+                        dismiss()
+                    }
+                } message: {
+                    Text("Tente novamente assim que tiver com armazenamento disponível no iCloud.")
+                }
                 .alert("Deseja enviar esta foto?", isPresented: $showSendAlert) {
                     Button("Cancelar", role: .cancel) {}
                     Button("Enviar") {
@@ -145,7 +154,9 @@ struct SaveImageView: View {
             
             try await photo?.save(on: .private)
             dismiss()
-        } catch {
+        } catch let error as CKError{
+            handleCkError(error: error.code)
+        } catch{
             print(error)
         }
         loadingCloudKit = false
@@ -153,6 +164,15 @@ struct SaveImageView: View {
     
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    func handleCkError(error: CKError.Code) {
+        switch error {
+        case .quotaExceeded:
+            showAlertCloudKit = true
+        default:
+            print("Outro erro! Possivelmente de internet ou algo do tipo")
+        }
     }
 }
 
