@@ -23,6 +23,7 @@ struct AddChallengeView: View {
     @State var buttonRighttColor: Color = .white
     @State var textRightColor: Color = .primaryBrown
     @State var topCard: Int = 0
+    @State var showAlert: Bool = false
     
     // Variável de Tratamento de opacity na ZStack e
     @State var j: Int = 0
@@ -32,12 +33,17 @@ struct AddChallengeView: View {
             Color(.bgPrimary).ignoresSafeArea()
             insideView
                 .onChange(of: topCard) { _, newValue in
-                    if newValue < 0 {
-                        Task {
-                            await saveAlbumAndChallenges()
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                viewRouter.initView()
+                    if newValue < 0{
+                        if selectedChallenges.isEmpty {
+                            showAlert = true
+                        }
+                        else{
+                            Task {
+                                await saveAlbumAndChallenges()
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                    viewRouter.initView()
+                                }
                             }
                         }
                     }
@@ -51,6 +57,16 @@ struct AddChallengeView: View {
                     }
                     topCard = challenges.count - 1
                     
+                }
+                .alert(
+                    "Nenhum Desafio selecionado",
+                    isPresented: $showAlert
+                ) {
+                    Button("OK",role: .confirm) {
+                        viewRouter.removeLast()
+                    }
+                }message: {
+                    Text("Selecione pelo menos um desafio da próxima vez para continuar.")
                 }
         }
     }
