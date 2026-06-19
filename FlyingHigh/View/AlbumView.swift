@@ -18,6 +18,9 @@ struct AlbumView: View {
     @State private var selectedChallengeForDetail: Challenge.Observable?
     @State private var showPhotoDetail = false
     @State private var loadingCloudKit = false
+    @State private var showSaveSuccessAlert = false
+    @State private var showSaveErrorAlert = false
+    
     
     private let photoLibraryManager = PhotoLibraryManager()
     
@@ -34,16 +37,16 @@ struct AlbumView: View {
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
                 Menu(content: {
-                    if Date.now >= album.endDate {
+                    if canRevealAlbum && hasPhotosToSave {
                             Button(
                                 "Salvar Fotos",
                                 systemImage: "photo.badge.arrow.down.fill"
                             ) {
+                                
                                 Task {
                                     await saveAlbumPhotos()
                                 }
                             }
-                            .tint(.accent)
                         }
                     Button("Editar álbum", systemImage: "square.and.pencil"){
                         editAlbum.toggle()
@@ -53,7 +56,6 @@ struct AlbumView: View {
                     Button("Excluir", systemImage: "trash.fill", role: .destructive){
                         deletAlbum.toggle()
                     }
-                    
                     
                 }, label: {Image(systemName: "ellipsis")})
             }
@@ -76,6 +78,24 @@ struct AlbumView: View {
             
         }
         .alert(
+            "Fotos salvas!",
+            isPresented: $showSaveSuccessAlert
+        ) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("As fotos foram adicionadas à sua galeria.")
+        }
+
+        .alert(
+            "Erro ao salvar",
+            isPresented: $showSaveErrorAlert
+        ) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Não foi possível salvar as fotos.")
+        }
+        
+        .alert(
             "Deseja mesmo excluir o Álbum?",
             isPresented: $deletAlbum
         ) {
@@ -89,6 +109,7 @@ struct AlbumView: View {
         }message: {
             Text("Após o envio não será possível tirar novas fotos.")
         }
+        
         .navigationDestination(isPresented: $showingCamera){
             CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
         }
@@ -271,32 +292,29 @@ struct AlbumView: View {
         do {
             print("Vai executar função de save")
             try await photoLibraryManager.saveImages(images)
-
+            showSaveSuccessAlert = true
             print("Fotos salvas com sucesso")
 
         } catch {
+            showSaveErrorAlert = true
             print(error)
         }
         
-        
+    }
+    
+    var revealDate: Date {
+        Calendar.current.date(
+            byAdding: .day,
+            value: 1,
+            to: album.endDate
+        ) ?? album.endDate
+    }
 
-//        let images: [UIImage] = photos.compactMap { photo in
-//            
-//            print("Entrou no map com photo")
-//
-//            guard let data = photo.data else {
-//                print("Sem data na photo")
-//                return nil
-//            }
-//
-//            return UIImage(data: data)
-//        }
-//        
-//        print("Gerou UIImage")
-//
-//        guard !images.isEmpty else { return }
-//
-        
+    var canRevealAlbum: Bool {
+        Date.now >= revealDate
+    }
+    var hasPhotosToSave: Bool {
+        photos.contains { $0.data != nil }
     }
     
 }
