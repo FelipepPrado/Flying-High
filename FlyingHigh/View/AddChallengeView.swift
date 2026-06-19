@@ -23,6 +23,7 @@ struct AddChallengeView: View {
     @State var buttonRighttColor: Color = .white
     @State var textRightColor: Color = .primaryBrown
     @State var topCard: Int = 0
+    @State var showAlert: Bool = false
     
     // Variável de Tratamento de opacity na ZStack e
     @State var j: Int = 0
@@ -32,12 +33,17 @@ struct AddChallengeView: View {
             Color(.bgPrimary).ignoresSafeArea()
             insideView
                 .onChange(of: topCard) { _, newValue in
-                    if newValue < 0 {
-                        Task {
-                            await saveAlbumAndChallenges()
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                viewRouter.initView()
+                    if newValue < 0{
+                        if selectedChallenges.isEmpty {
+                            showAlert = true
+                        }
+                        else{
+                            Task {
+                                await saveAlbumAndChallenges()
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                    viewRouter.initView()
+                                }
                             }
                         }
                     }
@@ -51,6 +57,16 @@ struct AddChallengeView: View {
                     }
                     topCard = challenges.count - 1
                     
+                }
+                .alert(
+                    "Nenhum Desafio selecionado",
+                    isPresented: $showAlert
+                ) {
+                    Button("OK",role: .confirm) {
+                        viewRouter.removeLast()
+                    }
+                }message: {
+                    Text("Selecione pelo menos um desafio da próxima vez para continuar.")
                 }
         }
     }
@@ -68,7 +84,6 @@ struct AddChallengeView: View {
                             .font(.body)
                             .fontWeight(.medium)
                             .foregroundColor(.primaryBrown)
-                        
                         Text("\(j+3) Desafio(s) Restante(s)")
                             .foregroundStyle(.primaryBrown)
                             .font(.footnote)
@@ -76,7 +91,6 @@ struct AddChallengeView: View {
                     .frame(maxWidth: 292)
                     .padding(.top)
                     .padding(.horizontal)
-                    
                     Spacer()
                     ZStack {
                         ForEach(challenges.enumerated(), id: \.offset) { (i, challenge) in
@@ -138,16 +152,11 @@ struct AddChallengeView: View {
                                             }
                                         })
                                 )
-//                                .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
                                 .accessibilityElement(children: .combine)
                                 .accessibilityLabel(Text("Desafio: \(challenge.title)"))
-//                            if  challenges.count == 0{
-//                                .accessibilityHint(Text("Último desafio disponível"))
-//                            }
                         }
                     }
                     .animation(.default, value: x)
-                    
                     Spacer()
                     
                     //Lógica:
@@ -286,7 +295,6 @@ struct AddChallengeView: View {
             self.textRightColor = .primaryBrown
         }
     }
-    
     func activeLeftButton() {
         self.buttonLeftColor = .accent
         self.textLeftColor = .white
@@ -301,7 +309,6 @@ struct AddChallengeView: View {
         notification.post()
     }
 }
-
 //Struct responsável pelos cards
 struct Card: View {
     let challenge: Challenge.Observable
@@ -328,15 +335,8 @@ struct Card: View {
                 .cornerRadius(20)
             }
         }
-//        .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
-//        .accessibilityElement(children: .combine)
-//        .accessibilityLabel(Text("Desafio: \(challenge.title)"))
-
-        
     }
-   
 }
-
 #Preview {
     var vm = AlbumViewModel()
     var vr = ViewRouter()
