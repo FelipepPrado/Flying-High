@@ -16,17 +16,16 @@ struct PreviewView: View {
     
     @State private var cameraTimer  = 0
     @State private var countdown: Int?
+    @State private var selectedZoom: Int = 1
     
     var body: some View {
         ZStack {
-            Color.vibrantPrimary
+            Color.cameraBg
             GeometryReader { geometry in
                 ImageView(
                     image: model.previewImage,
-                    //                    descriptionChallenge: true,
-                    //                    challengeTitle: model.currentChallengeTitle ?? "Desafio",
+ 
                 )
-//                .frame(maxWidth: .infinity)
                 .gesture(
                     MagnificationGesture()
                         .onChanged { value in
@@ -45,8 +44,9 @@ struct PreviewView: View {
                 )
                 .padding(.bottom, footerHeight)
                 .overlay(alignment: .bottom) {
+                    
                     buttonsView()
-                    //define a altura onde os botoes principais estao
+                        .background(Color.cameraBg)
                         .frame(height: footerHeight + 100)
                 }
                 .padding(.top, 30)
@@ -84,11 +84,11 @@ struct PreviewView: View {
             }
             
         }
-        .navigationTitle( model.currentChallengeTitle ?? "Desafio")
-        .toolbarColorScheme(.dark, for: .navigationBar)
+//        .navigationTitle( model.currentChallengeTitle ?? "Desafio")
+//        .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+//        .toolbarBackground(Color.vibrantPrimary, for: .navigationBar)
+//        .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -102,8 +102,13 @@ struct PreviewView: View {
                 .foregroundStyle(
                     cameraTimer == 0
                         ? .white
-                        : .yellow
+                        : .cameraAccent
                 )
+            }
+            ToolbarItem(placement: .principal) {
+                Text(model.currentChallengeTitle ?? "Desafio")
+                    .font(.custom("YoungSerif-Regular", size: 17))
+                    .foregroundStyle(.bgTertiary)
             }
         }
         .disabled(countdown != nil)
@@ -117,19 +122,47 @@ struct PreviewView: View {
                 //botoes zoom
                 HStack(spacing: 30) {
                     Button("1x") {
+                        selectedZoom = 1
                         model.camera.setZoom(factor: 1)
                     }.toggleStyle(.button)
+                        .overlay{
+                            if selectedZoom == 1{
+                                Text("1x")
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.cameraSecondary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                            }
+                        }
                     
                     Button("2x") {
+                        selectedZoom = 2
                         model.camera.setZoom(factor: 2)
+                    }
+                    .overlay{
+                        if selectedZoom == 2{
+                            Text("2x")
+                                .frame(width: 40, height: 40)
+                                .background(Color.cameraSecondary)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                        }
                     }
                     
                     Button("3x") {
+                        selectedZoom = 3
                         model.camera.setZoom(factor: 3)
+                    }
+                    .overlay{
+                        if selectedZoom == 3{
+                            Text("3x")
+                                .frame(width: 40, height: 40)
+                                .background(Color.cameraSecondary)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                        }
                     }
                 }
                 .foregroundStyle(.white)
                 .font(.headline)
+                .padding(.bottom, 30)
                 
                 //botoes de tirar foto, flash e trocar
                 HStack {
@@ -137,6 +170,7 @@ struct PreviewView: View {
                         model.camera.toggleFlash()
                     } label: {
                         Image(systemName: model.camera.flashModeIcon)
+                            .foregroundStyle(.bgTertiary)
                     }
                     Spacer()
                     Button {
@@ -144,7 +178,7 @@ struct PreviewView: View {
                     } label: {
                         ZStack {
                             Circle()
-                                .fill(.white)
+                                .fill(.bgTertiary)
                                 .frame(width: frameHeight - 120,height: frameHeight - 120)
                         }
                     }
@@ -155,10 +189,11 @@ struct PreviewView: View {
                         model.camera.switchCaptureDevice()
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
+                            .foregroundStyle(.bgTertiary)
                     }
                 }
                 .font(.system(size: 28, weight: .bold))
-                .foregroundColor(.white)
+                .foregroundColor(.bgTertiary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 
             }

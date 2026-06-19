@@ -82,7 +82,7 @@ struct ContentView: View {
                     .toolbar {
                         if !loadingCloudKit {
                             ToolbarItem(placement: .topBarTrailing) {
-                                Button("Adcionar experiência", systemImage: "plus"){
+                                Button("Adicionar experiência", systemImage: "plus"){
                                     viewRouter.addInfoAlbum()
                                 }
                                 .buttonStyle(.borderedProminent)

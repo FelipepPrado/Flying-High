@@ -96,7 +96,7 @@ struct AlbumView: View {
     var insideView: some View{
         Group{
             if loadingCloudKit{
-                LoadingScreen()
+                SkeletonAlbumView()
             }
             else{
                 ScrollView(showsIndicators: false) {

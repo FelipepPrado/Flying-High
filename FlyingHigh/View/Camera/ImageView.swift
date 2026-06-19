@@ -31,7 +31,7 @@ struct ImageView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: geometry.size.height)
                 .padding(.horizontal, 20)
-                .background(Color.vibrantPrimary)
+                .background(Color.cameraBg)
             
         }
         .alert(
@@ -46,6 +46,6 @@ struct ImageView: View {
         }message: {
             Text("Esta será sua última tentativa de foto.")
         }
-        .background(Color.vibrantPrimary)
+        .background(Color.primaryBrown)
     }
 }

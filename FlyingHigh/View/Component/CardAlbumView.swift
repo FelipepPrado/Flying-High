@@ -30,6 +30,7 @@ struct CardAlbumView: View {
                                     .foregroundStyle(.primaryBrown)
                                     .multilineTextAlignment(.leading)
                                     .accessibilityLabel(Text("Nome da experiência:  \(album.title)"))
+                                
                                 Text("\(format(album.startDate)) - \(format(album.endDate))")
                                     .font(.callout)
                                     .foregroundStyle(.primaryBrown)
@@ -67,6 +68,7 @@ struct CardAlbumView: View {
                         
                         HStack(alignment: .center, spacing: 6){
                             ProgressView(value: progress)
+                                .accessibilityHidden(true)
                                 .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgSecondary, progressColor: album.color ?? "user-blue"))
                                 .frame(height: 12)
                             
@@ -75,6 +77,7 @@ struct CardAlbumView: View {
                                 .font(.footnote)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.black)
+                                .accessibilityLabel(Text("\(progressText)%  do álbum concluído"))
                         }
                         .padding(.horizontal, 22)
                         .padding(.vertical, 16)
