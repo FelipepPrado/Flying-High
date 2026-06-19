@@ -40,10 +40,10 @@ struct CameraView: View {
             await model.camera.start()
             model.currentChallengeTitle = challengeTitle
         }
+        
         .ignoresSafeArea(.all)
         .environmentObject(model)
-        
-        .toolbarColorScheme(.dark, for: .navigationBar)
+//        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 }
 
