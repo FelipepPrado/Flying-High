@@ -1,13 +1,33 @@
 {
   "fill" : {
-    "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+    "automatic-gradient" : "display-p3:0.59075,0.28936,0.18446,1.00000"
   },
   "groups" : [
     {
       "layers" : [
+
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
         {
-          "image-name" : "iconDesvio 2.png",
-          "name" : "iconDesvio 2"
+          "image-name" : "road sign 2.png",
+          "name" : "road sign 2",
+          "position" : {
+            "scale" : 0.94,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
         }
       ],
       "shadow" : {
