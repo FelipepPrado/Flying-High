@@ -11,35 +11,39 @@ struct FilmCameraView: View {
     let filmNumber: Int
     
     var body: some View {
-        HStack {
-            HStack{
-                Text("\(filmNumber)")
-                    .font(.system(size: 28, weight: .bold))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(10)
+//        ZStack{
+//            Color(.bgPrimary).ignoresSafeArea()
+            
+            HStack {
+                HStack{
+                    Text("\(filmNumber)")
+                        .font(.system(size: 28, weight: .bold))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(10)
+                }
+                .frame(width: 38, height: 55)
+                .background(Color(.cameraBg))
+                .padding(.horizontal,6)
             }
-            .frame(width: 38, height: 55)
-            .background(Color(.black))
-            .padding(.horizontal,6)
+            .overlay {
+                TrailingBorder()
+                    .stroke(style: StrokeStyle(lineWidth: 8, dash: [5, 10]))
+                    .foregroundStyle(.bgPrimary)
+                LeadingBorder()
+                    .stroke(style: StrokeStyle(lineWidth: 8, dash: [5, 10]))
+                    .foregroundStyle(.bgPrimary)
+            }
+            .frame(width: 58, height: 56)
+            .background(Color(.cameraBg))
+            .overlay{
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(Color.cameraBg, lineWidth: 4)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            
         }
-        .overlay {
-            TrailingBorder()
-                .stroke(style: StrokeStyle(lineWidth: 8, dash: [5, 10]))
-                .foregroundStyle(.white)
-            LeadingBorder()
-                .stroke(style: StrokeStyle(lineWidth: 8, dash: [5, 10]))
-                .foregroundStyle(.white)
-        }
-        .frame(width: 58, height: 56)
-        .background(Color(.black))
-        .overlay{
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(Color.black, lineWidth: 4)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        
-    }
+//    }
 }
 
 struct TrailingBorder: Shape {
