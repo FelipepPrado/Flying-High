@@ -114,12 +114,14 @@ struct AlbumView: View {
                         .padding(.horizontal, 10)
                         LazyVGrid(columns: columns, spacing: 20){
                             ForEach(photos) { photo in
+                                let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: album.startDate)
+                                
                                 if photo.data == nil { //ao clicar mostra a camera
                                     let challenge = getChallenge(
                                         challengeReference: photo.challengeReference
                                     )
                                     if let challenge = challenge {
-                                        if Date.now >= album.endDate{
+                                        if Date.now >= nextDay ?? album.endDate{
                                             PhotoChallengeView(status: 3, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
                                         }else{
                                             Button(action: {
@@ -132,7 +134,7 @@ struct AlbumView: View {
                                         }
                                     }
                                 } else { //ao clicar mostra a foto
-                                    if Date.now >= album.endDate || challengesDone() { //deixa em espera para revelar o momento
+                                    if Date.now >= nextDay ?? album.endDate{ //deixa em espera para revelar o momento
                                         let challenge = getChallenge(challengeReference: photo.challengeReference)
                                         Button(action: {
                                             selectedPhotoForDetail = photo
