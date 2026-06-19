@@ -48,27 +48,27 @@ struct PhotoChallengeView: View {
                 VStack(spacing: 0) {
                     if status == 0 {
                         Text("Registre")
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
                             .foregroundStyle(Color.secondaryBrown)
                         Text("\(textChallenge)")
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
                             .foregroundStyle(Color.secondaryBrown)
                     }
                     else {
                         if status == 3 {
                             Text("\(textChallenge)")
-                                .fontWeight(.medium)
+                                .fontWeight(.semibold)
                                 .foregroundStyle(Color.secondaryBrown)
                             Text("Sem Registro")
-                                .fontWeight(.medium)
+                                .fontWeight(.semibold)
                                 .foregroundStyle(Color.secondaryBrown)
                         }
                         else {
                             Text("Revelando")
-                                .fontWeight(.medium)
+                                .fontWeight(.semibold)
                                 .foregroundStyle(Color(colorAlbum))
                             Text("\(textChallenge)")
-                                .fontWeight(.medium)
+                                .fontWeight(.semibold)
                                 .foregroundStyle(Color(colorAlbum))
                         }
                     }

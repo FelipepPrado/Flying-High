@@ -10,28 +10,35 @@ struct CustonColorView: View {
     @Binding var selectedColor: String
     
     private var colors: [ColorName] {
-        return [ColorName.userRed, ColorName.userBlue, ColorName.userGreen, ColorName.userPurple]
+        return [ColorName.userBlue, ColorName.userRed, ColorName.userGreen, ColorName.userPurple]
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Cor")
-                .fontWeight(.semibold)
-            HStack{
-                ForEach(colors, id: \.self) { color in
-                    Circle()
-                        .fill(Color(color.stringColor))
-                        .frame(width: 36, height: 36)
-                        .overlay(
-                            Circle()
-                                .stroke(Color(color.stringColor), lineWidth: selectedColor == color.stringColor ? 6 : 0)
-                                .stroke(.white, lineWidth: selectedColor == color.stringColor ? 2 : 0)
-                        )
-                        .onTapGesture {
-                            selectedColor = color.stringColor
-                        }
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Cor")
+                    .fontWeight(.semibold)
+                    .padding(.leading,8)
+                    .font(Font.body.smallCaps())
+                    .foregroundStyle(.primaryBrown)
+                HStack(spacing: 8){
+                    ForEach(colors, id: \.self) { color in
+                        Circle()
+                            .fill(Color(color.stringColor))
+                            .frame(width: 30, height: 30)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color(color.stringColor), lineWidth: selectedColor == color.stringColor ? 6 : 0)
+                                    .stroke(.white, lineWidth: selectedColor == color.stringColor ? 2 : 0)
+                            )
+                            .onTapGesture {
+                                selectedColor = color.stringColor
+                            }
+                    }
                 }
+                .padding(.horizontal, 6)
             }
+            Spacer()
         }
     }
     

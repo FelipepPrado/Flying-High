@@ -43,23 +43,35 @@ struct ContentView: View {
     
     var insideView: some View {
         Group{
-            if loadingCloudKit{
-                LoadingScreen()
-            }
-            else{
+//            if loadingCloudKit{
+//                SkeletonContentView()
+//            }
+//            else{
                 @Bindable var path = viewRouter
                 NavigationStack(path: $path.path){
                     ZStack{
                         Color(.bgPrimary).ignoresSafeArea()
-                        ScrollView(showsIndicators: false) {
-                            VStack(spacing: 20) {
-                                ForEach(albumViewModel.albums){ album in
-                                    CardAlbumView(album: album)
+                        
+                        if loadingCloudKit{
+                                        SkeletonContentView()
+                                    }
+                        else{
+                            ZStack{
+                                ScrollView(showsIndicators: false) {
+                                    VStack(spacing: 20) {
+                                        ForEach(albumViewModel.albums){ album in
+                                            CardAlbumView(album: album)
+                                        }
+                                        
+                                    }
+                                    .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
+                                    .padding()
                                 }
-                               
+                                .opacity(albumViewModel.albums.isEmpty ? 0 : 1)
+                                
+                                NoAlbumView()
+                                    .opacity(albumViewModel.albums.isEmpty ? 1 : 0)
                             }
-                            .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
-                            .padding()
                         }
                     }
                     .toolbarTitleDisplayMode(.inline)
@@ -68,13 +80,15 @@ struct ContentView: View {
                         ViewManagar.viewForDestination(destination)
                     }
                     .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Adcionar experiência", systemImage: "plus"){
-                                viewRouter.addInfoAlbum()
+                        if !loadingCloudKit {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Adcionar experiência", systemImage: "plus"){
+                                    viewRouter.addInfoAlbum()
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .buttonStyle(.glassProminent)
+                                .tint(.accent)
                             }
-                            .buttonStyle(.borderedProminent)
-                            .buttonStyle(.glassProminent)
-                            .tint(.accent)
                         }
                         ToolbarItem(placement: .principal) {
                             Text("Minhas Experiências")
@@ -84,7 +98,7 @@ struct ContentView: View {
                     }
 
                 }
-            }
+//            }
             
         }
         
