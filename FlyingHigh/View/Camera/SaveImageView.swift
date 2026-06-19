@@ -43,17 +43,18 @@ struct SaveImageView: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: geometry.size.height * 0.6)
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Descrição da foto")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
                                 
-                                TextEditor (text:$photoDescription)
-                                    //.focused($isDescriptionFocused)
-                                    .frame(height: 80)
-                                    .padding(8)
-                                    .background(Color.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8)
-                                    )
+//                                Text("Descrição da foto")
+//                                    .font(.headline)
+//                                    .foregroundColor(.white)
+//                                
+//                                TextEditor (text:$photoDescription)
+//                                    //.focused($isDescriptionFocused)
+//                                    .frame(height: 80)
+//                                    .padding(8)
+//                                    .background(Color.white)
+//                                    .clipShape(RoundedRectangle(cornerRadius: 8)
+//                                    )
                             }
                             //.onAppear {isDescriptionFocused = true}
                             .padding(.horizontal, 20)
