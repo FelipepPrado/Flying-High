@@ -115,6 +115,8 @@ struct EditAlbumView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 120, height: 120)
+                            .accessibilityHidden(true)
+                        
                     }
                     
                     CustonColorView(selectedColor: $selectedColor)

@@ -97,6 +97,8 @@ struct PreviewView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "timer")
                         Text(timerLabel)
+                            .accessibilityLabel(Text("Timer"))
+                            .accessibilityValue(Text("\(timerLabel)"))
                     }
                 }
                 .foregroundStyle(
@@ -125,12 +127,14 @@ struct PreviewView: View {
                         selectedZoom = 1
                         model.camera.setZoom(factor: 1)
                     }.toggleStyle(.button)
+                        .accessibilityLabel(Text("Aumentar zoom em 1X"))
                         .overlay{
                             if selectedZoom == 1{
                                 Text("1x")
                                     .frame(width: 40, height: 40)
                                     .background(Color.cameraSecondary)
                                     .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    .accessibilityHidden(true)
                             }
                         }
                     
@@ -138,6 +142,7 @@ struct PreviewView: View {
                         selectedZoom = 2
                         model.camera.setZoom(factor: 2)
                     }
+                    .accessibilityLabel(Text("Aumentar zoom em 2X"))
                     .overlay{
                         if selectedZoom == 2{
                             Text("2x")
@@ -151,6 +156,9 @@ struct PreviewView: View {
                         selectedZoom = 3
                         model.camera.setZoom(factor: 3)
                     }
+                    .accessibilityLabel(Text("Aumentar zoom em 3X"))
+//                    .accessibilityHint(Text("Aumentar zoom"))
+
                     .overlay{
                         if selectedZoom == 3{
                             Text("3x")
@@ -180,6 +188,7 @@ struct PreviewView: View {
                             Circle()
                                 .fill(.bgTertiary)
                                 .frame(width: frameHeight - 120,height: frameHeight - 120)
+                                .accessibilityLabel(Text("Tirar foto"))
                         }
                     }
                     
@@ -190,6 +199,7 @@ struct PreviewView: View {
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .foregroundStyle(.bgTertiary)
+                            .accessibilityLabel(Text("Trocar câmera"))
                     }
                 }
                 .font(.system(size: 28, weight: .bold))
