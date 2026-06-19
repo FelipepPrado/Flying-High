@@ -9,10 +9,15 @@ import SwiftUI
 
 @main
 struct FlyingHighApp: App {
+    @AppStorage("isFirstLaunch") var isFirstLaunch = true
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(ColorScheme.light)
+                .sheet(isPresented: $isFirstLaunch) {
+                    OnboardingView()
+                }
         }
         .environment(AlbumViewModel())
         .environment(ViewRouter())
