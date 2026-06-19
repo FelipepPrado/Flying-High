@@ -47,17 +47,6 @@ struct AlbumView: View {
                     .foregroundStyle(.primaryBrown)
             }
             
-//            ToolbarItem(placement: .bottomBar) {
-//                Button("Registrar Foto"){
-//                    aqui é pra levar pra cameraa!!!
-//                }
-//                .padding(.horizontal, 40)
-//                .padding(.vertical, 4)
-//                .buttonStyle(.borderedProminent)
-//                .buttonStyle(.glassProminent)
-//                .tint(.accent)
-//            }
-            
         }
         .alert(
             "Deseja mesmo excluir o Álbum?",
@@ -105,9 +94,11 @@ struct AlbumView: View {
                         HStack(alignment: .center, spacing: 20){
                             ProgressView(value: progress)
                                 .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgTertiary, progressColor: album.color ?? "user-blue"))                                    .frame(height: 12)
+                                .accessibilityHidden(true)
                             
                             let progressText = String(format:"%.0f", (progress*100).rounded())
                             Text("\(progressText)%")
+                                .accessibilityLabel(Text("\(progressText)%  do álbum concluído"))
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.primaryBrown)

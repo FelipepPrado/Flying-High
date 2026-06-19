@@ -22,6 +22,7 @@ struct FilmCameraView: View {
                         .foregroundColor(.white)
                         .padding(10)
                 }
+                .accessibilityLabel(Text("\(filmNumber) tentativas para sua foto" ))
                 .frame(width: 38, height: 55)
                 .background(Color(.cameraBg))
                 .padding(.horizontal,6)
