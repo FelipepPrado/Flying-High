@@ -30,14 +30,13 @@ struct AddAlbumView: View {
                             .foregroundStyle(.primaryBrown)
                         TextField(text: $title,
                                   label: {
-                            Text("Digite o nome")
-                                .accessibilityHidden(true)
+                            Text("Digite o nome da experiência")
+//                                .accessibilityLabel(Text("Qual a sua experiência? Digite "))
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color(.tertiaryBrown))
-                                .accessibilityLabel(Text("Qual a sua experiência? Digite "))
+                               
 
                         })
-
                         .foregroundStyle(Color(.primaryBrown))
                         .fontWeight(.medium)
                         .padding(.vertical, 12)
