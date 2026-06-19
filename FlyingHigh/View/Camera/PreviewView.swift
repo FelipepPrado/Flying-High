@@ -128,9 +128,9 @@ struct PreviewView: View {
                         .overlay{
                             if selectedZoom == 1{
                                 Text("1x")
-                                    .frame(width: 40, height: 40)
+                                    .frame(minWidth: 40, minHeight: 40)
                                     .background(Color.cameraSecondary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    .clipShape(Circle())
                             }
                         }
                     
@@ -141,9 +141,9 @@ struct PreviewView: View {
                     .overlay{
                         if selectedZoom == 2{
                             Text("2x")
-                                .frame(width: 40, height: 40)
+                                .frame(minWidth: 40, minHeight: 40)
                                 .background(Color.cameraSecondary)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .clipShape(Circle())
                         }
                     }
                     
@@ -154,9 +154,9 @@ struct PreviewView: View {
                     .overlay{
                         if selectedZoom == 3{
                             Text("3x")
-                                .frame(width: 40, height: 40)
+                                .frame(minWidth: 40, minHeight: 40)
                                 .background(Color.cameraSecondary)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .clipShape(Circle())
                         }
                     }
                 }

@@ -76,7 +76,7 @@ struct CardAlbumView: View {
                             Text("\(progressText)%")
                                 .font(.footnote)
                                 .fontWeight(.semibold)
-                                .foregroundStyle(.black)
+                                .foregroundStyle(.primaryBrown)
                                 .accessibilityLabel(Text("\(progressText)%  do álbum concluído"))
                         }
                         .padding(.horizontal, 22)
