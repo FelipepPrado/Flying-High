@@ -68,7 +68,6 @@ struct AddChallengeView: View {
                             .font(.body)
                             .fontWeight(.medium)
                             .foregroundColor(.primaryBrown)
-                        
                         Text("\(j+3) Desafio(s) Restante(s)")
                             .foregroundStyle(.primaryBrown)
                             .font(.footnote)
@@ -76,7 +75,6 @@ struct AddChallengeView: View {
                     .frame(maxWidth: 292)
                     .padding(.top)
                     .padding(.horizontal)
-                    
                     Spacer()
                     ZStack {
                         ForEach(challenges.enumerated(), id: \.offset) { (i, challenge) in
@@ -138,16 +136,11 @@ struct AddChallengeView: View {
                                             }
                                         })
                                 )
-//                                .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
                                 .accessibilityElement(children: .combine)
                                 .accessibilityLabel(Text("Desafio: \(challenge.title)"))
-//                            if  challenges.count == 0{
-//                                .accessibilityHint(Text("Último desafio disponível"))
-//                            }
                         }
                     }
                     .animation(.default, value: x)
-                    
                     Spacer()
                     
                     //Lógica:
@@ -286,7 +279,6 @@ struct AddChallengeView: View {
             self.textRightColor = .primaryBrown
         }
     }
-    
     func activeLeftButton() {
         self.buttonLeftColor = .accent
         self.textLeftColor = .white
@@ -301,7 +293,6 @@ struct AddChallengeView: View {
         notification.post()
     }
 }
-
 //Struct responsável pelos cards
 struct Card: View {
     let challenge: Challenge.Observable
@@ -328,15 +319,8 @@ struct Card: View {
                 .cornerRadius(20)
             }
         }
-//        .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
-//        .accessibilityElement(children: .combine)
-//        .accessibilityLabel(Text("Desafio: \(challenge.title)"))
-
-        
     }
-   
 }
-
 #Preview {
     var vm = AlbumViewModel()
     var vr = ViewRouter()
