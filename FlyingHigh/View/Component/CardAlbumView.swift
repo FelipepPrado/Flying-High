@@ -30,7 +30,7 @@ struct CardAlbumView: View {
                                     .foregroundStyle(.primaryBrown)
                                     .multilineTextAlignment(.leading)
                                     .accessibilityLabel(Text("Nome da experiência:  \(album.title)"))
-                                Text("\(album.startDate.formatted(.dateTime.day().month().year())) - \(album.endDate.formatted(.dateTime.day().month().year()))")
+                                Text("\(format(album.startDate)) - \(format(album.endDate))")
                                     .font(.callout)
                                     .foregroundStyle(.primaryBrown)
                                     .multilineTextAlignment(.leading)
@@ -115,6 +115,17 @@ struct CardAlbumView: View {
             }
             progress = Double(completedChallenges) / Double(photos.count)
         }
+    }
+    
+    func format(_ date: Date) -> String {
+        date.formatted(
+            .verbatim(
+                "\(day: .defaultDigits) \(month: .abbreviated) \(year: .defaultDigits)",
+                locale: .current,
+                timeZone: .current,
+                calendar: .current,
+            )
+        )
     }
 }
 

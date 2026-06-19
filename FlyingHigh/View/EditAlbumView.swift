@@ -13,7 +13,7 @@ struct EditAlbumView: View {
     
     var body: some View {
         ZStack{
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            Color(.bgPrimary).ignoresSafeArea()
             VStack (spacing: 0){
                 Rectangle()
                     .fill(Color(selectedColor))
@@ -22,41 +22,44 @@ struct EditAlbumView: View {
                 VStack (spacing: 26){
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Nome da experiência")
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
                             .padding(.leading,8)
+                            .font(Font.body.smallCaps())
+                            .foregroundStyle(.primaryBrown)
                         TextField(text: $title, label: {
                             Text("Digite o nome")
-                                .foregroundStyle(Color(.systemGray3))
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color(.tertiaryBrown))
                         })
+                        .foregroundStyle(Color(.primaryBrown))
                         .fontWeight(.medium)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color(.systemGray5), lineWidth: 2)
-                        )
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .padding(.horizontal, 20)
                     
                     HStack (alignment: .top){
                         VStack (alignment: .leading, spacing: 26) {
                             VStack (alignment: .leading, spacing: 12) {
                                 Text("Data da Ida")
-                                    .fontWeight(.medium)
+                                    .fontWeight(.semibold)
                                     .padding(.leading,8)
+                                    .font(Font.body.smallCaps())
+                                    .foregroundStyle(.primaryBrown)
                                 HStack {
-                                    Text(startDate.formatted(.dateTime.day().month().year()))
+                                    Text(format(startDate))
                                         .fontWeight(.medium)
+                                        .foregroundStyle(.primaryBrown)
                                     
                                     Spacer()
                                 }
                                 .padding(.vertical, 12)
                                 .padding(.horizontal, 16)
                                 .frame(maxWidth: 170)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color(.systemGray5), lineWidth: 2)
-                                )
+                                .background(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
                                 .overlay {
                                     DatePicker(
                                         "Selecione uma data de ida",
@@ -68,22 +71,26 @@ struct EditAlbumView: View {
                                     .colorMultiply(.clear)
                                 }
                             }
+                            
                             VStack (alignment: .leading, spacing: 12) {
                                 Text("Data da Volta")
-                                    .fontWeight(.medium)
+                                    .fontWeight(.semibold)
                                     .padding(.leading,8)
+                                    .font(Font.body.smallCaps())
+                                    .foregroundStyle(.primaryBrown)
                                 HStack {
-                                    Text(endDate.formatted(.dateTime.day().month().year()))
+                                    Text(format(endDate))
                                         .fontWeight(.medium)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(.primaryBrown)
                                     Spacer()
                                 }
                                 .padding(.vertical, 12)
                                 .padding(.horizontal, 16)
                                 .frame(maxWidth: 170)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color(.systemGray5), lineWidth: 2)
-                                )
+                                .background(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
                                 .overlay {
                                     DatePicker(
                                         "Selecione uma data de volta",
@@ -104,49 +111,52 @@ struct EditAlbumView: View {
                         }
                         Spacer()
                         
-                        RoundedRectangle(cornerRadius: 60)
-                            .stroke(Color(.systemGray5), lineWidth: 2)
+                        Image("stamp-ticket")
+                            .resizable()
+                            .scaledToFit()
                             .frame(width: 120, height: 120)
-                        
                     }
-                    .padding(.leading, 20)
-                    .padding(.trailing, 6)
+                    
+                    CustonColorView(selectedColor: $selectedColor)
                 }
                 .padding(.top, 30)
-                .padding(.bottom, 100)
-                .background(.white)
+                .padding(.bottom, 40)
+                .padding(.horizontal, 20)
+                
+                .background(.bgTertiary)
                 
                 HStack(spacing: 0) {
                     Image(.ticketCut)
+                        .colorMultiply(.bgTertiary)
                     Rectangle()
-                        .fill(Color(.white))
+                        .fill(Color(.bgTertiary))
                         .frame(height: 40)
                     Image(.ticketCut)
                         .scaleEffect(x: -1, y: 1)
+                        .colorMultiply(.bgTertiary)
                 }
                 .overlay(BottomBorder()
                     .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.primaryBrown)
                 )
                 
                 HStack(alignment: .bottom){
-                    CustonColorView(selectedColor: $selectedColor)
                     Spacer()
-                    Text("Nome do App")
-                        .font(.system(size: 13, weight: .semibold))
+                    Text("Desvio")
+                        .font(.custom("YoungSerif-Regular", size: 13))
+                        .foregroundStyle(.primaryBrown)
                 }
-                .padding(EdgeInsets(top: 4, leading: 16, bottom: 16, trailing: 22))
-                .background(.white)
+                .padding(EdgeInsets(top: 4, leading: 22, bottom: 16, trailing: 22))
+                .background(.bgTertiary)
                 
                 Rectangle()
                     .fill(Color(selectedColor))
                     .frame(height: 24)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 2)
             .padding(.horizontal, 24)
         }
-        .navigationTitle("Adicionar Experiência")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             title = album.title
@@ -161,17 +171,33 @@ struct EditAlbumView: View {
                         await save()
                     }
                 }
-                .disabled(title == album.title && startDate == album.startDate && endDate == album.endDate)
+                .disabled(title == album.title && startDate == album.startDate && endDate == album.endDate && selectedColor == album.color)
                 .padding(.horizontal, 32)
                 .padding(.vertical, 4)
                 .buttonStyle(.borderedProminent)
                 .buttonStyle(.glassProminent)
-                .tint(.blue)
+                .tint(.accent)
+            }
+            ToolbarItem(placement: .principal) {
+                Text("Editar Experiência")
+                    .font(.custom("YoungSerif-Regular", size: 17))
+                    .foregroundStyle(.primaryBrown)
             }
         }
         .onTapGesture {
             dismissKeyboard()
         }
+    }
+    
+    func format(_ date: Date) -> String {
+        date.formatted(
+            .verbatim(
+                "\(day: .defaultDigits) \(month: .abbreviated) \(year: .defaultDigits)",
+                locale: .current,
+                timeZone: .current,
+                calendar: .current,
+            )
+        )
     }
     
     func dismissKeyboard() {
@@ -183,6 +209,7 @@ struct EditAlbumView: View {
             album.title = title
             album.startDate = startDate
             album.endDate = endDate
+            album.color = selectedColor
             try await album.save(on: .private)
             dismiss()
         } catch{

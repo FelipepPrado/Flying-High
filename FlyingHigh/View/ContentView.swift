@@ -51,15 +51,21 @@ struct ContentView: View {
                 NavigationStack(path: $path.path){
                     ZStack{
                         Color(.bgPrimary).ignoresSafeArea()
-                        ScrollView(showsIndicators: false) {
-                            VStack(spacing: 20) {
-                                ForEach(albumViewModel.albums){ album in
-                                    CardAlbumView(album: album)
+                        ZStack{
+                            ScrollView(showsIndicators: false) {
+                                VStack(spacing: 20) {
+                                    ForEach(albumViewModel.albums){ album in
+                                        CardAlbumView(album: album)
+                                    }
+                                   
                                 }
-                               
+                                .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
+                                .padding()
                             }
-                            .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
-                            .padding()
+                            .opacity(albumViewModel.albums.isEmpty ? 0 : 1)
+                            
+                            NoAlbumView()
+                                .opacity(albumViewModel.albums.isEmpty ? 1 : 0)
                         }
                     }
                     .toolbarTitleDisplayMode(.inline)
