@@ -138,7 +138,7 @@ struct AddChallengeView: View {
                                             }
                                         })
                                 )
-                                .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
+//                                .accessibilityHint(Text("Para aceitar desafios, deslize para direita. Para rejeitar, deslize para esquerda  "))
                                 .accessibilityElement(children: .combine)
                                 .accessibilityLabel(Text("Desafio: \(challenge.title)"))
 //                            if  challenges.count == 0{

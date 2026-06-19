@@ -31,9 +31,13 @@ struct AddAlbumView: View {
                         TextField(text: $title,
                                   label: {
                             Text("Digite o nome")
+                                .accessibilityHidden(true)
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color(.tertiaryBrown))
+                                .accessibilityLabel(Text("Qual a sua experiência? Digite "))
+
                         })
+
                         .foregroundStyle(Color(.primaryBrown))
                         .fontWeight(.medium)
                         .padding(.vertical, 12)
@@ -54,6 +58,9 @@ struct AddAlbumView: View {
                                     Text(format(startDate))
                                         .fontWeight(.medium)
                                         .foregroundStyle(.primaryBrown)
+                                        .accessibilityHidden(true)
+
+                                        
                                     Spacer()
                                 }
                                 .padding(.vertical, 12)
@@ -64,7 +71,7 @@ struct AddAlbumView: View {
                                 
                                 .overlay {
                                     DatePicker(
-                                        "Selecione uma data de ida",
+                                        "Clique aqui para escolher uma data de ida",
                                         selection: $startDate,
                                         in: Date.now...,
                                         displayedComponents: .date,
@@ -80,11 +87,14 @@ struct AddAlbumView: View {
                                     .padding(.leading,8)
                                     .font(Font.body.smallCaps())
                                     .foregroundStyle(.primaryBrown)
+
                                 HStack {
                                     Text(format(endDate))
                                         .fontWeight(.medium)
                                         .fontWeight(.medium)
                                         .foregroundStyle(.primaryBrown)
+                                        .accessibilityHidden(true)
+
                                     Spacer()
                                 }
                                 .padding(.vertical, 12)
@@ -95,7 +105,7 @@ struct AddAlbumView: View {
                                 
                                 .overlay {
                                     DatePicker(
-                                        "Selecione uma data de volta",
+                                        "Clique aqui para escolher uma data de volta",
                                         selection: $endDate,
                                         in: startDate...,
                                         displayedComponents: .date
@@ -116,9 +126,11 @@ struct AddAlbumView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 120, height: 120)
+                            .accessibilityHidden(true)
                     }
                     
                     CustonColorView(selectedColor: $selectedColor)
+                        .accessibilityHidden(true)
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 40)
@@ -129,12 +141,14 @@ struct AddAlbumView: View {
                 HStack(spacing: 0) {
                     Image(.ticketCut)
                         .colorMultiply(.bgTertiary)
+                        .accessibilityHidden(true)
                     Rectangle()
                         .fill(Color(.bgTertiary))
                         .frame(height: 40)
                     Image(.ticketCut)
                         .scaleEffect(x: -1, y: 1)
                         .colorMultiply(.bgTertiary)
+                        .accessibilityHidden(true)
                 }
                 .overlay(BottomBorder()
                     .stroke(style: StrokeStyle(lineWidth: 2, dash: [12, 10]))
@@ -144,6 +158,7 @@ struct AddAlbumView: View {
                 HStack(alignment: .bottom){
                     Spacer()
                     Text("Desvio")
+                        .accessibilityHidden(true)
                         .font(.custom("YoungSerif-Regular", size: 13))
                         .foregroundStyle(.primaryBrown)
                 }
@@ -166,9 +181,9 @@ struct AddAlbumView: View {
                     albumViewModel.startDate = startDate
                     albumViewModel.endDate = endDate
                     albumViewModel.color = selectedColor
-                    
                     viewRouter.addChallenge()
                 }
+                .accessibilityLabel(Text("Clique aqui para 'Emitir Ticket'"))
                 .padding(.horizontal, 32)
                 .padding(.vertical, 4)
                 .disabled(title.isEmpty || endDate < startDate)
