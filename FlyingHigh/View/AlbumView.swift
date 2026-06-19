@@ -1,5 +1,6 @@
 import SwiftUI
 import Nuvem
+import Photos
 
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
@@ -18,6 +19,8 @@ struct AlbumView: View {
     @State private var showPhotoDetail = false
     @State private var loadingCloudKit = false
     
+    private let photoLibraryManager = PhotoLibraryManager()
+    
     let columns = [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)]
     
     var body: some View {
@@ -31,14 +34,27 @@ struct AlbumView: View {
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
                 Menu(content: {
+                    if Date.now >= album.endDate {
+                            Button(
+                                "Salvar Fotos",
+                                systemImage: "photo.badge.arrow.down.fill"
+                            ) {
+                                Task {
+                                    await saveAlbumPhotos()
+                                }
+                            }
+                            .tint(.accent)
+                        }
                     Button("Editar álbum", systemImage: "square.and.pencil"){
                         editAlbum.toggle()
                     }
-                    .tint(Color.blue)
+                    .tint(Color.accent)
                     
                     Button("Excluir", systemImage: "trash.fill", role: .destructive){
                         deletAlbum.toggle()
                     }
+                    
+                    
                 }, label: {Image(systemName: "ellipsis")})
             }
             ToolbarItem(placement: .principal) {
@@ -230,4 +246,56 @@ struct AlbumView: View {
             print(error)
         }
     }
+    
+    
+    func saveAlbumPhotos() async {
+        
+        print("Entrou aqui")
+        
+        let images: [UIImage] = photos.compactMap { photo in
+            print("Rodando o map")
+            guard let data = photo.data else {
+                print("Sem data na photo")
+                return nil
+            }
+            
+            print("Pegou o data de cada ohoto")
+            return UIImage(data: data)
+        }
+        
+        print("Retornou as imagens")
+        
+        guard !images.isEmpty else { return }
+    
+        do {
+            print("Vai executar função de save")
+            try await photoLibraryManager.saveImages(images)
+
+            print("Fotos salvas com sucesso")
+
+        } catch {
+            print(error)
+        }
+        
+        
+
+//        let images: [UIImage] = photos.compactMap { photo in
+//            
+//            print("Entrou no map com photo")
+//
+//            guard let data = photo.data else {
+//                print("Sem data na photo")
+//                return nil
+//            }
+//
+//            return UIImage(data: data)
+//        }
+//        
+//        print("Gerou UIImage")
+//
+//        guard !images.isEmpty else { return }
+//
+        
+    }
+    
 }
