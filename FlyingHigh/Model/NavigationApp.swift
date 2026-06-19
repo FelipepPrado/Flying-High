@@ -17,7 +17,10 @@ class ViewRouter{
     
     func clear(){
         path = .init()
-        
+    }
+    
+    func removeLast(){
+        path.removeLast()
     }
     
     func initView(){
@@ -41,7 +44,6 @@ enum ViewManagar {
         switch destination {
         case .Init:
             ContentView()
-            
         case .AddInfoAlbum:
             AddAlbumView()
         case .AddChallenge:
