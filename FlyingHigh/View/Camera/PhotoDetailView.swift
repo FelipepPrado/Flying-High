@@ -19,6 +19,8 @@ struct PhotoDetailView: View {
     @State private var lastOffset: CGSize = .zero
     @State private var shareURL: URL?
     private let footerHeight: CGFloat = 180.0
+    @State private var showSavedAlert = false
+    @State private var showErrorAlert = false
     
     var body: some View {
         ZStack {
@@ -100,18 +102,15 @@ struct PhotoDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if let imageData = photo.data,
-                   let jpegData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.5) {
-                    let tempURL = FileManager.default.temporaryDirectory
-                        .appendingPathComponent("\(challengeTitle.replacingOccurrences(of: " ", with: "_")).jpeg")
-                    ShareLink(
-                        item: tempURL,
-                        preview: SharePreview(
-                            challengeTitle,
-                            image: Image(uiImage: UIImage(data: imageData) ?? UIImage())
+                   let uiImage = UIImage(data: imageData) {
+
+                    Button {
+                        UIImageWriteToSavedPhotosAlbum(
+                            uiImage, nil, nil, nil
                         )
-                    )
-                    .onAppear {
-                        try? jpegData.write(to: tempURL)
+                        showSavedAlert = true
+                    } label: {
+                        Image(systemName: "square.and.arrow.down")
                     }
                 }
             }
@@ -121,5 +120,11 @@ struct PhotoDetailView: View {
                     .foregroundStyle(.primaryBrown)
             }
         }
+        .alert("Foto salva!", isPresented: $showSavedAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("A foto foi salva na sua galeria.")
+        }
     }
+    
 }

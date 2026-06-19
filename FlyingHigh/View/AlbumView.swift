@@ -1,5 +1,6 @@
 import SwiftUI
 import Nuvem
+import Photos
 
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
@@ -17,6 +18,11 @@ struct AlbumView: View {
     @State private var selectedChallengeForDetail: Challenge.Observable?
     @State private var showPhotoDetail = false
     @State private var loadingCloudKit = false
+    @State private var showSaveSuccessAlert = false
+    @State private var showSaveErrorAlert = false
+    
+    
+    private let photoLibraryManager = PhotoLibraryManager()
     
     let columns = [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)]
     
@@ -31,14 +37,26 @@ struct AlbumView: View {
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
                 Menu(content: {
+                    if canRevealAlbum && hasPhotosToSave {
+                            Button(
+                                "Salvar Fotos",
+                                systemImage: "photo.badge.arrow.down.fill"
+                            ) {
+                                
+                                Task {
+                                    await saveAlbumPhotos()
+                                }
+                            }
+                        }
                     Button("Editar álbum", systemImage: "square.and.pencil"){
                         editAlbum.toggle()
                     }
-                    .tint(Color.blue)
+                    .tint(Color.accent)
                     
                     Button("Excluir", systemImage: "trash.fill", role: .destructive){
                         deletAlbum.toggle()
                     }
+                    
                 }, label: {Image(systemName: "ellipsis")})
             }
             ToolbarItem(placement: .principal) {
@@ -47,18 +65,25 @@ struct AlbumView: View {
                     .foregroundStyle(.primaryBrown)
             }
             
-//            ToolbarItem(placement: .bottomBar) {
-//                Button("Registrar Foto"){
-//                    aqui é pra levar pra cameraa!!!
-//                }
-//                .padding(.horizontal, 40)
-//                .padding(.vertical, 4)
-//                .buttonStyle(.borderedProminent)
-//                .buttonStyle(.glassProminent)
-//                .tint(.accent)
-//            }
-            
         }
+        .alert(
+            "Fotos salvas!",
+            isPresented: $showSaveSuccessAlert
+        ) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("As fotos foram adicionadas à sua galeria.")
+        }
+
+        .alert(
+            "Erro ao salvar",
+            isPresented: $showSaveErrorAlert
+        ) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Não foi possível salvar as fotos.")
+        }
+        
         .alert(
             "Deseja mesmo excluir o Álbum?",
             isPresented: $deletAlbum
@@ -73,6 +98,7 @@ struct AlbumView: View {
         }message: {
             Text("Após o envio não será possível tirar novas fotos.")
         }
+        
         .navigationDestination(isPresented: $showingCamera){
             CameraView(photo: selectedPhoto, challengeTitle: selectedChallenge?.title ?? "Sem título")
         }
@@ -105,9 +131,11 @@ struct AlbumView: View {
                         HStack(alignment: .center, spacing: 20){
                             ProgressView(value: progress)
                                 .progressViewStyle(CustomProgressBar(progressHeight: 12, backgroundColor: .bgTertiary, progressColor: album.color ?? "user-blue"))                                    .frame(height: 12)
+                                .accessibilityHidden(true)
                             
                             let progressText = String(format:"%.0f", (progress*100).rounded())
                             Text("\(progressText)%")
+                                .accessibilityLabel(Text("\(progressText)%  do álbum concluído"))
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.primaryBrown)
@@ -231,4 +259,53 @@ struct AlbumView: View {
             print(error)
         }
     }
+    
+    
+    func saveAlbumPhotos() async {
+        
+        print("Entrou aqui")
+        
+        let images: [UIImage] = photos.compactMap { photo in
+            print("Rodando o map")
+            guard let data = photo.data else {
+                print("Sem data na photo")
+                return nil
+            }
+            
+            print("Pegou o data de cada ohoto")
+            return UIImage(data: data)
+        }
+        
+        print("Retornou as imagens")
+        
+        guard !images.isEmpty else { return }
+    
+        do {
+            print("Vai executar função de save")
+            try await photoLibraryManager.saveImages(images)
+            showSaveSuccessAlert = true
+            print("Fotos salvas com sucesso")
+
+        } catch {
+            showSaveErrorAlert = true
+            print(error)
+        }
+        
+    }
+    
+    var revealDate: Date {
+        Calendar.current.date(
+            byAdding: .day,
+            value: 1,
+            to: album.endDate
+        ) ?? album.endDate
+    }
+
+    var canRevealAlbum: Bool {
+        Date.now >= revealDate
+    }
+    var hasPhotosToSave: Bool {
+        photos.contains { $0.data != nil }
+    }
+    
 }
