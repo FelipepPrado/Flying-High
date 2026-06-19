@@ -100,6 +100,7 @@ struct AlbumView: View {
             }
             else{
                 ScrollView(showsIndicators: false) {
+                    let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: album.endDate)
                     VStack(spacing: 26){
                         HStack(alignment: .center, spacing: 20){
                             ProgressView(value: progress)
@@ -114,8 +115,6 @@ struct AlbumView: View {
                         .padding(.horizontal, 10)
                         LazyVGrid(columns: columns, spacing: 20){
                             ForEach(photos) { photo in
-                                let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: album.startDate)
-                                
                                 if photo.data == nil { //ao clicar mostra a camera
                                     let challenge = getChallenge(
                                         challengeReference: photo.challengeReference
