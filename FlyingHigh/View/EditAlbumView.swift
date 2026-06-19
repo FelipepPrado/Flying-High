@@ -120,6 +120,7 @@ struct EditAlbumView: View {
                     }
                     
                     CustonColorView(selectedColor: $selectedColor)
+                        .accessibilityHidden(true)
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 40)
@@ -130,10 +131,12 @@ struct EditAlbumView: View {
                 HStack(spacing: 0) {
                     Image(.ticketCut)
                         .colorMultiply(.bgTertiary)
+                        .accessibilityHidden(true)
                     Rectangle()
                         .fill(Color(.bgTertiary))
                         .frame(height: 40)
                     Image(.ticketCut)
+                        .accessibilityHidden(true)
                         .scaleEffect(x: -1, y: 1)
                         .colorMultiply(.bgTertiary)
                 }
@@ -145,8 +148,10 @@ struct EditAlbumView: View {
                 HStack(alignment: .bottom){
                     Spacer()
                     Text("Desvio")
+                        .accessibilityHidden(true)
                         .font(.custom("YoungSerif-Regular", size: 13))
                         .foregroundStyle(.primaryBrown)
+                        .accessibilityHidden(true)
                 }
                 .padding(EdgeInsets(top: 4, leading: 22, bottom: 16, trailing: 22))
                 .background(.bgTertiary)
