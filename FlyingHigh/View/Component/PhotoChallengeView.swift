@@ -88,7 +88,7 @@ struct PhotoChallengeView: View {
         .overlay {
             if status == 2 {
                 Rectangle()
-                    .fill(.green)
+                    .fill(.bgTertiary)
                     .overlay {
                         Image(uiImage: imageChallenge!)
                             .resizable()
