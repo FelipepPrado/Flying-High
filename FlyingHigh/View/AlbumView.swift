@@ -90,7 +90,7 @@ struct AlbumView: View {
         ) {
             Button("Cancelar",role: .cancel) {}
             
-            Button("Deletar"){
+            Button("Deletar", role: .destructive){
                 Task{
                     await deletAlbum()
                 }
