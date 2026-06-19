@@ -21,7 +21,7 @@ struct OnboardingView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
-                        
+                        .accessibilityHidden(true)
                     VStack (spacing: 12){
                         Text("Boas Vindas ao Desvio!")
                             .font(.custom("YoungSerif-Regular", size: 34))

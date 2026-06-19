@@ -29,7 +29,7 @@ struct SaveImageView: View {
     var insideView: some View {
         Group{
             if loadingCloudKit{
-                LoadingScreen()
+                AnimationPhotoView()
             }
             else{
                 GeometryReader { geometry in
@@ -43,27 +43,28 @@ struct SaveImageView: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: geometry.size.height * 0.6)
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Descrição da foto")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
                                 
-                                TextEditor (text:$photoDescription)
-                                    //.focused($isDescriptionFocused)
-                                    .frame(height: 80)
-                                    .padding(8)
-                                    .background(Color.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8)
-                                    )
+//                                Text("Descrição da foto")
+//                                    .font(.headline)
+//                                    .foregroundColor(.white)
+//                                
+//                                TextEditor (text:$photoDescription)
+//                                    //.focused($isDescriptionFocused)
+//                                    .frame(height: 80)
+//                                    .padding(8)
+//                                    .background(Color.white)
+//                                    .clipShape(RoundedRectangle(cornerRadius: 8)
+//                                    )
                             }
                             //.onAppear {isDescriptionFocused = true}
                             .padding(.horizontal, 20)
                             .padding(.vertical, 16)
-                            .background(Color.vibrantPrimary)
+                            .background(Color.cameraBg)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
-                .background(Color.vibrantPrimary)
+                .background(Color.cameraBg)
                 .onTapGesture {
                     dismissKeyboard()
                 }
@@ -90,9 +91,27 @@ struct SaveImageView: View {
                                 .font(.system(size: 16, weight: .semibold))
                         }
                     }
+                    
+//                    ToolbarItem(placement: .bottomBar) {
+//                        Button("Enviar Foto"){
+//                            showSendAlert = true
+//                        }
+//                        .padding(.horizontal, 32)
+//                        .padding(.vertical, 4)
+////                        .buttonStyle(.borderedProminent)
+//                        .tint(.accent)
+//                        .foregroundStyle(.white)
+//
+//                    }
+                    
+                    ToolbarItem(placement: .principal) {
+                        Text(challengeTitle)
+                            .font(.custom("YoungSerif-Regular", size: 17))
+                            .foregroundStyle(.bgTertiary)
+                    }
                 }
-                .navigationTitle(challengeTitle)
-                .toolbarColorScheme(.dark, for: .navigationBar)
+//                .navigationTitle(challengeTitle)
+//                .toolbarColorScheme(.dark, for: .navigationBar)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarBackButtonHidden(true)
                 .alert("Deseja enviar esta foto?", isPresented: $showSendAlert) {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		37B0325D2FE5648600FBC6D2 /* RiveRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 37B0325C2FE5648600FBC6D2 /* RiveRuntime */; };
 		55C3F56D2FCDD55300179746 /* Nuvem in Frameworks */ = {isa = PBXBuildFile; productRef = 55C3F56C2FCDD55300179746 /* Nuvem */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				55C3F56D2FCDD55300179746 /* Nuvem in Frameworks */,
+				37B0325D2FE5648600FBC6D2 /* RiveRuntime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +86,7 @@
 			name = FlyingHigh;
 			packageProductDependencies = (
 				55C3F56C2FCDD55300179746 /* Nuvem */,
+				37B0325C2FE5648600FBC6D2 /* RiveRuntime */,
 			);
 			productName = FlyingHigh;
 			productReference = 55C3F5572FCDD4E100179746 /* FlyingHigh.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				55C3F56B2FCDD55300179746 /* XCRemoteSwiftPackageReference "nuvem" */,
+				37B0325B2FE5648600FBC6D2 /* XCRemoteSwiftPackageReference "rive-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 55C3F5582FCDD4E100179746 /* Products */;
@@ -378,6 +382,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		37B0325B2FE5648600FBC6D2 /* XCRemoteSwiftPackageReference "rive-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rive-app/rive-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.20.6;
+			};
+		};
 		55C3F56B2FCDD55300179746 /* XCRemoteSwiftPackageReference "nuvem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mateusrodriguesxyz/nuvem";
@@ -389,6 +401,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		37B0325C2FE5648600FBC6D2 /* RiveRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 37B0325B2FE5648600FBC6D2 /* XCRemoteSwiftPackageReference "rive-ios" */;
+			productName = RiveRuntime;
+		};
 		55C3F56C2FCDD55300179746 /* Nuvem */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 55C3F56B2FCDD55300179746 /* XCRemoteSwiftPackageReference "nuvem" */;
