@@ -36,9 +36,8 @@ struct AlbumView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
-                if !(loadingCloudKit){
                     Menu(content: {
-                        if canRevealAlbum && hasPhotosToSave {
+                        if canRevealAlbum && hasPhotosToSave && !loadingCloudKit {
                             Button(
                                 "Salvar Fotos",
                                 systemImage: "photo.badge.arrow.down.fill"
@@ -49,7 +48,8 @@ struct AlbumView: View {
                                 }
                             }
                         }
-                        Button("Editar álbum", systemImage: "square.and.pencil"){
+                        Button("Editar", systemImage: "square.and.pencil"){
+                            albumViewModel.album = album
                             editAlbum.toggle()
                         }
                         .tint(Color.accent)
@@ -59,7 +59,6 @@ struct AlbumView: View {
                         }
                         
                     }, label: {Image(systemName: "ellipsis")})
-                }
             }
             ToolbarItem(placement: .principal) {
                 Text(album.title)
@@ -87,7 +86,7 @@ struct AlbumView: View {
         }
         
         .alert(
-            "Deseja mesmo excluir o Álbum?",
+            "Deseja mesmo excluir a Experiência?",
             isPresented: $deletAlbum
         ) {
             Button("Cancelar",role: .cancel) {}
@@ -98,7 +97,7 @@ struct AlbumView: View {
                 }
             }
         }message: {
-            Text("Após o envio não será possível tirar novas fotos.")
+            Text("Após confirmar a ação, a experiência será deletado e não poderá ser recuperado.")
         }
         
         .navigationDestination(isPresented: $showingCamera){
@@ -114,7 +113,7 @@ struct AlbumView: View {
             }
         }
         .navigationDestination(isPresented: $editAlbum){
-            EditAlbumView(album: album)
+            EditAlbumView()
         }
         .task {
             await loadPhotos()
