@@ -36,8 +36,9 @@ struct AlbumView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
-                Menu(content: {
-                    if canRevealAlbum && hasPhotosToSave {
+                if !(loadingCloudKit){
+                    Menu(content: {
+                        if canRevealAlbum && hasPhotosToSave {
                             Button(
                                 "Salvar Fotos",
                                 systemImage: "photo.badge.arrow.down.fill"
@@ -48,16 +49,17 @@ struct AlbumView: View {
                                 }
                             }
                         }
-                    Button("Editar álbum", systemImage: "square.and.pencil"){
-                        editAlbum.toggle()
-                    }
-                    .tint(Color.accent)
-                    
-                    Button("Excluir", systemImage: "trash.fill", role: .destructive){
-                        deletAlbum.toggle()
-                    }
-                    
-                }, label: {Image(systemName: "ellipsis")})
+                        Button("Editar álbum", systemImage: "square.and.pencil"){
+                            editAlbum.toggle()
+                        }
+                        .tint(Color.accent)
+                        
+                        Button("Excluir", systemImage: "trash.fill", role: .destructive){
+                            deletAlbum.toggle()
+                        }
+                        
+                    }, label: {Image(systemName: "ellipsis")})
+                }
             }
             ToolbarItem(placement: .principal) {
                 Text(album.title)
