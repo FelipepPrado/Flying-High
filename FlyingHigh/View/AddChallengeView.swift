@@ -128,7 +128,6 @@ struct AddChallengeView: View {
                                                     activateRightButton()
                                                     selectChallenge(challenge: challenge)
                                                     topCard -= 1
-                                                    print(j)
                                                 } else {
                                                     self.x[i] = 0
                                                     self.degree[i] = 0
@@ -142,7 +141,6 @@ struct AddChallengeView: View {
                                                     self.degree[i] = -15
                                                     activeLeftButton()
                                                     topCard -= 1 // Mantém o topo atualizado no drag para a esquerda também
-                                                    print(j)
                                                 } else {
                                                     self.x[i] = 0
                                                     self.degree[i] = 0

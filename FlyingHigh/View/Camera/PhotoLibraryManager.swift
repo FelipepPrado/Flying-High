@@ -22,13 +22,10 @@ final class PhotoLibraryManager {
     }
 
     func saveImages(_ images: [UIImage]) async throws {
-        print("Entrou no save e vai pedir autorização")
 
         let authorized = await requestAuthorization()
         
-        print("Passou da autorização")
         guard authorized else {
-            print("autorização negada")
             throw NSError(
                 domain: "PhotoLibrary",
                 code: 1,
@@ -38,8 +35,6 @@ final class PhotoLibraryManager {
                 ]
             )
         }
-        
-        print("autorização permitida")
 
         try await PHPhotoLibrary.shared().performChanges {
             for image in images {
