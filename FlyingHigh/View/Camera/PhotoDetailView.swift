@@ -80,7 +80,7 @@ struct PhotoDetailView: View {
                         ScrollView {
                             Text(description)
                                 .font(.body.bold())
-                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .foregroundStyle(.primaryBrown)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 20)

@@ -8,6 +8,7 @@
 import SwiftUI
 import Nuvem
 import CloudKit
+import UIKit
 
 struct SaveImageView: View {
     @Environment(\.dismiss) var dismiss
@@ -21,7 +22,9 @@ struct SaveImageView: View {
     @State private var showAlertCloudKit = false
     @State private var showLastAttemptAlert = false
     @State private var loadingCloudKit = false
-    //@FocusState private var isDescriptionFocused: Bool
+    @FocusState private var isDescriptionFocused: Bool
+    @State private var placeholder: String = "Descreva a sua foto:"
+
 
     
     var body: some View {
@@ -36,33 +39,49 @@ struct SaveImageView: View {
             else{
                 GeometryReader { geometry in
                     ZStack {
-                        VStack(spacing: 12) {
+                        VStack {
                             ImageView(
-                                image: model.photoToken?.image,
-//                                descriptionChallenge: false,
-//                                challengeTitle: challengeTitle
+                                image: model.photoToken?.image
                             )
-                            .frame(maxWidth: .infinity)
                             .frame(height: geometry.size.height * 0.6)
+                            
                             VStack(alignment: .leading, spacing: 12) {
-                                
-//                                Text("Descrição da foto")
-//                                    .font(.headline)
-//                                    .foregroundColor(.white)
-//                                
-//                                TextEditor (text:$photoDescription)
-//                                    //.focused($isDescriptionFocused)
-//                                    .frame(height: 80)
-//                                    .padding(8)
-//                                    .background(Color.white)
-//                                    .clipShape(RoundedRectangle(cornerRadius: 8)
-//                                    )
+                                ZStack {
+                                    if photoDescription.isEmpty {
+                                        TextEditor(text:$placeholder)
+                                            .font(.body)
+                                            .frame(height: isDescriptionFocused ? 80 : 80)
+                                            .padding()
+                                        
+                                            .scrollContentBackground(.hidden)
+                                            .background(.bgTertiary)
+                                            .cornerRadius(10)
+                                            .foregroundColor(.gray)
+                                            .disabled(true)
+                                        
+                                    }
+                                    
+                                    TextEditor(text: $photoDescription)
+                                        .focused($isDescriptionFocused)
+                                        .frame(height: isDescriptionFocused ? 80 : 80)
+                                        .padding()
+                                        .scrollContentBackground(.hidden)
+                                        .background(.bgTertiary)
+                                        .foregroundStyle(.primaryBrown)
+                                        .opacity(photoDescription.isEmpty ? 0.25 : 1)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                                    
                             }
-                            //.onAppear {isDescriptionFocused = true}
                             .padding(.horizontal, 20)
-                            .padding(.vertical, 16)
-                            .background(Color.cameraBg)
+                            .padding(.bottom, 15)
+                            .offset(
+                                y: isDescriptionFocused ? -(geometry.size.height * 0.25) : 0
+                            )
                         }
+                        .animation(.easeInOut(duration: 0.3), value: isDescriptionFocused)
+
+                        
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
