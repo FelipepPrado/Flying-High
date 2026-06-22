@@ -2,8 +2,9 @@ import SwiftUI
 import Nuvem
 
 struct EditAlbumView: View {
-    var album: Album.Observable
     @Environment(\.dismiss) var dismiss
+    @Environment(AlbumViewModel.self) var albumViewModel
+    @Environment(ViewRouter.self) var viewRouter
     
     @State var title: String = ""
     @State var startDate: Date = Date.now
@@ -166,10 +167,10 @@ struct EditAlbumView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            title = album.title
-            startDate = album.startDate
-            endDate = album.endDate
-            selectedColor = album.color ?? "user-color"
+            title = albumViewModel.album.title
+            startDate = albumViewModel.album.startDate
+            endDate = albumViewModel.album.endDate
+            selectedColor = albumViewModel.album.color ?? "user-color"
         }
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
@@ -178,7 +179,11 @@ struct EditAlbumView: View {
                         await save()
                     }
                 }
-                .disabled(title == album.title && startDate == album.startDate && endDate == album.endDate && selectedColor == album.color)
+                .disabled((title == albumViewModel.album.title
+                          && startDate == albumViewModel.album.startDate
+                          && endDate == albumViewModel.album.endDate
+                          && selectedColor == albumViewModel.album.color)
+                          || title.isEmpty)
                 .padding(.horizontal, 32)
                 .padding(.vertical, 4)
                 .buttonStyle(.borderedProminent)
@@ -213,15 +218,15 @@ struct EditAlbumView: View {
     
     func save() async{
         do{
-            album.title = title
-            album.startDate = startDate
-            album.endDate = endDate
-            album.color = selectedColor
-            try await album.save(on: .private)
-            dismiss()
+            albumViewModel.album.title = title
+            albumViewModel.album.startDate = startDate
+            albumViewModel.album.endDate = endDate
+            albumViewModel.album.color = selectedColor
+            try await albumViewModel.album.save(on: .private)
         } catch{
             print(error)
         }
+        dismiss()
     }
 }
 

@@ -6,6 +6,7 @@ enum NameViews: Hashable{
     case Init
     case AddInfoAlbum
     case AddChallenge
+    case EditAlbum
 }
 
 
@@ -34,6 +35,10 @@ class ViewRouter{
     func addChallenge(){
         path.append(NameViews.AddChallenge)
     }
+    
+    func editAlbum(){
+        path.append(NameViews.EditAlbum)
+    }
 }
 
 //Manager pega o nome da View adicionado pelo ViewRouter e empilha uma tela na navegação
@@ -48,6 +53,8 @@ enum ViewManagar {
             AddAlbumView()
         case .AddChallenge:
             AddChallengeView()
+        case .EditAlbum:
+            EditAlbumView()
         }
     }
 }

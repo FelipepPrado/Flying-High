@@ -27,6 +27,7 @@ struct AnimationPhotoView: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
