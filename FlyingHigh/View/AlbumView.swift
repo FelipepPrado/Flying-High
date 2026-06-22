@@ -233,16 +233,6 @@ struct AlbumView: View {
         loadingCloudKit = false
     }
     
-    //    func loadChallenges() async {
-    //        do {
-    //            self.challenges = try await Challenge.query(on: .public)
-    //                .all()
-    //                .map(\.observable)
-    //        } catch {
-    //            print(error)
-    //        }
-    //    }
-    
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
         guard let challengeReference = challengeReference else { return nil }
@@ -263,28 +253,20 @@ struct AlbumView: View {
     
     func saveAlbumPhotos() async {
         
-        print("Entrou aqui")
-        
         let images: [UIImage] = photos.compactMap { photo in
-            print("Rodando o map")
             guard let data = photo.data else {
-                print("Sem data na photo")
                 return nil
             }
             
-            print("Pegou o data de cada ohoto")
             return UIImage(data: data)
         }
         
-        print("Retornou as imagens")
         
         guard !images.isEmpty else { return }
     
         do {
-            print("Vai executar função de save")
             try await photoLibraryManager.saveImages(images)
             showSaveSuccessAlert = true
-            print("Fotos salvas com sucesso")
 
         } catch {
             showSaveErrorAlert = true
