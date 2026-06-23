@@ -24,7 +24,7 @@ struct AddChallengeView: View {
     @State var textRightColor: Color = .primaryBrown
     @State var topCard: Int = 0
     @State var showAlert: Bool = false
-    
+    @AccessibilityFocusState private var focusTitle: Bool
     // Variável de Tratamento de opacity na ZStack e
     @State var j: Int = 0
     
@@ -41,9 +41,9 @@ struct AddChallengeView: View {
                             Task {
                                 await saveAlbumAndChallenges()
                                 
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                     viewRouter.initView()
-//                                }
+                                }
                             }
                         }
                     }
@@ -56,7 +56,7 @@ struct AddChallengeView: View {
                         [-4, 6, 0].randomElement()!
                     }
                     topCard = challenges.count - 1
-                    
+                   
                 }
                 .alert(
                     "Nenhum Desafio selecionado",
@@ -142,6 +142,8 @@ struct AddChallengeView: View {
                                                     self.degree[i] = -15
                                                     activeLeftButton()
                                                     topCard -= 1 // Mantém o topo atualizado no drag para a esquerda também
+                                                    
+                                                    print(j)
                                                 } else {
                                                     self.x[i] = 0
                                                     self.degree[i] = 0
@@ -151,8 +153,7 @@ struct AddChallengeView: View {
                                             }
                                         })
                                 )
-                                .accessibilityElement(children: .combine)
-                                .accessibilityLabel(Text("Desafio: \(challenge.title)"))
+                                .accessibilityHidden(i != topCard)
                         }
                     }
                     .animation(.default, value: x)
@@ -177,6 +178,7 @@ struct AddChallengeView: View {
                         .tint(buttonLeftColor)
                         .buttonStyle(.glassProminent)
                         .buttonStyle(.borderedProminent)
+                        .accessibilityLabel("Rejeitar desafio \(topCard <= challenges.count - 1 && topCard >= 0 ? "\(challenges[topCard].title)" : "nil")")
                         
                         Button{
                             swipeRight(index: topCard)
@@ -188,18 +190,20 @@ struct AddChallengeView: View {
                                 .foregroundStyle(textRightColor)
                                 .fontWeight(.medium)
                         }
+                        
                         .foregroundStyle(Color.black)
                         .buttonBorderShape(.roundedRectangle(radius: 20))
                         .tint(buttonRighttColor)
                         .buttonStyle(.glassProminent)
                         .buttonStyle(.borderedProminent)
+                        .accessibilityLabel("Aceitar desafio \(topCard <= challenges.count - 1 && topCard >= 0 ? "\(challenges[topCard].title)" : "nil")")
                         
                     }
                     Spacer()
                 }
-                .onAppear {
-                    notificationLastCard()
-                }
+//                .onAppear {
+//                    notificationLastCard()
+//                }
               
             }
             
@@ -233,6 +237,7 @@ struct AddChallengeView: View {
             self.buttonLeftColor = .primaryBrown
             
             topCard -= 1
+                
         }
         activeLeftButton()
     }
@@ -310,9 +315,16 @@ struct AddChallengeView: View {
             self.textLeftColor = .primaryBrown
         }
     }
-    func notificationLastCard(){
-        let notification = AccessibilityNotification.Announcement("Albúm criado com sucesso!")
-        notification.post()
+//    func notificationLastCard(){
+//        let notification = AccessibilityNotification.Announcement("Albúm criado com sucesso!")
+//        notification.post()
+//    }
+    func numberToOrdinal(_ number: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .ordinal
+        formatter.locale = Locale(identifier: "pt_BR")
+        return formatter.string(from: number as NSNumber)!
+        
     }
 }
 //Struct responsável pelos cards
@@ -334,6 +346,7 @@ struct Card: View {
                         .font(.custom("YoungSerif-Regular", size: 28))
                         .foregroundStyle(.primaryBrown)
                 }
+                
                 .padding(.top, 60)
                 .padding(.horizontal, 31)
                 .padding(.bottom, 50)
@@ -341,6 +354,8 @@ struct Card: View {
                 .cornerRadius(20)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Desafio: \(challenge.title)")
     }
 }
 #Preview {

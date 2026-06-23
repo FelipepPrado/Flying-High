@@ -20,6 +20,9 @@ struct AlbumView: View {
     @State private var loadingCloudKit = false
     @State private var showSaveSuccessAlert = false
     @State private var showSaveErrorAlert = false
+    @AccessibilityFocusState private var focusTItle: Bool
+    @AccessibilityFocusState private var focusDetails: Bool
+    
     
     
     private let photoLibraryManager = PhotoLibraryManager()
@@ -34,6 +37,7 @@ struct AlbumView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+//        .navigationTitle(album.title)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
                     Menu(content: {
@@ -59,13 +63,15 @@ struct AlbumView: View {
                         }
                         
                     }, label: {Image(systemName: "ellipsis")})
+                    .accessibilityLabel(Text("Detalhes"))
+                    .accessibilityFocused($focusDetails)
             }
             ToolbarItem(placement: .principal) {
                 Text(album.title)
                     .font(.custom("YoungSerif-Regular", size: 17))
                     .foregroundStyle(.primaryBrown)
+                    .accessibilityFocused($focusTItle)
             }
-            
         }
         .alert(
             "Fotos salvas!",
@@ -75,7 +81,7 @@ struct AlbumView: View {
         } message: {
             Text("As fotos foram adicionadas à sua galeria.")
         }
-
+        
         .alert(
             "Erro ao salvar",
             isPresented: $showSaveErrorAlert
@@ -117,6 +123,10 @@ struct AlbumView: View {
         }
         .task {
             await loadPhotos()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                
+                focusTItle = true
+            }
         }
     }
     
@@ -125,6 +135,7 @@ struct AlbumView: View {
             if loadingCloudKit{
                 SkeletonAlbumView()
             }
+            
             else{
                 ScrollView(showsIndicators: false) {
                     let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: album.endDate)
@@ -193,7 +204,9 @@ struct AlbumView: View {
                 }
             }
         }
+        
     }
+    
     
     func challengesDone() -> Bool{
         if progress < 1{
@@ -264,11 +277,11 @@ struct AlbumView: View {
         
         
         guard !images.isEmpty else { return }
-    
+        
         do {
             try await photoLibraryManager.saveImages(images)
             showSaveSuccessAlert = true
-
+                        
         } catch {
             showSaveErrorAlert = true
             print(error)
@@ -283,7 +296,7 @@ struct AlbumView: View {
             to: album.endDate
         ) ?? album.endDate
     }
-
+    
     var canRevealAlbum: Bool {
         Date.now >= revealDate
     }

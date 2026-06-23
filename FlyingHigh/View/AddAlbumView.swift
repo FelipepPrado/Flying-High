@@ -27,6 +27,7 @@ struct AddAlbumView: View {
                             .padding(.leading,8)
                             .font(Font.body.smallCaps())
                             .foregroundStyle(.primaryBrown)
+                            .accessibilityHidden(true)
                         TextField(text: $title,
                                   label: {
                             Text("Digite o nome da experiência")
