@@ -119,7 +119,7 @@ struct ContentView: View {
                         }
                     }
                 }message: {
-                    Text("Após confirmar a ação, a experiência será deletado e não poderá ser recuperado.")
+                    Text("Após confirmar a ação, a experiência será deletada e não poderá ser recuperada.")
                 }
             }
         }
