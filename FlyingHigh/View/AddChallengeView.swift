@@ -41,9 +41,9 @@ struct AddChallengeView: View {
                             Task {
                                 await saveAlbumAndChallenges()
                                 
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                     viewRouter.initView()
-//                                }
+                                }
                             }
                         }
                     }
