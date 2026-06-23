@@ -74,7 +74,8 @@ struct AddChallengeView: View {
     var insideView: some View {
         Group{
             if topCard == -1 {
-                LoadingScreen()
+                SkeletonAlbumView()
+                    .navigationBarBackButtonHidden(true)
             }
             else{
                 VStack{
@@ -207,9 +208,16 @@ struct AddChallengeView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             ToolbarItem(placement: .principal) {
-                Text("Selecionar Desafios")
-                    .font(.custom("YoungSerif-Regular", size: 17))
-                    .foregroundStyle(.primaryBrown)
+                if topCard == -1{
+                    Text("\(albumViewModel.title ?? "Sem valor")")
+                        .font(.custom("YoungSerif-Regular", size: 17))
+                        .foregroundStyle(.primaryBrown)
+                }
+                else{
+                    Text("Selecionar Desafios")
+                        .font(.custom("YoungSerif-Regular", size: 17))
+                        .foregroundStyle(.primaryBrown)
+                }
             }
         }
         //        .padding()

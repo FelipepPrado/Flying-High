@@ -98,7 +98,6 @@ struct ContentView: View {
                                 viewRouter.addInfoAlbum()
                             }
                             .buttonStyle(.borderedProminent)
-                            .buttonStyle(.glassProminent)
                             .tint(.accent)
                         }
                     }
