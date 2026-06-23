@@ -126,8 +126,10 @@ struct PreviewView: View {
                     Button("1x") {
                         selectedZoom = 1
                         model.camera.setZoom(factor: 1)
-                    }.toggleStyle(.button)
-                        .accessibilityLabel(Text("Aumentar zoom em 1X"))
+                    }
+                    .accessibilityHidden(true)
+                    .toggleStyle(.button)
+                    .accessibilityLabel(Text("Aumentar zoom em 1X"))
                         .overlay{
                             if selectedZoom == 1{
                                 Text("1x")
@@ -198,7 +200,7 @@ struct PreviewView: View {
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .foregroundStyle(.bgTertiary)
-                            .accessibilityLabel(Text("Trocar câmera"))
+                            .accessibilityLabel(Text("Inverter câmera"))
                     }
                 }
                 .font(.system(size: 28, weight: .bold))
