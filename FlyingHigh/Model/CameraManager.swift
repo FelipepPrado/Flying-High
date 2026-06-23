@@ -279,6 +279,19 @@ class CameraManager: NSObject, ObservableObject {
         success = true
     }
     
+    var flashModeValue: String {
+        switch flashMode {
+        case .off:
+            return "Desligado"
+        case .on:
+            return "Ligado"
+        case .auto:
+            return "Automático"
+        default:
+            return "Automático"
+        }
+    }
+    
     
     private func checkAuthorization() async -> Bool {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
