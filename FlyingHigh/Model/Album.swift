@@ -36,13 +36,14 @@ class AlbumViewModel{
     var endDate: Date?
     var color: String?
     var photos: [Photo]?
+    var album: Album.Observable
     
     func addAlbum(album: Album) {
         self.albums.append(album.observable)
         self.albums = self.albums.sorted{$0.startDate > $1.startDate}
     }
     
-    init(){
-        
+    init(album: Album = Album(title: "", startDate: Date.now, endDate: Date.now, color: "user-blue")){
+        self.album = album.observable
     }
 }

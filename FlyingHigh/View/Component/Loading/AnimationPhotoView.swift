@@ -42,6 +42,7 @@ struct AnimationPhotoView: View {
             .accessibilityValue(Text("Carregando sua foto..."))
             .accessibilityElement(children: .combine)
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 #Preview {

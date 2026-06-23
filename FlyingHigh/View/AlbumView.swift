@@ -40,31 +40,31 @@ struct AlbumView: View {
 //        .navigationTitle(album.title)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
-                Menu(content: {
-                    if canRevealAlbum && hasPhotosToSave {
-                        Button(
-                            "Salvar Fotos",
-                            systemImage: "photo.badge.arrow.down.fill"
-                        ) {
-                            
-                            Task {
-                                await saveAlbumPhotos()
+                    Menu(content: {
+                        if canRevealAlbum && hasPhotosToSave && !loadingCloudKit {
+                            Button(
+                                "Salvar Fotos",
+                                systemImage: "photo.badge.arrow.down.fill"
+                            ) {
+                                
+                                Task {
+                                    await saveAlbumPhotos()
+                                }
                             }
                         }
-                    }
-                    Button("Editar álbum", systemImage: "square.and.pencil"){
-                        editAlbum.toggle()
-                    }
-                    .tint(Color.accent)
-                    
-                    Button("Excluir", systemImage: "trash.fill", role: .destructive){
-                        deletAlbum.toggle()
-                    }
-                    
-                }, label: {Image(systemName: "ellipsis")})
-                .accessibilityLabel(Text("Detalhes"))
-                .accessibilityFocused($focusDetails)
-                
+                        Button("Editar", systemImage: "square.and.pencil"){
+                            albumViewModel.album = album
+                            editAlbum.toggle()
+                        }
+                        .tint(Color.accent)
+                        
+                        Button("Excluir", systemImage: "trash.fill", role: .destructive){
+                            deletAlbum.toggle()
+                        }
+                        
+                    }, label: {Image(systemName: "ellipsis")})
+                    .accessibilityLabel(Text("Detalhes"))
+                    .accessibilityFocused($focusDetails)
             }
             ToolbarItem(placement: .principal) {
                 Text(album.title)
@@ -92,7 +92,7 @@ struct AlbumView: View {
         }
         
         .alert(
-            "Deseja mesmo excluir o Álbum?",
+            "Deseja mesmo excluir a Experiência?",
             isPresented: $deletAlbum
         ) {
             Button("Cancelar",role: .cancel) {}
@@ -103,7 +103,7 @@ struct AlbumView: View {
                 }
             }
         }message: {
-            Text("Após o envio não será possível tirar novas fotos.")
+            Text("Após confirmar a ação, a experiência será deletado e não poderá ser recuperado.")
         }
         
         .navigationDestination(isPresented: $showingCamera){
@@ -119,7 +119,7 @@ struct AlbumView: View {
             }
         }
         .navigationDestination(isPresented: $editAlbum){
-            EditAlbumView(album: album)
+            EditAlbumView()
         }
         .task {
             await loadPhotos()
@@ -247,16 +247,6 @@ struct AlbumView: View {
         loadingCloudKit = false
     }
     
-    //    func loadChallenges() async {
-    //        do {
-    //            self.challenges = try await Challenge.query(on: .public)
-    //                .all()
-    //                .map(\.observable)
-    //        } catch {
-    //            print(error)
-    //        }
-    //    }
-    
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
         guard let challengeReference = challengeReference else { return nil }
@@ -277,29 +267,21 @@ struct AlbumView: View {
     
     func saveAlbumPhotos() async {
         
-        print("Entrou aqui")
-        
         let images: [UIImage] = photos.compactMap { photo in
-            print("Rodando o map")
             guard let data = photo.data else {
-                print("Sem data na photo")
                 return nil
             }
             
-            print("Pegou o data de cada ohoto")
             return UIImage(data: data)
         }
         
-        print("Retornou as imagens")
         
         guard !images.isEmpty else { return }
         
         do {
-            print("Vai executar função de save")
             try await photoLibraryManager.saveImages(images)
             showSaveSuccessAlert = true
-            print("Fotos salvas com sucesso")
-            
+                        
         } catch {
             showSaveErrorAlert = true
             print(error)

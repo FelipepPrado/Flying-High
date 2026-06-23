@@ -80,7 +80,7 @@ struct PhotoDetailView: View {
                         ScrollView {
                             Text(description)
                                 .font(.body.bold())
-                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .foregroundStyle(.primaryBrown)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 20)
@@ -103,14 +103,11 @@ struct PhotoDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if let imageData = photo.data,
                    let uiImage = UIImage(data: imageData) {
-
-                    Button {
+                    Button("Exportar Fotos", systemImage: "arrow.down.to.line"){
                         UIImageWriteToSavedPhotosAlbum(
                             uiImage, nil, nil, nil
                         )
                         showSavedAlert = true
-                    } label: {
-                        Image(systemName: "square.and.arrow.down")
                     }
                 }
             }

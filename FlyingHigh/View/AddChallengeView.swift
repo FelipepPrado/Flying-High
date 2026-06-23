@@ -41,9 +41,9 @@ struct AddChallengeView: View {
                             Task {
                                 await saveAlbumAndChallenges()
                                 
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                     viewRouter.initView()
-                                }
+//                                }
                             }
                         }
                     }
@@ -74,7 +74,8 @@ struct AddChallengeView: View {
     var insideView: some View {
         Group{
             if topCard == -1 {
-                LoadingScreen()
+                SkeletonAlbumView()
+                    .navigationBarBackButtonHidden(true)
             }
             else{
                 VStack{
@@ -128,7 +129,6 @@ struct AddChallengeView: View {
                                                     activateRightButton()
                                                     selectChallenge(challenge: challenge)
                                                     topCard -= 1
-                                                    print(j)
                                                 } else {
                                                     self.x[i] = 0
                                                     self.degree[i] = 0
@@ -212,9 +212,16 @@ struct AddChallengeView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             ToolbarItem(placement: .principal) {
-                Text("Selecionar Desafios")
-                    .font(.custom("YoungSerif-Regular", size: 17))
-                    .foregroundStyle(.primaryBrown)
+                if topCard == -1{
+                    Text("\(albumViewModel.title ?? "Sem valor")")
+                        .font(.custom("YoungSerif-Regular", size: 17))
+                        .foregroundStyle(.primaryBrown)
+                }
+                else{
+                    Text("Selecionar Desafios")
+                        .font(.custom("YoungSerif-Regular", size: 17))
+                        .foregroundStyle(.primaryBrown)
+                }
             }
         }
         //        .padding()

@@ -10,8 +10,7 @@ struct AddAlbumView: View {
     @State var endDate: Date = Date.now
     @State var selectedColor: String = "user-blue"
     @State var addChallenges: Bool = false
-    
-    
+    @State var confirmDismiss: Bool = false
     
     var body: some View {
         ZStack{
@@ -174,7 +173,18 @@ struct AddAlbumView: View {
             .padding(.horizontal, 24)
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading){
+                Button("Retornar a tela de albums", systemImage: "chevron.left"){
+                    if title.isEmpty {
+                        dismiss()
+                    }
+                    else{
+                        confirmDismiss = true
+                    }
+                }
+            }
             ToolbarItem(placement: .bottomBar) {
                 Button("Emitir Ticket"){
                     albumViewModel.title = title
@@ -199,6 +209,17 @@ struct AddAlbumView: View {
         }
         .onTapGesture {
             dismissKeyboard()
+        }
+        .alert(
+            "",
+            isPresented: $confirmDismiss
+        ){
+            Button("Descartar", role: .destructive){
+                dismiss()
+            }
+
+        }message: {
+            Text("Tem certeza de que deseja descartar esta nova experiência?")
         }
     }
     

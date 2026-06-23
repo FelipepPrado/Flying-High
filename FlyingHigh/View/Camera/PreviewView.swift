@@ -9,6 +9,9 @@ import SwiftUI
 import Nuvem
 
 struct PreviewView: View {
+    @AppStorage("isFirstLaunchInCamera") var isFirstLaunchInCamera: Bool = true
+    @State private var isFirst: Bool = false
+    
     @EnvironmentObject var model: CameraModel
     private let footerHeight: CGFloat = 120.0
     @State private var currentZoomFactor: CGFloat = 1.0
@@ -114,6 +117,19 @@ struct PreviewView: View {
             }
         }
         .disabled(countdown != nil)
+        .onAppear {
+            isFirst = isFirstLaunchInCamera
+        }
+        .alert(
+            "Completar Desafio",
+            isPresented: $isFirst
+        ) {
+            Button("Ok"){
+                isFirstLaunchInCamera = false
+            }
+        }message: {
+            Text("O desafio é concluído com o envio de 1 foto. Mas não pense muito, você só tem 3 tentativas.")
+        }
     }
     
     //botoes da camera (tirar foto, zoom, exposicao)
