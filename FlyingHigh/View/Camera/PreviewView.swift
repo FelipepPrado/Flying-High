@@ -130,6 +130,7 @@ struct PreviewView: View {
         }message: {
             Text("O desafio é concluído com o envio de 1 foto. Mas não pense muito, você só tem 3 tentativas.")
         }
+        
     }
     
     //botoes da camera (tirar foto, zoom, exposicao)
@@ -197,6 +198,8 @@ struct PreviewView: View {
                         Image(systemName: model.camera.flashModeIcon)
                             .foregroundStyle(.bgTertiary)
                     }
+                    .accessibilityLabel("Flash")
+                    .accessibilityValue(model.camera.flashModeValue)
                     Spacer()
                     Button {
                         startCameraTimer()
