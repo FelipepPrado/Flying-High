@@ -103,14 +103,11 @@ struct PhotoDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if let imageData = photo.data,
                    let uiImage = UIImage(data: imageData) {
-
-                    Button {
+                    Button("Exportar Fotos", systemImage: "arrow.down.to.line"){
                         UIImageWriteToSavedPhotosAlbum(
                             uiImage, nil, nil, nil
                         )
                         showSavedAlert = true
-                    } label: {
-                        Image(systemName: "square.and.arrow.down")
                     }
                 }
             }
