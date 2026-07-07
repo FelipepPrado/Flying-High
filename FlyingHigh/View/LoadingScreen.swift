@@ -16,7 +16,6 @@ struct LoadingScreen: View {
                 Text("Carregando...")
             }
         }
-
     }
 }
 

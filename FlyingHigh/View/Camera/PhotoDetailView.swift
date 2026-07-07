@@ -9,9 +9,9 @@ import SwiftUI
 import Nuvem
 
 struct PhotoDetailView: View {
-    let photo: Photo.Observable
+    let photo: PhotoModel
     let challengeTitle: String
-    var album: Album.Observable
+    var album: AlbumModel
     
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
@@ -75,7 +75,7 @@ struct PhotoDetailView: View {
                                 }
                             }
                     }
-                    if let description = photo.description,
+                    if let description = photo.descriptionPhoto,
                        !description.isEmpty {
                         ScrollView {
                             Text(description)

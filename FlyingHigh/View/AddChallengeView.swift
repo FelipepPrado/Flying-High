@@ -7,11 +7,15 @@
 
 import Nuvem
 import SwiftUI
+import CloudKit
+import SwiftData
 
 struct AddChallengeView: View {
     @State var x: [CGFloat] = []  //-> 7 cartas num array
     @State var degree: [CGFloat] = []  //-> Inclinação das cartas
     @State var isActive: Bool = false
+    
+    @Environment(\.modelContext) private var modelContext
     @Environment(AlbumViewModel.self) var albumViewModel
     @Environment(ViewRouter.self) var viewRouter
     
@@ -24,9 +28,10 @@ struct AddChallengeView: View {
     @State var textRightColor: Color = .primaryBrown
     @State var topCard: Int = 0
     @State var showAlert: Bool = false
-    @AccessibilityFocusState private var focusTitle: Bool
-    // Variável de Tratamento de opacity na ZStack e
-    @State var j: Int = 0
+    @State var showAlertCloudKit: Bool = false
+    @State private var loadingCloudKit: Bool = false
+    
+    @State var controllCard: Int = 0
     
     var body: some View {
         ZStack{
@@ -41,8 +46,10 @@ struct AddChallengeView: View {
                             Task {
                                 await saveAlbumAndChallenges()
                                 
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                    viewRouter.initView()
+                                if showAlertCloudKit == false{
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                        viewRouter.initView()
+                                    }
                                 }
                             }
                         }
@@ -50,7 +57,7 @@ struct AddChallengeView: View {
                 }
                 .onAppear {
                     self.challenges = albumViewModel.challenges
-                    j = challenges.count - 3
+                    controllCard = challenges.count - 3
                     self.x = Array(repeating: 0.0, count: challenges.count)
                     self.degree = x.map { _ in
                         [-4, 6, 0].randomElement()!
@@ -73,7 +80,7 @@ struct AddChallengeView: View {
     
     var insideView: some View {
         Group{
-            if topCard == -1 {
+            if loadingCloudKit {
                 SkeletonAlbumView()
                     .navigationBarBackButtonHidden(true)
             }
@@ -85,7 +92,7 @@ struct AddChallengeView: View {
                             .font(.body)
                             .fontWeight(.medium)
                             .foregroundColor(.primaryBrown)
-                        Text("\(j+3) Desafio(s) Restante(s)")
+                        Text("\(controllCard+3) Desafio(s) Restante(s)")
                             .foregroundStyle(.primaryBrown)
                             .font(.footnote)
                     }
@@ -98,7 +105,7 @@ struct AddChallengeView: View {
                             //CARDS COM CADA DESAFIO
                             Card(challenge: challenge)
                                 .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 2)
-                                .opacity(i >= j ? 1 : 0)
+                                .opacity(i >= controllCard ? 1 : 0)
                                 .offset(x: self.x[i])
                                 .rotationEffect(.init(degrees: self.degree[i]))
                                 .gesture(
@@ -143,7 +150,7 @@ struct AddChallengeView: View {
                                                     activeLeftButton()
                                                     topCard -= 1 // Mantém o topo atualizado no drag para a esquerda também
                                                     
-                                                    print(j)
+                                                    print(controllCard)
                                                 } else {
                                                     self.x[i] = 0
                                                     self.degree[i] = 0
@@ -159,9 +166,6 @@ struct AddChallengeView: View {
                     .animation(.default, value: x)
                     Spacer()
                     
-                    //Lógica:
-                    //Se passar para o lado direito, então o botão "levar carta" fica azul
-                    //Se passar para o lado esquerto, então o botão "deixar passar" fica vermelho
                     HStack(spacing: 40) {
                         Button{
                             swipeLeft(index: topCard)
@@ -201,18 +205,19 @@ struct AddChallengeView: View {
                     }
                     Spacer()
                 }
-//                .onAppear {
-//                    notificationLastCard()
-//                }
-              
+                .alert("iCloud possivelmente Cheio", isPresented: $showAlertCloudKit){
+                    Button("Confirmar", role: .confirm){
+                        viewRouter.removeLast()
+                    }
+                } message: {
+                    Text("Tente novamente assim que tiver com armazenamento disponível no iCloud.")
+                }
             }
-            
-            
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             ToolbarItem(placement: .principal) {
-                if topCard == -1{
+                if loadingCloudKit{
                     Text("\(albumViewModel.title ?? "Sem valor")")
                         .font(.custom("YoungSerif-Regular", size: 17))
                         .foregroundStyle(.primaryBrown)
@@ -265,42 +270,68 @@ struct AddChallengeView: View {
     
     // Salva o Álbum e os Desafios vinculados antes de resetar a navegação
     func saveAlbumAndChallenges() async {
-        var album: Album
-        do {
-            album = Album(
-                title: albumViewModel.title ?? "",
-                startDate: albumViewModel.startDate ?? Date.now,
-                endDate: albumViewModel.endDate ?? Date.now,
-                color: albumViewModel.color ?? "user-blue"
-            )
-            try await album.save(on: .private) // Persiste na base privada CloudKit
-            albumViewModel.addAlbum(album: album)
-        } catch {
-            print("Erro ao salvar álbum: \(error)")
-            return
-        }
-        
-        await savePhotos(album: album)
-    }
-    
-    func savePhotos(album: Album) async {
-        var photos: [any CKModel] = []
+        loadingCloudKit = true
+        var photos: [PhotoModel] = []
         for challenge in selectedChallenges {
-            let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+            let photo = PhotoModel(challengeReference: challenge.id)
             photos.append(photo)
         }
         
-        do {
-            try await photos.save(on: .private)
-        } catch {
-            print("Erro ao salvar fotos/desafios: \(error)")
+        let album: AlbumModel = AlbumModel(
+            title: albumViewModel.title ?? "",
+            startDate: albumViewModel.startDate ?? Date.now,
+            endDate: albumViewModel.endDate ?? Date.now,
+            color: albumViewModel.color ?? "user-blue",
+            photos: photos
+        )
+
+        modelContext.insert(album)
+        
+        do{
+            try modelContext.save()
+        } catch{
+            print(error)
+        }
+    }
+    
+//    func savePhotos(album: Album) async {
+//        var photos: [any CKModel] = []
+//        for challenge in selectedChallenges {
+//            let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+//            photos.append(photo)
+//        }
+//        do {
+//            try await photos.save(on: .private)
+//        } catch let error as CKError{
+//            handleCkError(error: error.code)
+//            
+//            //Passar a parte de deletar para o AlbumViewModel
+//            do{
+//                try await albumViewModel.album.delete(on: .private)
+//                albumViewModel.albums.removeAll(where: { $0.id == albumViewModel.album.id })
+//            }
+//            catch{
+//                print(error)
+//            }
+//            return
+//        } catch {
+//            print("Erro ao salvar fotos/desafios: \(error)")
+//        }
+//    }
+    
+    func handleCkError(error: CKError.Code) {
+        switch error {
+        case .quotaExceeded:
+            showAlertCloudKit = true
+        default:
+            print("Outro erro! Possivelmente de internet ou algo do tipo")
         }
     }
     
     func activateRightButton() {
         self.buttonRighttColor = .accent
         self.textRightColor = .white
-        j -= 1
+        controllCard -= 1
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.buttonRighttColor = .white
             self.textRightColor = .primaryBrown
@@ -309,16 +340,12 @@ struct AddChallengeView: View {
     func activeLeftButton() {
         self.buttonLeftColor = .accent
         self.textLeftColor = .white
-        j -= 1
+        controllCard -= 1
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.buttonLeftColor = .white
             self.textLeftColor = .primaryBrown
         }
     }
-//    func notificationLastCard(){
-//        let notification = AccessibilityNotification.Announcement("Albúm criado com sucesso!")
-//        notification.post()
-//    }
     func numberToOrdinal(_ number: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .ordinal

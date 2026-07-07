@@ -6,13 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 import Nuvem
 import CloudKit
 import UIKit
 
 struct SaveImageView: View {
     @Environment(\.dismiss) var dismiss
-    var photo: Photo.Observable?
+    @Environment(\.modelContext) private var modelContext
+    
+    var photo: PhotoModel?
     var capturedPhoto: Data
     @EnvironmentObject var model: CameraModel
     let challengeTitle: String
@@ -145,9 +148,21 @@ struct SaveImageView: View {
                 .alert("Deseja enviar esta foto?", isPresented: $showSendAlert) {
                     Button("Cancelar", role: .cancel) {}
                     Button("Enviar") {
-                        Task {
-                            await save()
+                        loadingCloudKit = true
+                        photo?.data = capturedPhoto
+                        photo?.descriptionPhoto = photoDescription
+                        do{
+                            try modelContext.save()
+                        } catch{
+                            print("Não salvou no CloudKit")
                         }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                            loadingCloudKit = false
+                            dismiss()
+                        }
+                        
+//                        dismiss()
+//                        loadingCloudKit = false
                     }
                 } message: {
                     Text("Após o envio não será possível tirar novas fotos.")
@@ -165,21 +180,21 @@ struct SaveImageView: View {
         }
     }
     
-    func save() async {
-        loadingCloudKit = true
-        do {
-            photo?.data = capturedPhoto
-            photo?.description = photoDescription
-            
-            try await photo?.save(on: .private)
-            dismiss()
-        } catch let error as CKError{
-            handleCkError(error: error.code)
-        } catch{
-            print(error)
-        }
-        loadingCloudKit = false
-    }
+//    func save() async {
+//        loadingCloudKit = true
+//        do {
+//            photo?.data = capturedPhoto
+//            photo?.descriptionPhoto = photoDescription
+//            
+//            try await photo?.save(on: .private)
+//            dismiss()
+//        } catch let error as CKError{
+//            handleCkError(error: error.code)
+//        } catch{
+//            print(error)
+//        }
+//        loadingCloudKit = false
+//    }
     
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

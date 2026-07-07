@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 import Nuvem
 
 struct EditAlbumView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(AlbumViewModel.self) var albumViewModel
+    @Environment(\.modelContext) private var modelContext
     @Environment(ViewRouter.self) var viewRouter
     
     @State var title: String = ""
@@ -175,9 +177,16 @@ struct EditAlbumView: View {
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
                 Button("Atualizar Ticket"){
-                    Task{
-                        await save()
+                    albumViewModel.album.title = title
+                    albumViewModel.album.startDate = startDate
+                    albumViewModel.album.endDate = endDate
+                    albumViewModel.album.color = selectedColor
+                    do{
+                        try modelContext.save()
+                    }catch{
+                        print(error)
                     }
+                    dismiss()
                 }
                 .disabled((title == albumViewModel.album.title
                           && startDate == albumViewModel.album.startDate
@@ -214,19 +223,6 @@ struct EditAlbumView: View {
     
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
-    func save() async{
-        do{
-            albumViewModel.album.title = title
-            albumViewModel.album.startDate = startDate
-            albumViewModel.album.endDate = endDate
-            albumViewModel.album.color = selectedColor
-            try await albumViewModel.album.save(on: .private)
-        } catch{
-            print(error)
-        }
-        dismiss()
     }
 }
 

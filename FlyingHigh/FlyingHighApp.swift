@@ -6,10 +6,26 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct FlyingHighApp: App {
     @AppStorage("isFirstLaunch") var isFirstLaunch = true
+    
+    var sharedModelContainer: ModelContainer = {
+            let schema = Schema([
+                AlbumModel.self,
+                PhotoModel.self
+            ])
+
+            let modelConfiguration = ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
+            
+            do {
+                return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            } catch {
+                fatalError("Não foi possível criar o ModelContainer: \(error)")
+            }
+    }()
     
     var body: some Scene {
         WindowGroup {
@@ -19,6 +35,7 @@ struct FlyingHighApp: App {
                     OnboardingView()
                 }
         }
+        .modelContainer(sharedModelContainer)
         .environment(AlbumViewModel())
         .environment(ViewRouter())
     }

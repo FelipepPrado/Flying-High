@@ -1,6 +1,7 @@
 import CloudKit
 import Nuvem
 import Observation
+import SwiftData
 
 @CKModel
 struct Album{
@@ -25,6 +26,26 @@ struct Album{
     }
 }
 
+@Model
+class AlbumModel{
+    var title: String = "Sem Título"
+    var startDate: Date = Date.now
+    var endDate: Date = Date.now
+    
+    @Relationship(deleteRule: .cascade, inverse: \PhotoModel.album)
+    var photos: [PhotoModel]?
+    
+    var color: String?
+    
+    init(title: String, startDate: Date, endDate: Date, color: String? = nil, photos: [PhotoModel]? = nil) {
+        self.title = title
+        self.startDate = startDate
+        self.endDate = endDate
+        self.color = color
+        self.photos = photos
+    }
+}
+
 //View Model do Album, serve apenas para salvar as informações
 @Observable
 class AlbumViewModel{
@@ -36,14 +57,14 @@ class AlbumViewModel{
     var endDate: Date?
     var color: String?
     var photos: [Photo]?
-    var album: Album.Observable
+    var album: AlbumModel
     
     func addAlbum(album: Album) {
         self.albums.append(album.observable)
         self.albums = self.albums.sorted{$0.startDate > $1.startDate}
     }
     
-    init(album: Album = Album(title: "", startDate: Date.now, endDate: Date.now, color: "user-blue")){
-        self.album = album.observable
+    init(album: AlbumModel = AlbumModel(title: "", startDate: Date.now, endDate: Date.now, color: "user-blue")){
+        self.album = album
     }
 }

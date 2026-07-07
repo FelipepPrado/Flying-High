@@ -31,7 +31,6 @@ struct AddAlbumView: View {
                         TextField(text: $title,
                                   label: {
                             Text("Digite o nome da experiência")
-//                                .accessibilityLabel(Text("Qual a sua experiência? Digite "))
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color(.tertiaryBrown))
                                

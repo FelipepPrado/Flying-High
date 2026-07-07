@@ -11,7 +11,7 @@ import Nuvem
 
 struct CameraView: View {
     
-    var photo: Photo.Observable?
+    var photo: PhotoModel?
     
     @StateObject private var model = CameraModel()
     let challengeTitle: String
