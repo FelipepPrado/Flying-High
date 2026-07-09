@@ -1,44 +1,85 @@
 import SwiftUI
 import CloudKit
 import Nuvem
+import SwiftData
 
 struct ContentView: View {
+    //Modificar o nome depois qualquer coisa!
+    @AppStorage("loadCloudKit") var loadCloudKit = true
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \AlbumModel.startDate, order: .reverse) var albumsModel: [AlbumModel]
+    
     @Environment(ViewRouter.self) var viewRouter
     @Environment(AlbumViewModel.self) var albumViewModel
     
+    //Album e photo apenas para pegar os valores antigos do iCloud
     @State private var albums : [Album.Observable] = []
+    @State private var photos : [Photo.Observable] = []
+    
     @State private var addAlbum: Bool = false
     @State private var loadingCloudKit = false
     @State private var deletAlbum: Bool = false
     
     var body: some View {
-        insideView
-            .task {
-                do {
+        VStack{
+            insideView
+                .task {
                     loadingCloudKit = true
-                    self.albums = try await Album.query(on: .private)
-                        .all()
-                        .map(\.observable)
-                    albumViewModel.albums = albums.sorted{$0.startDate > $1.startDate}
-                    
-                } catch {
-                    print(error)
-                }
-                loadingCloudKit = false
-            }
-            .task{
-                if albumViewModel.loadChallenges{
-                    do {
-                        albumViewModel.challenges = try await Challenge.query(on: .public)
-                            .all()
-                            .map(\.observable)
-                        albumViewModel.loadChallenges = false
-                    } catch{
-                        print(error)
+                    if loadCloudKit{
+                        if albumsModel.isEmpty{
+                            
+                            //Puxa os albums antigos para por no swiftData novo
+                            do {
+                                self.albums = try await Album.query(on: .private)
+                                    .all()
+                                    .map(\.observable)
+                            } catch {
+                                print(error)
+                                print("Não foi possível carregar os albums")
+                            }
+                            
+                            //Puxa todas as fotos antigas para por no swiftData novo
+                            do {
+                                self.photos = try await Photo.query(on: .private)
+                                    .all()
+                                    .map(\.observable)
+                            } catch {
+                                print(error)
+                                print("Não foi possível carregar as foto")
+                            }
+                            
+                            //Coloca todas as fotos do antigo CloudKit no novo album do swiftData
+                            for album in albums{
+                                let albumModel = AlbumModel(title: album.title, startDate: album.startDate, endDate: album.endDate, color: album.color)
+                                var photosModel: [PhotoModel] = []
+                                
+                                for photo in photos{
+                                    if photo.$album.id == album.id{
+                                        photosModel.append(PhotoModel(data: photo.data, descriptionPhoto: photo.description, challengeReference: photo.challengeReference))
+                                    }
+                                }
+                                albumModel.photos = photosModel
+                                modelContext.insert(albumModel)
+                                
+                                do{
+                                    try await album.delete(on: .private)
+                                    
+                                }catch{
+                                    print(error)
+                                    print("Não foi possível deletar album")
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        
+                .task{
+                    //Puxa os challenges do CloudKit
+                    //Caso for para dar problema de internet, usar esse código para carregar os challenges de novo!
+                    Task{
+                        await loadChallenges()
+                    }
+                }
+        }
     }
     
     
@@ -55,7 +96,7 @@ struct ContentView: View {
                     else{
                         ZStack{
                             List {
-                                ForEach(albumViewModel.albums){ album in
+                                ForEach(albumsModel){ album in
                                     CardAlbumView(album: album)
                                         .shadow(color: .black.opacity(0.2),radius: 10, x: 0, y: 2)
                                         .padding()
@@ -79,10 +120,10 @@ struct ContentView: View {
                                 }
                             }
                             .listStyle(.plain)
-                            .opacity(albumViewModel.albums.isEmpty ? 0 : 1)
+                            .opacity(albumsModel.isEmpty ? 0 : 1)
                             
                             NoAlbumView()
-                                .opacity(albumViewModel.albums.isEmpty ? 1 : 0)
+                                .opacity(albumsModel.isEmpty ? 1 : 0)
                         }
                     }
                 }
@@ -114,9 +155,8 @@ struct ContentView: View {
                     Button("Cancelar",role: .cancel) {}
                     
                     Button("Deletar", role: .destructive){
-                        Task{
-                            await deletAlbum()
-                        }
+                        modelContext.delete(albumViewModel.album)
+                        try? modelContext.save()
                     }
                 }message: {
                     Text("Após confirmar a ação, a experiência será deletada e não poderá ser recuperada.")
@@ -125,13 +165,20 @@ struct ContentView: View {
         }
     }
     
-    func deletAlbum() async{
-        do{
-            try await albumViewModel.album.delete(on: .private)
-            albumViewModel.albums.removeAll(where: { $0.id == albumViewModel.album.id })
-        }
-        catch{
-            print(error)
+    func loadChallenges() async{
+        if albumViewModel.loadChallenges{
+            do {
+                albumViewModel.challenges = try await Challenge.query(on: .public)
+                    .all()
+                    .map(\.observable)
+                albumViewModel.loadChallenges = false
+                
+                //Fazer isso, faz com que o app não funcione se não tiver um pingo de internet
+                loadingCloudKit = false
+            } catch{
+                print(error)
+                print("Não foi possível carregar os challenges")
+            }
         }
     }
 }

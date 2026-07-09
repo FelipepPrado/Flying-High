@@ -2,7 +2,7 @@ import SwiftUI
 import Nuvem
 
 struct CardAlbumView: View {
-    var album: Album.Observable
+    var album: AlbumModel
     
     @State private var photos: [Photo.Observable] = []
     @State private var progress: Double = 0
@@ -89,34 +89,34 @@ struct CardAlbumView: View {
                 }
                 
                 .accessibilityElement(children: .combine)
-                .task{
-                    await loadPhotos()
+                .onAppear{
+                    returnProgress()
                 }
             }
         }
     }
     
-    func loadPhotos() async {
-        do {
-            self.photos = try await Photo.query(on: .private)
-                .filter(\.$album == album.id)
-                .all()
-                .map(\.observable)
-            returnProgress()
-        } catch {
-            print(error)
-        }
-    }
+//    func loadPhotos() async {
+//        do {
+//            self.photos = try await Photo.query(on: .private)
+//                .filter(\.$album == album.id)
+//                .all()
+//                .map(\.observable)
+//            returnProgress()
+//        } catch {
+//            print(error)
+//        }
+//    }
     
     func returnProgress(){
         var completedChallenges: Int = 0
-        if !(photos.isEmpty){
-            for photo in photos {
+        if !(album.photos?.isEmpty ?? true){
+            for photo in album.photos ?? [] {
                 if photo.data != nil{
                     completedChallenges += 1
                 }
             }
-            progress = Double(completedChallenges) / Double(photos.count)
+            progress = Double(completedChallenges) / Double(album.photos?.count ?? 0)
         }
     }
     
@@ -156,11 +156,11 @@ struct CustomProgressBar: ProgressViewStyle {
 }
 
 #Preview {
-    let album = Album(
+    let album = AlbumModel(
         title: "Nome da Experiência",
         startDate: .now,
         endDate: .now,
         color: nil
     )
-    CardAlbumView(album: album.observable)
+    CardAlbumView(album: album)
 }

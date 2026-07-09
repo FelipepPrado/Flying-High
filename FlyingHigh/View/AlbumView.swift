@@ -1,30 +1,31 @@
 import SwiftUI
 import Nuvem
-import Photos
+import SwiftData
 
 struct AlbumView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(AlbumViewModel.self) var albumViewModel
+    @Environment(\.modelContext) private var modelContext
     
-    var album: Album.Observable
+    var album: AlbumModel
     @Binding var progress: Double
-    @State private var photos: [Photo.Observable] = []
+    @State private var photos: [PhotoModel] = []
     @State private var selectedChallenge: Challenge.Observable?
     @State private var showingCamera = false
     @State private var editAlbum = false
-    @State private var selectedPhoto: Photo.Observable?
+    @State private var selectedPhoto: PhotoModel?
     @State private var deletAlbum = false
-    @State private var selectedPhotoForDetail: Photo.Observable?
+    @State private var selectedPhotoForDetail: PhotoModel?
     @State private var selectedChallengeForDetail: Challenge.Observable?
     @State private var showPhotoDetail = false
     @State private var loadingCloudKit = false
     @State private var showSaveSuccessAlert = false
     @State private var showSaveErrorAlert = false
+    
+    
     @AccessibilityFocusState private var focusTItle: Bool
     @AccessibilityFocusState private var focusDetails: Bool
-    
-    
-    
+
     private let photoLibraryManager = PhotoLibraryManager()
     
     let columns = [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)]
@@ -36,8 +37,6 @@ struct AlbumView: View {
                 insideView
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-//        .navigationTitle(album.title)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing){
                     Menu(content: {
@@ -59,6 +58,7 @@ struct AlbumView: View {
                         .tint(Color.accent)
                         
                         Button("Excluir", systemImage: "trash.fill", role: .destructive){
+                            albumViewModel.album = album
                             deletAlbum.toggle()
                         }
                         
@@ -72,6 +72,10 @@ struct AlbumView: View {
                     .foregroundStyle(.primaryBrown)
                     .accessibilityFocused($focusTItle)
             }
+        }
+        .onAppear{
+            self.photos = album.photos ?? []
+            returnProgress()
         }
         .alert(
             "Fotos salvas!",
@@ -98,9 +102,7 @@ struct AlbumView: View {
             Button("Cancelar",role: .cancel) {}
             
             Button("Deletar", role: .destructive){
-                Task{
-                    await deletAlbum()
-                }
+                modelContext.delete(albumViewModel.album)
             }
         }message: {
             Text("Após confirmar a ação, a experiência será deletada e não poderá ser recuperada.")
@@ -122,9 +124,8 @@ struct AlbumView: View {
             EditAlbumView()
         }
         .task {
-            await loadPhotos()
+//            await loadPhotos()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                
                 focusTItle = true
             }
         }
@@ -220,50 +221,19 @@ struct AlbumView: View {
     func returnProgress(){
         var completedChallenges: Int = 0
         if !(photos.isEmpty){
-            for photo in photos {
+            for photo in photos{
                 if photo.data != nil{
                     completedChallenges += 1
                 }
             }
-            let currentProgress = Double(completedChallenges) / Double(photos.count)
-            if progress != currentProgress{
-                progress = currentProgress
-            }
+            progress = Double(completedChallenges) / Double(photos.count)
         }
-        
     }
-    
-    func loadPhotos() async {
-        loadingCloudKit = true
-        do {
-            self.photos = try await Photo.query(on: .private)
-                .filter(\.$album == album.id)
-                .all()
-                .map(\.observable)
-            returnProgress()
-        } catch {
-            print(error)
-        }
-        loadingCloudKit = false
-    }
-    
     
     func getChallenge(challengeReference: String?) -> Challenge.Observable? {
         guard let challengeReference = challengeReference else { return nil }
         return albumViewModel.challenges.first(where: { $0.id == challengeReference })
     }
-    
-    func deletAlbum() async{
-        do{
-            try await album.delete(on: .private)
-            albumViewModel.albums.removeAll(where: { $0.id == album.id })
-            dismiss()
-        }
-        catch{
-            print(error)
-        }
-    }
-    
     
     func saveAlbumPhotos() async {
         
@@ -301,7 +271,8 @@ struct AlbumView: View {
         Date.now >= revealDate
     }
     var hasPhotosToSave: Bool {
-        photos.contains { $0.data != nil }
+        let photos: [PhotoModel] = album.photos ?? []
+        return photos.contains { $0.data != nil }
     }
     
 }

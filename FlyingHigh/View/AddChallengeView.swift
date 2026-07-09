@@ -8,12 +8,14 @@
 import Nuvem
 import SwiftUI
 import CloudKit
+import SwiftData
 
 struct AddChallengeView: View {
     @State var x: [CGFloat] = []  //-> 7 cartas num array
     @State var degree: [CGFloat] = []  //-> Inclinação das cartas
     @State var isActive: Bool = false
     
+    @Environment(\.modelContext) private var modelContext
     @Environment(AlbumViewModel.self) var albumViewModel
     @Environment(ViewRouter.self) var viewRouter
     
@@ -269,53 +271,53 @@ struct AddChallengeView: View {
     // Salva o Álbum e os Desafios vinculados antes de resetar a navegação
     func saveAlbumAndChallenges() async {
         loadingCloudKit = true
-        var album: Album
-        do {
-            album = Album(
-                title: albumViewModel.title ?? "",
-                startDate: albumViewModel.startDate ?? Date.now,
-                endDate: albumViewModel.endDate ?? Date.now,
-                color: albumViewModel.color ?? "user-blue"
-            )
-            try await album.save(on: .private) // Persiste na base privada CloudKit
-            albumViewModel.addAlbum(album: album)
-        } catch let error as CKError{
-            handleCkError(error: error.code)
-            return
-        } catch {
-            print("Erro ao salvar álbum: \(error)")
-            return
-        }
-        
-        await savePhotos(album: album)
-        // Não quero que ele se torne true, quero que fique na tela de carregamento infinito até terminar, em caso de erro ele vai dar dimiss()
-//        loadingCloudKit = false
-    }
-    
-    func savePhotos(album: Album) async {
-        var photos: [any CKModel] = []
+        var photos: [PhotoModel] = []
         for challenge in selectedChallenges {
-            let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+            let photo = PhotoModel(challengeReference: challenge.id)
             photos.append(photo)
         }
-        do {
-            try await photos.save(on: .private)
-        } catch let error as CKError{
-            handleCkError(error: error.code)
-            
-            //Passar a parte de deletar para o AlbumViewModel
-            do{
-                try await albumViewModel.album.delete(on: .private)
-                albumViewModel.albums.removeAll(where: { $0.id == albumViewModel.album.id })
-            }
-            catch{
-                print(error)
-            }
-            return
-        } catch {
-            print("Erro ao salvar fotos/desafios: \(error)")
+        
+        let album: AlbumModel = AlbumModel(
+            title: albumViewModel.title ?? "",
+            startDate: albumViewModel.startDate ?? Date.now,
+            endDate: albumViewModel.endDate ?? Date.now,
+            color: albumViewModel.color ?? "user-blue",
+            photos: photos
+        )
+
+        modelContext.insert(album)
+        
+        do{
+            try modelContext.save()
+        } catch{
+            print(error)
         }
     }
+    
+//    func savePhotos(album: Album) async {
+//        var photos: [any CKModel] = []
+//        for challenge in selectedChallenges {
+//            let photo = Photo(data: nil, description: "", album: album, challengeReference: challenge.id)
+//            photos.append(photo)
+//        }
+//        do {
+//            try await photos.save(on: .private)
+//        } catch let error as CKError{
+//            handleCkError(error: error.code)
+//            
+//            //Passar a parte de deletar para o AlbumViewModel
+//            do{
+//                try await albumViewModel.album.delete(on: .private)
+//                albumViewModel.albums.removeAll(where: { $0.id == albumViewModel.album.id })
+//            }
+//            catch{
+//                print(error)
+//            }
+//            return
+//        } catch {
+//            print("Erro ao salvar fotos/desafios: \(error)")
+//        }
+//    }
     
     func handleCkError(error: CKError.Code) {
         switch error {
@@ -344,10 +346,6 @@ struct AddChallengeView: View {
             self.textLeftColor = .primaryBrown
         }
     }
-//    func notificationLastCard(){
-//        let notification = AccessibilityNotification.Announcement("Albúm criado com sucesso!")
-//        notification.post()
-//    }
     func numberToOrdinal(_ number: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .ordinal
