@@ -139,7 +139,6 @@ struct AlbumView: View {
             
             else{
                 ScrollView(showsIndicators: false) {
-                    let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: album.endDate)
                     VStack(spacing: 26){
                         HStack(alignment: .center, spacing: 20){
                             ProgressView(value: progress)
@@ -160,8 +159,9 @@ struct AlbumView: View {
                                     let challenge = getChallenge(
                                         challengeReference: photo.challengeReference
                                     )
+                                    //Ele só mostra as fotos quando tem o desafio disponível, mas tem que tirar isso?
                                     if let challenge = challenge {
-                                        if Date.now >= nextDay ?? album.endDate{
+                                        if canRevealAlbum{
                                             PhotoChallengeView(status: 3, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
                                         }else{
                                             Button(action: {
@@ -174,7 +174,7 @@ struct AlbumView: View {
                                         }
                                     }
                                 } else { //ao clicar mostra a foto
-                                    if Date.now >= nextDay ?? album.endDate{ //deixa em espera para revelar o momento
+                                    if canRevealAlbum{ //deixa em espera para revelar o momento
                                         let challenge = getChallenge(challengeReference: photo.challengeReference)
                                         Button(action: {
                                             selectedPhotoForDetail = photo
@@ -260,11 +260,17 @@ struct AlbumView: View {
     }
     
     var revealDate: Date {
-        Calendar.current.date(
-            byAdding: .day,
-            value: 1,
-            to: album.endDate
-        ) ?? album.endDate
+        let calendar = Calendar.current
+        
+        if let nextDay = calendar.date(byAdding: .day, value: 1, to: album.endDate){
+            let dataFinal = calendar.date(bySettingHour: 8,
+                                                minute: 0,
+                                                second: 0,
+                                                of: nextDay)
+            return dataFinal ?? album.endDate
+        }
+        
+        return album.endDate
     }
     
     var canRevealAlbum: Bool {

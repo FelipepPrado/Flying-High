@@ -25,6 +25,8 @@ struct ContentView: View {
             insideView
                 .task {
                     loadingCloudKit = true
+                    
+                    //Carrega as coisas antigas da Nuvem, obviamente se a pessoal tiver!
                     if loadCloudKit{
                         if albumsModel.isEmpty{
                             
@@ -62,6 +64,7 @@ struct ContentView: View {
                                 modelContext.insert(albumModel)
                                 
                                 do{
+                                    //Na lógica ele tem que deletar as photos também
                                     try await album.delete(on: .private)
                                     
                                 }catch{
@@ -71,10 +74,9 @@ struct ContentView: View {
                             }
                         }
                     }
-                }
-                .task{
-                    //Puxa os challenges do CloudKit
-                    //Caso for para dar problema de internet, usar esse código para carregar os challenges de novo!
+                    
+                    //Modiquei para essa task acontecer aqui, para que a puxada de coisas do CloudKit seja sequencial
+                    //Puxa os challeges da Nuvem
                     Task{
                         await loadChallenges()
                     }
@@ -174,6 +176,7 @@ struct ContentView: View {
                 albumViewModel.loadChallenges = false
                 
                 //Fazer isso, faz com que o app não funcione se não tiver um pingo de internet
+                //Apesar de que deve ter alguma maneira de reverter isso, caso dê erro de internet, ele mostrar um refresh
                 loadingCloudKit = false
             } catch{
                 print(error)
