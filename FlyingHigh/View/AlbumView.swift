@@ -50,6 +50,7 @@ struct AlbumView: View {
                                     await saveAlbumPhotos()
                                 }
                             }
+                            .tint(Color.accent)
                         }
                         Button("Editar", systemImage: "square.and.pencil"){
                             albumViewModel.album = album
