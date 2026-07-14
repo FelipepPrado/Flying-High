@@ -111,8 +111,11 @@ class CameraManager: NSObject, ObservableObject {
         captureSession.sessionPreset = .low
         
         sessionQueue = DispatchQueue(label: "session queue")
-        captureDevice = availableCaptureDevices.first ?? AVCaptureDevice.default(for: .video)
-        
+        captureDevice =
+            AVCaptureDevice.default(.builtInWideAngleCamera,
+                                    for: .video,
+                                    position: .back)
+                    ?? availableCaptureDevices.first        
     }
 
     func start() async {
@@ -362,9 +365,9 @@ class CameraManager: NSObject, ObservableObject {
         do {
             try device.lockForConfiguration()
 
-            device.videoZoomFactor = max(
-                1.0,
-                min(factor, device.activeFormat.videoMaxZoomFactor)
+            device.videoZoomFactor = min(
+                max(factor, device.minAvailableVideoZoomFactor),
+                device.maxAvailableVideoZoomFactor
             )
 
             device.unlockForConfiguration()
