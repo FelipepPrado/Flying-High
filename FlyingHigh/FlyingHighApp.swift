@@ -23,6 +23,8 @@ struct FlyingHighApp: App {
             do {
                 return try ModelContainer(for: schema, configurations: [modelConfiguration])
             } catch {
+                //Isso é passível a problemas!
+                //Principalmente se o usuário não tiver espaço no celular
                 fatalError("Não foi possível criar o ModelContainer: \(error)")
             }
     }()
