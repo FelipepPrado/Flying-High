@@ -40,6 +40,9 @@ struct CameraView: View {
             await model.camera.start()
             model.currentChallengeTitle = challengeTitle
         }
+        .onDisappear {
+            model.camera.stop()
+        }
         
         .ignoresSafeArea(.all)
         .environmentObject(model)

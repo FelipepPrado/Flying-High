@@ -21,6 +21,8 @@ struct PreviewView: View {
     @State private var countdown: Int?
     @State private var selectedZoom: Int = 1
     
+    @State private var isButtonDisabled: Bool = false
+    
     var body: some View {
         ZStack {
             Color.cameraBg
@@ -202,6 +204,7 @@ struct PreviewView: View {
                     .accessibilityValue(model.camera.flashModeValue)
                     Spacer()
                     Button {
+                        isButtonDisabled = true
                         startCameraTimer()
                     } label: {
                         ZStack {
@@ -211,6 +214,7 @@ struct PreviewView: View {
                                 .accessibilityLabel(Text("Tirar foto"))
                         }
                     }
+                    .disabled(isButtonDisabled)
                     
                     Spacer()
                     
