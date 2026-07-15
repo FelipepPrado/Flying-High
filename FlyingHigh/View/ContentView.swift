@@ -12,10 +12,6 @@ struct ContentView: View {
     @Environment(ViewRouter.self) var viewRouter
     @Environment(AlbumViewModel.self) var albumViewModel
     
-    //Album e photo apenas para pegar os valores antigos do iCloud
-    @State private var albums : [Album.Observable] = []
-    @State private var photos : [Photo.Observable] = []
-    
     @State private var addAlbum: Bool = false
     @State private var loadingCloudKit = false
     @State private var deletAlbum: Bool = false
@@ -25,62 +21,96 @@ struct ContentView: View {
             insideView
                 .task {
                     loadingCloudKit = true
-                    
                     //Carrega as coisas antigas da Nuvem, obviamente se a pessoal tiver!
                     if loadCloudKit{
-                        if albumsModel.isEmpty{
-                            
-                            //Puxa os albums antigos para por no swiftData novo
-                            do {
-                                self.albums = try await Album.query(on: .private)
-                                    .all()
-                                    .map(\.observable)
-                            } catch {
-                                print(error)
-                                print("Não foi possível carregar os albums")
-                            }
-                            
-                            //Puxa todas as fotos antigas para por no swiftData novo
-                            do {
-                                self.photos = try await Photo.query(on: .private)
-                                    .all()
-                                    .map(\.observable)
-                            } catch {
-                                print(error)
-                                print("Não foi possível carregar as foto")
-                            }
-                            
-                            //Coloca todas as fotos do antigo CloudKit no novo album do swiftData
-                            for album in albums{
-                                let albumModel = AlbumModel(title: album.title, startDate: album.startDate, endDate: album.endDate, color: album.color)
-                                var photosModel: [PhotoModel] = []
-                                
-                                for photo in photos{
-                                    if photo.$album.id == album.id{
-                                        photosModel.append(PhotoModel(data: photo.data, descriptionPhoto: photo.description, challengeReference: photo.challengeReference))
-                                    }
-                                }
-                                albumModel.photos = photosModel
-                                modelContext.insert(albumModel)
-                                
-                                do{
-                                    //Na lógica ele tem que deletar as photos também
-                                    try await album.delete(on: .private)
-                                    
-                                }catch{
-                                    print(error)
-                                    print("Não foi possível deletar album")
-                                }
-                            }
-                        }
+                        print("Cheguei aqui")
+                        await getAlbumsForCloudKit()
                     }
                     
                     //Modiquei para essa task acontecer aqui, para que a puxada de coisas do CloudKit seja sequencial
                     //Puxa os challeges da Nuvem
-                    Task{
-                        await loadChallenges()
+                    await loadChallenges()
+                }
+        }
+    }
+    
+    func getAlbumsForCloudKit() async{
+        //Puxa os albums antigos para por no swiftData novo
+        do {
+            let albums = try await Album.query(on: .private)
+                .all()
+                .map(\.observable)
+            
+            let photos = try await Photo.query(on: .private)
+                .all()
+                .map(\.observable)
+            
+            //Se já de início o albums for vazio e o photos for vazio ele já para a função
+            if albums.isEmpty && photos.isEmpty{
+                print("Sem album e sem foto para carregar!")
+                loadCloudKit = false
+                return
+            }
+            
+            let localeAlbums = try modelContext.fetch(FetchDescriptor<AlbumModel>())
+            
+            //Coloca todas as fotos do antigo CloudKit no novo album do swiftData
+            for album in albums{
+                
+                //Verifico se já existe o album no Banco de Dados locais e se existe vou verificar se ta faltando algo
+                //Lembrando que pra ele chegar de novo aqui, quer dizer que ocorreu um erro no meio do caminho!
+                //Por isso to fazendo esse processo (Chatasso)
+                if let haveAlbum = localeAlbums.first(where: { $0.id == album.id }){
+                    
+                    //Se o haveAlbum for nil eu tenho que inicializar pq se não, eu não vou conseguir por a foto via append
+                    if haveAlbum.photos == nil{
+                        haveAlbum.photos = []
+                    }
+                    
+                    for photo in photos {
+                        if photo.$album.id == album.id {
+                            let havePhoto =
+                            haveAlbum.photos?.contains(where: {$0.challengeReference == photo.challengeReference})
+                            ?? false
+                            
+                            // Se NÃO existir, adicionamos a foto a esse álbum
+                            if !havePhoto {
+                                let newPhoto = PhotoModel(
+                                    data: photo.data,
+                                    descriptionPhoto: photo.description,
+                                    challengeReference: photo.challengeReference
+                                )
+                                haveAlbum.photos?.append(newPhoto)
+                            }
+                        }
                     }
                 }
+                //Basicamente se o album não existe no banco de dados loca, ele apenas faz o processo simples se criar e inserir no banco de dados
+                else{
+                    let albumModel = AlbumModel(id: album.id, title: album.title, startDate: album.startDate, endDate: album.endDate, color: album.color)
+                    var photosModel: [PhotoModel] = []
+                    
+                    for photo in photos{
+                        if photo.$album.id == album.id{
+                            photosModel.append(PhotoModel(data: photo.data, descriptionPhoto: photo.description, challengeReference: photo.challengeReference))
+                        }
+                    }
+                    albumModel.photos = photosModel
+                    modelContext.insert(albumModel)
+                }
+            }
+            
+            try modelContext.save()
+            
+            for album in albums{
+                try await album.delete(on: .private)
+            }
+            
+            print("Tudo ok, CloudKit antigo carregado!")
+            loadCloudKit = false
+        } catch {
+            print(error)
+            print("Não foi possível carregar completamente o CloudKit antigo")
         }
     }
     

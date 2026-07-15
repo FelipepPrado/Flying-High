@@ -28,6 +28,7 @@ struct Album{
 
 @Model
 class AlbumModel{
+    var id: String = UUID().uuidString
     var title: String = "Sem Título"
     var startDate: Date = Date.now
     var endDate: Date = Date.now
@@ -37,7 +38,8 @@ class AlbumModel{
     
     var color: String?
     
-    init(title: String, startDate: Date, endDate: Date, color: String? = nil, photos: [PhotoModel]? = nil) {
+    init(id: String = UUID().uuidString, title: String, startDate: Date, endDate: Date, color: String? = nil, photos: [PhotoModel]? = nil) {
+        self.id = id
         self.title = title
         self.startDate = startDate
         self.endDate = endDate
