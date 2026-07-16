@@ -23,7 +23,7 @@ struct ContentView: View {
                     loadingCloudKit = true
                     //Carrega as coisas antigas da Nuvem, obviamente se a pessoal tiver!
                     if loadCloudKit{
-                        print("Cheguei aqui")
+                        print("Carregando os albums antigos do CloudKit...")
                         await getAlbumsForCloudKit()
                     }
                     
