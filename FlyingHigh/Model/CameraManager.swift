@@ -25,7 +25,15 @@ class CameraManager: NSObject, ObservableObject {
     
     // device related
     private var allCaptureDevices: [AVCaptureDevice] {
-        AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInTrueDepthCamera, .builtInDualCamera, .builtInDualWideCamera, .builtInWideAngleCamera, .builtInDualWideCamera], mediaType: .video, position: .unspecified).devices
+        AVCaptureDevice.DiscoverySession(deviceTypes: [
+                .builtInTrueDepthCamera,
+                .builtInUltraWideCamera,
+                .builtInDualCamera,
+                .builtInWideAngleCamera,
+                .builtInDualWideCamera],
+                mediaType: .video,
+                position: .unspecified
+        ).devices
     }
     
     private var frontCaptureDevices: [AVCaptureDevice] {
@@ -154,14 +162,38 @@ class CameraManager: NSObject, ObservableObject {
     
     // switch between available cameras
     func switchCaptureDevice() {
-        if let captureDevice = captureDevice, let index = availableCaptureDevices.firstIndex(of: captureDevice) {
-            let nextIndex = (index + 1) % availableCaptureDevices.count
-            self.captureDevice = availableCaptureDevices[nextIndex]
+        if isUsingFrontCaptureDevice {
+            selectBackCamera(lens: .wide)
         } else {
-            self.captureDevice = AVCaptureDevice.default(for: .video)
+            guard let front = frontCaptureDevices.first else { return }
+            captureDevice = front
         }
     }
+    
+    enum CameraLens {
+        case ultraWide
+        case wide
+    }
+    
+    func selectBackCamera(lens: CameraLens) {
+        let deviceType: AVCaptureDevice.DeviceType
 
+        switch lens {
+        case .ultraWide:
+            deviceType = .builtInUltraWideCamera
+
+        case .wide:
+            deviceType = .builtInWideAngleCamera
+        }
+
+        guard let device = AVCaptureDevice.default(
+            deviceType,
+            for: .video,
+            position: .back
+        ) else { return }
+
+        captureDevice = device
+    }
 
     
     func takePhoto() {
