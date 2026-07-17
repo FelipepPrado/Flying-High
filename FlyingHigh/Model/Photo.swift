@@ -19,6 +19,7 @@ struct Photo {
 
 @Model
 class PhotoModel{
+    var id: String = UUID().uuidString
     var data: Data?
     var descriptionPhoto: String?
     var album: AlbumModel?

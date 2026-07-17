@@ -104,6 +104,7 @@ struct AlbumView: View {
             
             Button("Deletar", role: .destructive){
                 modelContext.delete(albumViewModel.album)
+                dismiss()
             }
         }message: {
             Text("Após confirmar a ação, a experiência será deletada e não poderá ser recuperada.")
