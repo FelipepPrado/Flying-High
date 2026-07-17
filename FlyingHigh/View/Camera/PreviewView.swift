@@ -142,49 +142,43 @@ struct PreviewView: View {
             VStack (alignment: .center, spacing: 15) {
                 //botoes zoom
                 HStack(spacing: 30) {
-                    Button("1x") {
-                        selectedZoom = 1
-                        model.camera.setZoom(factor: 1)
-                    }
-                    .accessibilityHidden(true)
-                    .toggleStyle(.button)
-                    .accessibilityLabel(Text("Aumentar zoom em 1X"))
-                        .overlay{
-                            if selectedZoom == 1{
+
+                    if model.camera.isUsingBackCaptureDevice {
+                        
+                        Button("0.5x") {
+                            selectedZoom = 0
+                            model.camera.selectBackCamera(lens: .ultraWide)
+                        }
+                        
+                        Button("1x") {
+                            selectedZoom = 1
+                            model.camera.selectBackCamera(lens: .wide)
+                            model.camera.setZoom(factor: 1)
+                        }
+                        .accessibilityHidden(true)
+                        .toggleStyle(.button)
+                        .accessibilityLabel(Text("Aumentar zoom em 1X"))
+                        .overlay {
+                            if selectedZoom == 1 {
                                 Text("1x")
                                     .frame(minWidth: 40, minHeight: 40)
                                     .background(Color.cameraSecondary)
                                     .clipShape(Circle())
                             }
                         }
-                    
-                    Button("2x") {
-                        selectedZoom = 2
-                        model.camera.setZoom(factor: 2)
-                    }
-                    .accessibilityLabel(Text("Aumentar zoom em 2X"))
-                    .overlay{
-                        if selectedZoom == 2{
-                            Text("2x")
-                                .frame(minWidth: 40, minHeight: 40)
-                                .background(Color.cameraSecondary)
-                                .clipShape(Circle())
+                        
+                        Button("2x") {
+                            selectedZoom = 2
+                            model.camera.setZoom(factor: 2)
                         }
-                    }
-                    
-                    Button("3x") {
-                        selectedZoom = 3
-                        model.camera.setZoom(factor: 3)
-                    }
-                    .accessibilityLabel(Text("Aumentar zoom em 3X"))
-//                    .accessibilityHint(Text("Aumentar zoom"))
-
-                    .overlay{
-                        if selectedZoom == 3{
-                            Text("3x")
-                                .frame(minWidth: 40, minHeight: 40)
-                                .background(Color.cameraSecondary)
-                                .clipShape(Circle())
+                        .accessibilityLabel(Text("Aumentar zoom em 2X"))
+                        .overlay {
+                            if selectedZoom == 2 {
+                                Text("2x")
+                                    .frame(minWidth: 40, minHeight: 40)
+                                    .background(Color.cameraSecondary)
+                                    .clipShape(Circle())
+                            }
                         }
                     }
                 }
@@ -219,6 +213,7 @@ struct PreviewView: View {
                     Spacer()
                     
                     Button {
+                        selectedZoom = 1
                         model.camera.switchCaptureDevice()
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
