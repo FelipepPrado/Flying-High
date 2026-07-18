@@ -149,6 +149,15 @@ struct PreviewView: View {
                             selectedZoom = 0
                             model.camera.selectBackCamera(lens: .ultraWide)
                         }
+                        .accessibilityLabel(Text("Aumentar zoom em 2X"))
+                        .overlay {
+                            if selectedZoom == 0 {
+                                Text("0.5x")
+                                    .frame(minWidth: 40, minHeight: 40)
+                                    .background(Color.cameraSecondary)
+                                    .clipShape(Circle())
+                            }
+                        }
                         
                         Button("1x") {
                             selectedZoom = 1
