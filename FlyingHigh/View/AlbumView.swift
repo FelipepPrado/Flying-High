@@ -163,7 +163,9 @@ struct AlbumView: View {
                                     )
                                     //Ele só mostra as fotos quando tem o desafio disponível, mas tem que tirar isso?
                                     if let challenge = challenge {
-                                        if canRevealAlbum{
+                                        
+                                        //Se não tiver foto e o passou do horário final da experiência, ele não é pra bater foto
+                                        if Date.now > album.endDate{
                                             PhotoChallengeView(status: 3, textChallenge: challenge.title, imageChallenge: nil, challengeIcon: challenge.icon, colorAlbum: album.color ?? "user-blue")
                                         }else{
                                             Button(action: {
@@ -276,6 +278,7 @@ struct AlbumView: View {
     }
     
     var canRevealAlbum: Bool {
+        //Ele tem 2 opcão
         Date.now >= revealDate
     }
     var hasPhotosToSave: Bool {
